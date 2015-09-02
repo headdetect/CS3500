@@ -11,5 +11,14 @@ namespace TestProject
         static void Main(string[] args)
         {
         }
+
+        static void oink()
+        {
+
+        }
+
+        public virtual void duck() {
+
+        }
     }
 }
