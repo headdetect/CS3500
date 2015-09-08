@@ -52,7 +52,7 @@ namespace FormulaEvaluator
                 {
                     // Is number //
 
-                    if (OperationStack.Count >= 1)
+                    if (!OperationStack.IsEmpty())
                     {
                         var topOperation = OperationStack.Peek();
                         if (topOperation.IsDivision || topOperation.IsMultiplication)
@@ -77,7 +77,7 @@ namespace FormulaEvaluator
                     if (operation.IsAddition || operation.IsSubtraction)
                     {
                         // If there's already a pending operation. //
-                        if (OperationStack.Count >= 1)
+                        if (!OperationStack.IsEmpty())
                         {
                             var topOperation = OperationStack.Peek();
                             if (topOperation.IsAddition || topOperation.IsSubtraction)
@@ -100,7 +100,7 @@ namespace FormulaEvaluator
                         OperationStack.Push(operation);
                     else if (operation.IsClosingBrace)
                     {
-                        if (OperationStack.Count >= 1)
+                        if (!OperationStack.IsEmpty())
                         {
                             // If there's already a pending operation. //
                             var topOperation = OperationStack.Peek();
@@ -119,10 +119,10 @@ namespace FormulaEvaluator
                         }
 
                         // Check for ending parenthesis //
-                        if (OperationStack.Count == 0 || !OperationStack.Pop().IsOpenBrace) throw new ArgumentException("Expecting '('. Invalid syntax.");
+                        if (OperationStack.IsEmpty() || !OperationStack.Pop().IsOpenBrace) throw new ArgumentException("Expecting '('. Invalid syntax.");
                         
                         // Operation size could have changed, we need to check again //
-                        if (OperationStack.Count >= 1)
+                        if (!OperationStack.IsEmpty())
                         {
                             var topOperation = OperationStack.Peek();
                             if (topOperation.IsDivision || topOperation.IsMultiplication)
