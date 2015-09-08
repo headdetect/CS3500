@@ -114,10 +114,7 @@ namespace PoopyWolframAlpha
 
                 lookupDictionary = lookupDictionary ?? DefaultVariableLookup;
 
-                var result = Evaluator.Evaluate(expression, (varb) =>
-                {
-                    return lookupDictionary[varb];
-                });
+                var result = Evaluator.Evaluate(expression, varb => lookupDictionary[varb]);
 
                 Write("(");
                 if (shouldBe.HasValue)

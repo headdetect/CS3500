@@ -28,9 +28,9 @@ namespace FormulaEvaluator
         public static int Evaluate(string expression, LookupEvaluator variableLookup)
         {
             // Get all tokens then remap and strip all whitespace //
-            var tokens = Regex.Split(expression, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)").Select(element => {
-                return Regex.Replace(element, "\\s+", "");
-            }).Where(element => element != "");
+            var tokens = Regex.Split(expression, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)")
+                .Select(element => Regex.Replace(element, "\\s+", ""))
+                .Where(element => element != "");
 
             var OperationStack = new Stack<OperationToken>();
             var NumberStack = new Stack<int>();
