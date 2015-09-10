@@ -28,16 +28,16 @@ namespace FormulaEvaluator
         public static int Evaluate(string expression, LookupEvaluator variableLookup)
         {
             // Get all tokens then remap and strip all whitespace //
-            var tokens = Regex.Split(expression, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)")
+            var tokens = Regex.Split(expression, "(?<=[-+*/(),])(?=.)|(?<=.)(?=[-+*/(),])")
                 .Select(element => Regex.Replace(element, "\\s+", ""))
                 .Where(element => element != "");
 
             var OperationStack = new Stack<OperationToken>();
-            var NumberStack = new Stack<int>();
+            var NumberStack = new Stack<double>();
 
             foreach (var token in tokens)
             {
-                int? possibleNumber = getNumberOrNothing(token);
+                double? possibleNumber = getNumberOrNothing(token);
                 var operation = new OperationToken
                 {
                     Operation = token[0]
@@ -156,11 +156,11 @@ namespace FormulaEvaluator
                 var b = NumberStack.Pop();
                 var a = NumberStack.Pop();
 
-                return OperationStack.Pop().Apply(a, b);
+                return (int)OperationStack.Pop().Apply(a, b);
             }
             else
             {
-                return NumberStack.Pop();
+                return (int)NumberStack.Pop();
             }
         }
 
@@ -169,10 +169,10 @@ namespace FormulaEvaluator
         /// </summary>
         /// <param name="test">The string to parse</param>
         /// <returns>The value if parsable, null otherwise.</returns>
-        private static int? getNumberOrNothing(string test)
+        private static double? getNumberOrNothing(string test)
         {
-            int result;
-            if (int.TryParse(test, out result))
+            double result;
+            if (double.TryParse(test, out result))
             {
                 return result;
             }
@@ -274,7 +274,7 @@ namespace FormulaEvaluator
             /// <param name="a">The fist integer</param>
             /// <param name="b">The second integer</param>
             /// <returns>The result of the application</returns>
-            public int Apply(int a, int b)
+            public double Apply(double a, double b)
             {
                 if (IsMultiplication)
                     return a * b;
@@ -283,7 +283,10 @@ namespace FormulaEvaluator
                 if (IsSubtraction)
                     return a - b;
                 if (IsDivision)
+                {
+                    if ((int)b == 0) throw new DivideByZeroException();
                     return a / b;
+                }
                 if (IsOpenBrace || IsClosingBrace)
                     throw new ArgumentException("Brace is not an acceptable operation");
                 throw new ArgumentException("No acceptable operation found");

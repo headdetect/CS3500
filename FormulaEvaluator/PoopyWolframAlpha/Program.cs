@@ -62,7 +62,7 @@ namespace PoopyWolframAlpha
             // Complex operations with variables & parens // 
             Test("2 + A - A + 3 - 3", 2 + A - A + 3 - 3);
             Test("5 * B / A * C / 2", 5 * B / A * C / 2);
-            Test("E + 2 - 5 / 9 * A", E + 2 - 5 / 9 * A);
+            Test("E + 2 - 5 / 9 * A", (int)(E + 2 - 5 / (double)9 * A));
             Test("(A + B) - D * (F - C)", (A + B) - D * (F - C));
             Test("(A - 4) + D / (F + C)", (A - 4) + D / (F + C));
             Test("(A * 3) * (9 * 3) + D - E * (F - C) + (4 - 3) + A", (A * 3) * (9 * 3) + D - E * (F - C) + (4 - 3) + A);
@@ -90,7 +90,7 @@ namespace PoopyWolframAlpha
             }
         }
 
-        static void Test(string expression, int? shouldBe = null, bool shouldFail = false)
+        static void Test(string expression, double? shouldBe = null, bool shouldFail = false)
         {
             Dictionary<string, int> lookupDictionary = null;
 
