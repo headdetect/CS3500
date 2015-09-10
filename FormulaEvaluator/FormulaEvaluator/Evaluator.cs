@@ -30,13 +30,18 @@ namespace FormulaEvaluator
             // Get all tokens then remap and strip all whitespace //
             var tokens = Regex.Split(expression, "(?<=[-+*/(),])(?=.)|(?<=.)(?=[-+*/(),])")
                 .Select(element => Regex.Replace(element, "\\s+", ""))
-                .Where(element => element != "");
+                .Where(element => element != "")
+                .ToArray();
 
             var OperationStack = new Stack<OperationToken>();
             var NumberStack = new Stack<double>();
 
-            foreach (var token in tokens)
+            // Will either be a 1 or -1
+            int? sign = null;
+
+            for (int i = 0; i < tokens.Length; i++ )
             {
+                var token = tokens[i];
                 double? possibleNumber = getNumberOrNothing(token);
                 var operation = new OperationToken
                 {
@@ -47,6 +52,14 @@ namespace FormulaEvaluator
                     // Is a variable //
                     possibleNumber = variableLookup(token);
                 }
+
+                // Handle negatives and positives //
+                if (sign.HasValue)
+                {
+                    possibleNumber = possibleNumber * sign;
+                    sign = null;
+                }
+
 
                 if (possibleNumber.HasValue)
                 {
@@ -67,31 +80,55 @@ namespace FormulaEvaluator
 
                             continue;
                         }
-                                               
+
                     }
 
-                    NumberStack.Push(possibleNumber.Value);                    
+                    NumberStack.Push(possibleNumber.Value);
                 }
                 else
                 {
                     if (operation.IsAddition || operation.IsSubtraction)
                     {
-                        // If there's already a pending operation. //
-                        if (!OperationStack.IsEmpty())
+                        
+                        var previousIndex = i - 1;
+                        if (previousIndex < 0)
                         {
-                            var topOperation = OperationStack.Peek();
-                            if (topOperation.IsAddition || topOperation.IsSubtraction)
+                            // The sign provided was the first sign, it must be a + or - signifying that its positive or negative //
+                            sign = operation.IsSubtraction ? -1 : 1;
+                            continue;
+                        }
+                        else
+                        {
+                            var previousOperation = new OperationToken() {
+                                Operation = tokens[previousIndex][0]
+                            };
+
+                            // If the previous token was an operation then this token must mean positive or negative //
+                            // Also make sure its not the last operation either //
+                            if (previousOperation.IsOperation && i + 1 < tokens.Length)
                             {
-                                if (NumberStack.Count < 2) throw new ArgumentException("Invalid Syntax");
+                                sign = operation.IsSubtraction ? -1 : 1;
+                                continue;
+                            }
+                            else if (!OperationStack.IsEmpty())
+                            {
+                                // There's a pending operation, let's do that instead //
 
-                                OperationStack.Pop();
+                                var topOperation = OperationStack.Peek();
+                                if (topOperation.IsAddition || topOperation.IsSubtraction)
+                                {
+                                    if (NumberStack.Count < 2) throw new ArgumentException("Invalid Syntax");
 
-                                var number1 = NumberStack.Pop();
-                                var number2 = NumberStack.Pop();
+                                    OperationStack.Pop();
 
-                                NumberStack.Push(topOperation.Apply(number2, number1));
+                                    var number1 = NumberStack.Pop();
+                                    var number2 = NumberStack.Pop();
+
+                                    NumberStack.Push(topOperation.Apply(number2, number1));
+                                }
                             }
                         }
+                        
 
                         OperationStack.Push(operation);
                     }
@@ -120,7 +157,7 @@ namespace FormulaEvaluator
 
                         // Check for ending parenthesis //
                         if (OperationStack.IsEmpty() || !OperationStack.Pop().IsOpenBrace) throw new ArgumentException("Expecting '('. Invalid syntax.");
-                        
+
                         // Operation size could have changed, we need to check again //
                         if (!OperationStack.IsEmpty())
                         {
@@ -132,14 +169,14 @@ namespace FormulaEvaluator
                                 OperationStack.Pop(); // Passed our test, remove from stack //
 
                                 var b = NumberStack.Pop();
-                                
+
                                 if (!possibleNumber.HasValue)
                                     possibleNumber = NumberStack.Pop();
 
                                 NumberStack.Push(topOperation.Apply(possibleNumber.Value, b));
                             }
                         }
-                    
+
                     }
                     else
                     {
@@ -265,6 +302,17 @@ namespace FormulaEvaluator
                 get
                 {
                     return IsAddition || IsSubtraction || IsMultiplication || IsDivision || IsOpenBrace || IsClosingBrace;
+                }
+            }
+
+            /// <summary>
+            /// Returns true if provided operation/token can be handled as an operation
+            /// </summary>
+            public bool IsOperation
+            {
+                get
+                {
+                    return IsAddition || IsSubtraction || IsMultiplication || IsDivision;
                 }
             }
 

@@ -35,8 +35,8 @@ namespace PoopyWolframAlpha
 
             // Simple operations //
 
-            Test("3", 3);
-            Test("2 + 4", 2 + 4);
+            Test("-3", -3);
+            Test("2 + -4", 2 + -4);
             Test("5 * 3", 5 * 3);
             Test("12 / 6", 12 / 6);
             Test("4 - 2", 4 - 2);
@@ -48,9 +48,13 @@ namespace PoopyWolframAlpha
             Test("2 + A", 2 + A);
             Test("5 * B", 5 * B);
             Test("12 / C", 12 / C);
+            Test("12 / +C", 12 / +C);
+            Test("12 / -C", 12 / -C);
             Test("4 - D", 4 - D);
             Test("E - 2", E - 2);
             Test("600 / F", 600 / F);
+            Test("600 / -F", 600 / -F);
+
 
             // Long operations with variables // 
             Test("2 + A + A + 3 + 3", 2 + A + A + 3 + 3);
