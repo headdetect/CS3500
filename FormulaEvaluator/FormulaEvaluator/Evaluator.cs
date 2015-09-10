@@ -40,7 +40,7 @@ namespace FormulaEvaluator
                 int? possibleNumber = getNumberOrNothing(token);
                 var operation = new OperationToken
                 {
-                    Operation = token
+                    Operation = token[0]
                 };
                 if (!operation.IsValid && !possibleNumber.HasValue)
                 {
@@ -164,7 +164,11 @@ namespace FormulaEvaluator
             }
         }
 
-
+        /// <summary>
+        /// Gets an integer number, or returns null
+        /// </summary>
+        /// <param name="test">The string to parse</param>
+        /// <returns>The value if parsable, null otherwise.</returns>
         private static int? getNumberOrNothing(string test)
         {
             int result;
@@ -176,7 +180,7 @@ namespace FormulaEvaluator
         }
 
         /// <summary>
-        /// A tiny structure for handling operations. Not needed, but helps keep things clean and scalable.
+        /// A tiny structure for handling operations. Not needed, but helps keep things clean and scalable. With variables, it's &lt; 16 bytes.
         /// </summary>
         internal struct OperationToken
         {
@@ -184,7 +188,7 @@ namespace FormulaEvaluator
             /// <summary>
             /// The operation belonging to this struct
             /// </summary>
-            public string Operation {get; internal set;}
+            public char Operation {get; internal set;}
 
             /// <summary>
             /// Returns true if the current operation is multiplication
@@ -193,7 +197,7 @@ namespace FormulaEvaluator
             {
                 get
                 {
-                    return Operation == "*";
+                    return Operation == '*';
                 }
             }
 
@@ -204,7 +208,7 @@ namespace FormulaEvaluator
             {
                 get
                 {
-                    return Operation == "/" || Operation == "÷";
+                    return Operation == '/' || Operation == '÷';
                 }
             }
 
@@ -215,7 +219,7 @@ namespace FormulaEvaluator
             {
                 get
                 {
-                    return Operation == "+";
+                    return Operation == '+';
                 }
             }
 
@@ -227,7 +231,7 @@ namespace FormulaEvaluator
             {
                 get
                 {
-                    return Operation == "-";
+                    return Operation == '-';
                 }
             }
 
@@ -238,7 +242,7 @@ namespace FormulaEvaluator
             {
                 get
                 {
-                    return Operation == "(";
+                    return Operation == '(';
                 }
             }
 
@@ -249,7 +253,7 @@ namespace FormulaEvaluator
             {
                 get
                 {
-                    return Operation == ")";
+                    return Operation == ')';
                 }
             }
 
