@@ -1,0 +1,3 @@
+[submodule "Course_Examples"]
+	path = Course_Examples
+	url = git@github.com:uofu-cs3500-fall15/Course_Examples.git
