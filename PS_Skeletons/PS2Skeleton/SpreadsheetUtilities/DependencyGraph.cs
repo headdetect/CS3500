@@ -36,14 +36,14 @@ namespace SpreadsheetUtilities
     /// </summary>
     public class DependencyGraph
     {
-        private List<Node<string>> collection;
+        private Dictionary<string, Node<string>> collection;
 
         /// <summary>
         /// Creates an empty DependencyGraph.
         /// </summary>
         public DependencyGraph()
         {
-            collection = new List<Node<string>>();
+            collection = new Dictionary<string, Node<string>>();
         }
 
 
@@ -52,7 +52,12 @@ namespace SpreadsheetUtilities
         /// </summary>
         public int Size
         {
-            get { return collection.Count; }
+            get {
+                var count = 0;
+                foreach (var node in collection)
+                    count += node.Value.CountDependencies();
+                return count;
+            }
         }
 
 
@@ -127,6 +132,9 @@ namespace SpreadsheetUtilities
             if (node == null)
             {
                 // Node doesn't exist, let's add it //
+                node = new Node<string>(s);
+                node.AddDependency(t);
+                collection.Add(s, node);
             }
             else
             {
@@ -181,7 +189,7 @@ namespace SpreadsheetUtilities
 
         private Node<string> searchNode(string s)
         {
-            return collection.Where(node => node.Item.Equals(s)).FirstOrDefault();
+            return collection.ContainsKey(s) ? collection[s] : null;
         }
     }
 
@@ -249,6 +257,15 @@ namespace SpreadsheetUtilities
         public void RemoveDependency(T dependency)
         {
             Dependencies.RemoveAll(node => node.Item.Equals(dependency));
+        }
+
+        public int CountDependencies()
+        {
+            var count = Dependencies.Count;
+            foreach (var node in Dependencies) {
+                count += node.CountDependencies();
+            }
+            return count;
         }
     }
 }
