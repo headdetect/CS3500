@@ -36,14 +36,15 @@ namespace SpreadsheetUtilities
     /// </summary>
     public class DependencyGraph
     {
-        private Dictionary<string, Node<string>> collection;
+        private Dictionary<string, List<string>> collectionDependencies, collectionDependees;
 
         /// <summary>
         /// Creates an empty DependencyGraph.
         /// </summary>
         public DependencyGraph()
         {
-            collection = new Dictionary<string, Node<string>>();
+            collectionDependencies = new Dictionary<string, List<string>>();
+            collectionDependees = new Dictionary<string, List<string>>();
         }
 
 
@@ -53,10 +54,7 @@ namespace SpreadsheetUtilities
         public int Size
         {
             get {
-                var count = 0;
-                foreach (var node in collection)
-                    count += node.Value.CountDependencies();
-                return count;
+                return collectionDependencies.Count;
             }
         }
 
@@ -97,10 +95,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public IEnumerable<string> GetDependents(string s)
         {
-            var find = searchNode(s);
-            if (find == null) return Enumerable.Empty<string>();
-
-            return find.Dependencies.Select(node => node.Item);
+            return collectionDependencies.ContainsKey(s) ? collectionDependencies[s] : Enumerable.Empty<string>();
         }
 
         /// <summary>
@@ -108,10 +103,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public IEnumerable<string> GetDependees(string s)
         {
-            var find = searchNode(s);
-            if (find == null) return Enumerable.Empty<string>();
-
-            return find.Dependees.Select(node => node.Item);
+            return collectionDependees.ContainsKey(s) ? collectionDependencies[s] : Enumerable.Empty<string>();
         }
 
 
@@ -127,20 +119,13 @@ namespace SpreadsheetUtilities
         /// <param name="t"> t must be evaluated first.  S depends on T</param>
         public void AddDependency(string s, string t)
         {
-            var node = searchNode(s);
+            if (!collectionDependencies.ContainsKey(s))
+                collectionDependencies.Add(s, new List<string>());
+            collectionDependencies[s].Add(t);
 
-            if (node == null)
-            {
-                // Node doesn't exist, let's add it //
-                node = new Node<string>(s);
-                node.AddDependency(t);
-                collection.Add(s, node);
-            }
-            else
-            {
-                // Node exists, just add a dependency //
-                node.AddDependency(s);
-            }
+            if (!collectionDependees.ContainsKey(t))
+                collectionDependees.Add(t, new List<string>());
+                collectionDependees[t].Add(s);
         }
 
 
@@ -151,10 +136,10 @@ namespace SpreadsheetUtilities
         /// <param name="t"></param>
         public void RemoveDependency(string s, string t)
         {
-            var node = searchNode(s);
-            if (node == null) return;
+            if (!collectionDependencies.ContainsKey(s)) return;
 
-            node.RemoveDependency(t);
+            collectionDependencies[s].Remove(t);
+            collectionDependees.Remove(t);
         }
 
 
@@ -164,12 +149,13 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependents(string s, IEnumerable<string> newDependents)
         {
-            var node = searchNode(s);
-            if (node == null) return;
+            if (!collectionDependencies.ContainsKey(s)) return;
 
-            node.Dependencies.Clear();
-            foreach (string t in newDependents)
-                node.AddDependency(t);
+            foreach (var entry in collectionDependencies[s])
+                collectionDependees.Remove(entry);
+
+            collectionDependencies[s].Clear();
+            collectionDependencies[s].AddRange(newDependents);
         }
 
 
@@ -179,94 +165,9 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependees(string s, IEnumerable<string> newDependees)
         {
-            var node = searchNode(s);
-            if (node == null) return;
 
-            node.Dependees.Clear();
-            foreach (string t in newDependees)
-                node.Dependees.Add(new Node<string>(t));
         }
-
-        private Node<string> searchNode(string s)
-        {
-            return collection.ContainsKey(s) ? collection[s] : null;
-        }
-    }
-
-    internal class Node<T> where T : IComparable
-    {
-        /// <summary>
-        /// The item in this node.
-        /// </summary>
-        public T Item { get; set; }
         
-        /// <summary>
-        /// A value that represents its priority in the graph. Will most likely represent the index (reversed), but might not.
-        /// Will not be changed in this class, to be changed in the main class DependencyGraph
-        /// </summary>
-        internal int Priority { get; set; }
-
-        /// <summary>
-        /// The list of nodes that this node depends on.
-        /// </summary>
-        public List<Node<T>> Dependencies { get; set; }
-
-        /// <summary>
-        /// The list of nodes that depends on this one.
-        /// </summary>
-        public List<Node<T>> Dependees { get; private set; }
-
-        private Node()
-        {
-            Dependencies = new List<Node<T>>();
-            Dependees = new List<Node<T>>();
-        }
-
-        /// <summary>
-        /// Creates a dependency-less/dependee-less node
-        /// </summary>
-        /// <param name="item">The item in this node</param>
-        public Node(T item)
-            : this()
-        {
-            Item = item;
-        }
-
-        /// <summary>
-        /// Create a node with dependees
-        /// </summary>
-        /// <param name="item">The item of this node</param>
-        /// <param name="AddDependency">The nodes that this node depends on</param>
-        public Node(T item, params T[] dependencies)
-            : this(item)
-        {
-            foreach (T dependency in dependencies)
-            {
-                AddDependency(dependency);
-            }
-        }
-
-        public void AddDependency(T dependency)
-        {
-            var node = new Node<T>(dependency);
-            node.Dependees.Add(this);
-            Dependencies.Add(node);
-        }
-
-
-        public void RemoveDependency(T dependency)
-        {
-            Dependencies.RemoveAll(node => node.Item.Equals(dependency));
-        }
-
-        public int CountDependencies()
-        {
-            var count = Dependencies.Count;
-            foreach (var node in Dependencies) {
-                count += node.CountDependencies();
-            }
-            return count;
-        }
     }
 }
 
