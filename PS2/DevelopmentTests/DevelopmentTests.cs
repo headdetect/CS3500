@@ -404,6 +404,86 @@ namespace PS2GradingTests
         ///Using lots of data with replacement
         ///</summary>
         [TestMethod()]
+        public void StressTest14()
+        {
+            // Dependency graph
+            DependencyGraph t = new DependencyGraph();
+
+            // A bunch of strings to use
+            const int SIZE = 10000;
+            string[] letters = new string[SIZE];
+            for (int i = 0; i < SIZE; i++)
+            {
+                letters[i] = ("" + (char)('a' + i));
+            }
+
+            // The correct answers
+            HashSet<string>[] dents = new HashSet<string>[SIZE];
+            HashSet<string>[] dees = new HashSet<string>[SIZE];
+            for (int i = 0; i < SIZE; i++)
+            {
+                dents[i] = new HashSet<string>();
+                dees[i] = new HashSet<string>();
+            }
+
+            // Add a bunch of dependencies
+            for (int i = 0; i < SIZE; i++)
+            {
+                for (int j = i + 1; j < SIZE; j++)
+                {
+                    t.AddDependency(letters[i], letters[j]);
+                    dents[i].Add(letters[j]);
+                    dees[j].Add(letters[i]);
+                }
+            }
+
+            // Remove a bunch of dependencies
+            for (int i = 0; i < SIZE; i++)
+            {
+                for (int j = i + 2; j < SIZE; j += 2)
+                {
+                    t.RemoveDependency(letters[i], letters[j]);
+                    dents[i].Remove(letters[j]);
+                    dees[j].Remove(letters[i]);
+                }
+            }
+
+            // Replace a bunch of dependees
+            for (int i = 0; i < SIZE; i += 4)
+            {
+                HashSet<string> newDees = new HashSet<String>();
+                for (int j = 0; j < SIZE; j += 7)
+                {
+                    newDees.Add(letters[j]);
+                }
+                t.ReplaceDependees(letters[i], newDees);
+
+                foreach (string s in dees[i])
+                {
+                    dents[s[0] - 'a'].Remove(letters[i]);
+                }
+
+                foreach (string s in newDees)
+                {
+                    dents[s[0] - 'a'].Add(letters[i]);
+                }
+
+                dees[i] = newDees;
+            }
+
+            // Make sure everything is right
+            for (int i = 0; i < SIZE; i++)
+            {
+                Assert.IsTrue(dents[i].SetEquals(new HashSet<string>(t.GetDependents(letters[i]))));
+                Assert.IsTrue(dees[i].SetEquals(new HashSet<string>(t.GetDependees(letters[i]))));
+            }
+        }
+
+        // ********************************** A THIRD STESS TEST ******************** //
+        /// <summary>
+        ///Using lots of data with replacement
+        ///</summary>
+        [TestMethod()]
         public void StressTest15()
         {
             // Dependency graph

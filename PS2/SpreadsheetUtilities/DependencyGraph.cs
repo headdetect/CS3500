@@ -1,6 +1,8 @@
 ﻿// Skeleton implementation written by Joe Zachary for CS 3500, September 2013.
 // Version 1.1 (Fixed error in comment for RemoveDependency.)
 
+// Edited and assignment done by Brayden Lopez
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,7 +56,10 @@ namespace SpreadsheetUtilities
         public int Size
         {
             get {
-                return collectionDependencies.Count;
+                var count = 0;
+                foreach (var entry in collectionDependencies)
+                    count += entry.Value.Count;
+                return count;
             }
         }
 
@@ -95,7 +100,11 @@ namespace SpreadsheetUtilities
         /// </summary>
         public IEnumerable<string> GetDependents(string s)
         {
-            return collectionDependencies.ContainsKey(s) ? collectionDependencies[s] : Enumerable.Empty<string>();
+            foreach (var collection in collectionDependees)
+            {
+                if (collection.Value.Contains(s)) 
+                    yield return collection.Key;
+            }
         }
 
         /// <summary>
@@ -103,7 +112,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public IEnumerable<string> GetDependees(string s)
         {
-            return collectionDependees.ContainsKey(s) ? collectionDependencies[s] : Enumerable.Empty<string>();
+            return collectionDependees.ContainsKey(s) ? collectionDependees[s] : Enumerable.Empty<string>();
         }
 
 
@@ -121,11 +130,15 @@ namespace SpreadsheetUtilities
         {
             if (!collectionDependencies.ContainsKey(s))
                 collectionDependencies.Add(s, new List<string>());
+
+            if (collectionDependencies[s].Contains(t)) return;
+
             collectionDependencies[s].Add(t);
 
             if (!collectionDependees.ContainsKey(t))
                 collectionDependees.Add(t, new List<string>());
-                collectionDependees[t].Add(s);
+            
+            collectionDependees[t].Add(s);
         }
 
 
@@ -139,7 +152,7 @@ namespace SpreadsheetUtilities
             if (!collectionDependencies.ContainsKey(s)) return;
 
             collectionDependencies[s].Remove(t);
-            collectionDependees.Remove(t);
+            collectionDependees[t].Remove(s);
         }
 
 
@@ -149,13 +162,17 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependents(string s, IEnumerable<string> newDependents)
         {
-            if (!collectionDependencies.ContainsKey(s)) return;
+            if (collectionDependencies.ContainsKey(s))
+            {
+                foreach (var entry in collectionDependencies[s])
+                    collectionDependees[entry].Remove(s);
 
-            foreach (var entry in collectionDependencies[s])
-                collectionDependees.Remove(entry);
+                collectionDependencies[s].Clear();
 
-            collectionDependencies[s].Clear();
-            collectionDependencies[s].AddRange(newDependents);
+            }
+
+            foreach (var dependent in newDependents)
+                AddDependency(s, dependent);
         }
 
 
@@ -165,7 +182,20 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependees(string s, IEnumerable<string> newDependees)
         {
+            if (collectionDependees.ContainsKey(s))
+            {
+                foreach (var entry in collectionDependencies)
+                    collectionDependencies[entry.Key].Remove(s); // Remove self from dependencies. //
 
+                collectionDependees[s].Clear();
+            }
+
+            foreach (var dependee in newDependees) {
+                if (!collectionDependees.ContainsKey(s))
+                    collectionDependees.Add(s, new List<string>());
+
+                collectionDependees[s].Add(dependee);
+            }
         }
         
     }
