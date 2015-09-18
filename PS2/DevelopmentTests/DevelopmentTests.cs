@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace PS2GradingTests
 {
@@ -317,6 +318,204 @@ namespace PS2GradingTests
             }
         }
 
+        /// <summary>
+        /// Just do a bunch of things
+        ///</summary>
+        [TestMethod()]
+        public void StressTest2()
+        {
+            const string LONG_ASS_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            const int SIZE = 1000;
+
+            // Dependency graph
+            DependencyGraph t = new DependencyGraph();
+            var random = new Random(9834095);
+
+            for (int i = 0; i < SIZE; i++)
+            {
+                string[] arrayOfScreamingChildren = Enumerable.Repeat(
+                    new string(Enumerable.Repeat(LONG_ASS_STRING, SIZE)
+                              .Select(pick => pick[random.Next(LONG_ASS_STRING.Length)])
+                              .ToArray())
+                , SIZE).Distinct().ToArray();
+
+                var parent = random.Next('a', 'z').ToString();
+
+                t.AddDependency(parent, "To Be Replaced");
+
+                Assert.IsTrue(t.GetDependents(parent).First() == "To Be Replaced");
+
+                t.ReplaceDependents(parent, arrayOfScreamingChildren);
+                Assert.AreEqual(arrayOfScreamingChildren.Length, t.GetDependents(parent).Count());
+
+                for (int k = 0; k < arrayOfScreamingChildren.Length; k++)
+                {
+                    t.ReplaceDependees(parent, arrayOfScreamingChildren.Skip(k));
+                    Assert.AreEqual(arrayOfScreamingChildren.Length - k, t.GetDependees(parent).Count());
+                }
+            }
+        }
+
+        /// <summary>
+        /// Just do a bunch of things
+        ///</summary>
+        [TestMethod()]
+        public void StressTest3()
+        {
+            const string LONG_ASS_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            const int SIZE = 1000;
+
+            // Dependency graph
+            DependencyGraph t = new DependencyGraph();
+            var random = new Random(9834095);
+            
+            for (int i = 0; i < SIZE; i++)
+            {
+                string[] arrayOfScreamingChildren = Enumerable.Repeat(
+                    new string(Enumerable.Repeat(LONG_ASS_STRING, SIZE)
+                              .Select(pick => pick[random.Next(LONG_ASS_STRING.Length)])
+                              .ToArray())
+                , SIZE).Distinct().ToArray();
+
+                var parent = random.Next('a', 'z').ToString();
+                
+                t.ReplaceDependents(parent, arrayOfScreamingChildren);
+                for(int k = 0; k < arrayOfScreamingChildren.Length; k++)
+                {
+                    t.RemoveDependency(parent, arrayOfScreamingChildren[k]);
+                    Assert.AreEqual(arrayOfScreamingChildren.Length - k - 1, t.GetDependents(parent).Count());
+                }
+            }
+        }
+
+        /// <summary>
+        /// Same things should yield same result 
+        ///</summary>
+        [TestMethod()]
+        public void StressTest4()
+        {
+            const int SIZE = 100;
+
+            // Dependency graph
+            DependencyGraph t = new DependencyGraph();
+            var random = new Random(4444);
+
+            for (int i = 0; i < SIZE; i++)
+            {
+                var parent = (i + 'a').ToString();
+                var child = random.Next().ToString();
+
+                t.AddDependency("a", child);
+                t.AddDependency("b", child);
+                t.AddDependency("c", child);
+
+                t.AddDependency(child, "a");
+                t.AddDependency(child, "b");
+                t.AddDependency(child, "c");
+
+
+                Assert.IsTrue(IsSameArray(t.GetDependents("a").ToArray(), t.GetDependents("b").ToArray()));
+                Assert.IsTrue(IsSameArray(t.GetDependents("b").ToArray(), t.GetDependents("c").ToArray()));
+                Assert.IsTrue(IsSameArray(t.GetDependents("a").ToArray(), t.GetDependents("c").ToArray()));
+            }
+        }
+
+        /// <summary>
+        /// Different things should yield different result 
+        ///</summary>
+        [TestMethod()]
+        public void StressTest5()
+        {
+            const int SIZE = 100;
+
+            // Dependency graph
+            DependencyGraph t = new DependencyGraph();
+            var random = new Random(4444);
+
+            for (int i = 0; i < SIZE; i++)
+            {
+                var parent = (i + 'a').ToString();
+                var child = random.Next().ToString();
+
+                t.AddDependency("a", child);
+                t.AddDependency("b", child);
+                t.AddDependency("c", child);
+
+                t.AddDependency(child, "a");
+                t.AddDependency(child, "b");
+                t.AddDependency(child, "c");
+
+                t.AddDependency("a", child);
+                t.AddDependency("b", child);
+                t.AddDependency("c", child + "oink");
+
+                t.AddDependency(child, "a");
+                t.AddDependency(child, "b");
+                t.AddDependency(child + "oink", "c");
+
+
+                Assert.IsTrue(IsSameArray(t.GetDependents("a").ToArray(), t.GetDependents("b").ToArray()));
+                Assert.IsFalse(IsSameArray(t.GetDependents("b").ToArray(), t.GetDependents("c").ToArray()));
+                Assert.IsFalse(IsSameArray(t.GetDependents("a").ToArray(), t.GetDependents("c").ToArray()));
+            }
+        }
+
+        private static bool IsSameArray(string[] a, string[] b)
+        {
+            if (a.Length != b.Length) return false;
+            for(int i = 0; i < a.Length; i++)
+            {
+                if (a[i] != b[i]) return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Constant growth
+        ///</summary>
+        [TestMethod()]
+        public void StressTest6()
+        {
+            const int SIZE = 100;
+
+            // Dependency graph
+            DependencyGraph t = new DependencyGraph();
+
+            for (int i = 0; i < SIZE; i++)
+            {
+                var parent = (i + 'a').ToString();
+                var child = (i - (char)201).ToString();
+
+                t.AddDependency(parent, child);
+                t.AddDependency(child, parent);
+                Assert.AreEqual((i + 1) * 2, t.Size);
+            }
+        }
+
+        /// <summary>
+        /// Just insert a bunch of stuff
+        ///</summary>
+        [TestMethod()]
+        public void StressTest7()
+        {
+            const int SIZE = 2000000;
+
+            // Dependency graph
+            DependencyGraph t = new DependencyGraph();
+            var random = new Random();
+            
+            for (int i = 0; i < SIZE; i++)
+            {
+                var parent = random.Next('a', 'z').ToString();
+                var child = random.Next('a', 'z').ToString();
+
+                t.AddDependency(parent, child);
+                t.RemoveDependency(parent, child);
+            }
+
+            Assert.AreEqual(0, t.Size);
+        }
+
 
 
         // ********************************** ANOTHER STESS TEST ******************** //
@@ -399,6 +598,144 @@ namespace PS2GradingTests
             }
         }
 
+        /// <summary>
+        /// Big string tests for time
+        ///</summary>
+        [TestMethod()]
+        public void StressTest9()
+        {
+            const string LONG_ASS_STRING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            const int SIZE = 10000;
+
+            // Dependency graph
+            DependencyGraph t = new DependencyGraph();
+            var random = new Random(9834095);
+
+            DateTime nowish = DateTime.Now;
+            // Take a sample of how long it takes to normally compute //
+            byte[] trash = new byte[SIZE];
+            random.NextBytes(trash); // Fill random buffer of sorts //
+            var timeSpan = DateTime.Now - nowish;
+
+            if (timeSpan.Milliseconds > 2) // Find inconclusive if it took over 5 ms to fill buffer //
+                Assert.Inconclusive("We cannot run this test, your computer is too slow.");
+
+            
+            for (int i = 0; i < SIZE; i++)
+            {
+                // Make a random string that's 1000 characters long. //
+                var parent = new string(
+                    Enumerable.Repeat(LONG_ASS_STRING, 1000)
+                              .Select(pick => pick[random.Next(LONG_ASS_STRING.Length)])
+                              .ToArray()
+                );
+                var child = random.Next('a', 'z').ToString();
+
+                t.AddDependency(parent, child);
+            }
+
+            timeSpan = DateTime.Now - nowish;
+            
+            if (timeSpan.Milliseconds > SIZE * 2) // If it takes over 2 ms per item, we fail.  //
+                Assert.Fail("Time exceeded");
+        }
+
+        /// <summary>
+        /// Check internals
+        ///</summary>
+        [TestMethod()]
+        public void StressTest10()
+        {
+            // Dependency graph
+            DependencyGraph t = new DependencyGraph();
+
+            var random = new Random(34353);
+
+            const int SIZE = 10000;
+            for (int i = 0; i < SIZE; i++)
+            {
+                var parent = ('a' + i).ToString();
+                var child = random.Next('a', 'z').ToString();
+
+                t.AddDependency(parent, child);
+            }
+
+            PrivateObject insideT = new PrivateObject(t);
+
+            var collection = insideT.GetFieldOrProperty("collectionDependees") as Dictionary<string, List<string>>;
+
+            Assert.IsNotNull(collection);
+            Assert.AreEqual(25, collection.Count);
+        }
+
+        /// <summary>
+        /// Check internals
+        ///</summary>
+        [TestMethod()]
+        public void StressTest11()
+        {
+            // Dependency graph
+            DependencyGraph t = new DependencyGraph();
+
+            var random = new Random();
+
+            const int SIZE = 10000;
+            for (int i = 0; i < SIZE; i++)
+            {
+                var parent = ('a' + i).ToString();
+                var child = random.Next('a', 'z').ToString();
+
+                t.AddDependency(parent, child);
+            }
+
+            PrivateObject insideT = new PrivateObject(t);
+
+            var collection = insideT.GetFieldOrProperty("collectionDependencies") as Dictionary<string, List<string>>;
+
+            Assert.IsNotNull(collection);
+            Assert.AreEqual(SIZE, collection.Count);
+        }
+
+        /// <summary>
+        /// Test for checking order
+        ///</summary>
+        [TestMethod()]
+        public void StressTest12()
+        {
+            // Dependency graph
+            DependencyGraph t = new DependencyGraph();
+
+            t.ReplaceDependees("b", new string[] { "a" });
+            t.ReplaceDependees("c", new string[] { "a" });
+            t.ReplaceDependees("d", new string[] { "a" });
+
+            Assert.AreEqual(3, t.GetDependents("a").Count());
+            Assert.AreEqual("b", t.GetDependents("a").ElementAt(0));
+            Assert.AreEqual("c", t.GetDependents("a").ElementAt(1));
+            Assert.AreEqual("d", t.GetDependents("a").ElementAt(2));
+        }
+
+        /// <summary>
+        /// Make sure we aren't lost in translation
+        ///</summary>
+        [TestMethod()]
+        public void StressTest13()
+        {
+            // Dependency graph
+            DependencyGraph t = new DependencyGraph();
+
+            t.AddDependency("a", "a");
+            t.AddDependency("a", "a");
+
+            t.AddDependency("a", "c");
+            t.RemoveDependency("a", "c");
+
+            t.ReplaceDependees("b", new string[] { "c" });
+
+            Assert.AreEqual(1, t.GetDependents("a").Count());
+            Assert.AreEqual("a", t.GetDependents("a").First());
+        }
+
         // ********************************** A THIRD STESS TEST ******************** //
         /// <summary>
         ///Using lots of data with replacement
@@ -410,7 +747,7 @@ namespace PS2GradingTests
             DependencyGraph t = new DependencyGraph();
 
             // A bunch of strings to use
-            const int SIZE = 10000;
+            const int SIZE = 1000;
             string[] letters = new string[SIZE];
             for (int i = 0; i < SIZE; i++)
             {
@@ -449,10 +786,10 @@ namespace PS2GradingTests
             }
 
             // Replace a bunch of dependees
-            for (int i = 0; i < SIZE; i += 4)
+            for (int i = 0; i < SIZE; i += 3)
             {
                 HashSet<string> newDees = new HashSet<String>();
-                for (int j = 0; j < SIZE; j += 7)
+                for (int j = 0; j < SIZE; j += 4)
                 {
                     newDees.Add(letters[j]);
                 }
