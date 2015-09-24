@@ -344,6 +344,33 @@ namespace ForumlaTest
             Assert.AreEqual(f, b);
         }
 
+        [TestMethod]
+        public void Test41()
+        {
+            Formula f = new Formula("a", Normalize, IsValid);
+            Formula b = new Formula("a", Normalize, IsValid);
+
+            Assert.AreEqual(f.GetHashCode(), b.GetHashCode());
+        }
+
+        [TestMethod]
+        public void Test42()
+        {
+            Formula f = new Formula("a", Normalize, IsValid);
+            Formula b = new Formula("A", Normalize, IsValid);
+
+            Assert.AreEqual(f.GetHashCode(), b.GetHashCode());
+        }
+
+        [TestMethod]
+        public void Test43()
+        {
+            Formula f = new Formula("a", Normalize, IsValid);
+            Formula b = new Formula("A+1", Normalize, IsValid);
+
+            Assert.AreNotEqual(f.GetHashCode(), b.GetHashCode());
+        }
+
         #endregion
 
         #region Gimme them syntax errors

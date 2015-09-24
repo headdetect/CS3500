@@ -93,7 +93,7 @@ namespace SpreadsheetUtilities
                 foreach (var rawToken in tokens)
                 {
                     var token = rawToken.Trim();
-                    if (char.IsLetter(token, 0))
+                    if (char.IsLetter(token, 0)) // If is variable //
                     {  
                         var nToken = normalize(token);
                         if (!isValid(nToken)) throw new FormulaFormatException(token + " is not a valid variable");
