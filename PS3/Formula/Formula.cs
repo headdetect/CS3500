@@ -83,6 +83,8 @@ namespace SpreadsheetUtilities
         /// </summary>
         public Formula(string formula, Func<string, string> normalize, Func<string, bool> isValid)
         {
+            formula = Regex.Replace(formula, @"\s+", string.Empty);
+
             Tokens = new List<string>();
 
             try
@@ -91,12 +93,11 @@ namespace SpreadsheetUtilities
                 foreach (var rawToken in tokens)
                 {
                     var token = rawToken.Trim();
-                    if (Regex.Match(token, "^[a-z](?:_?[a-z0-9]+)*$").Length > 0)
-                    {
-                        // Should be a variable //
-                        if (!isValid(token)) throw new FormulaFormatException(token + " is not a valid variable");
-                        
+                    if (char.IsLetter(token, 0))
+                    {  
                         var nToken = normalize(token);
+                        if (!isValid(nToken)) throw new FormulaFormatException(token + " is not a valid variable");
+
                         Expression += nToken;
                         Tokens.Add(nToken);
                     }

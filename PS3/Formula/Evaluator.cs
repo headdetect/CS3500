@@ -353,7 +353,10 @@ namespace SpreadsheetUtilities
                 if (IsSubtraction)
                     return a - b;
                 if (IsDivision)
+                {
+                    if (b == 0) throw new ArgumentException("Division by zero is a nono");
                     return a / b;
+                }
                 
                 if (IsOpenBrace || IsClosingBrace)
                     throw new ArgumentException("Brace is not an acceptable operation");
