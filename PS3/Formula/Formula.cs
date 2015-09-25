@@ -83,17 +83,20 @@ namespace SpreadsheetUtilities
         /// </summary>
         public Formula(string formula, Func<string, string> normalize, Func<string, bool> isValid)
         {
+            if (string.IsNullOrWhiteSpace(formula))
+                throw new FormulaFormatException("Formula is empty");
+
             formula = Regex.Replace(formula, @"\s+", string.Empty);
 
             Tokens = new List<string>();
-
+            
             try
             {
                 var tokens = GetTokens(formula);
                 foreach (var rawToken in tokens)
                 {
                     var token = rawToken.Trim();
-                    if (char.IsLetter(token, 0)) // If is variable //
+                    if (char.IsLetter(token, 0) || token[0] == '_') // If is variable //
                     {  
                         var nToken = normalize(token);
                         if (!isValid(nToken)) throw new FormulaFormatException(token + " is not a valid variable");
@@ -107,7 +110,20 @@ namespace SpreadsheetUtilities
                         Expression += token;
                         Tokens.Add(token);
                     }
-                    
+                }
+
+                // Make sure its all gucci //
+                try {
+                    Evaluator.Evaluate(Tokens, (str) => 1);
+                }
+                catch (DivideByZeroException)
+                {
+                    // do nothing //
+                    return;
+                }
+                catch (ArgumentException e)
+                {
+                    throw new FormulaFormatException(e.Message);
                 }
             }
             catch(Exception e)

@@ -10,7 +10,7 @@ namespace SpreadsheetUtilities
     /// <summary>
     /// Evaluator class will take a string and evaluate it mathmatically.
     /// </summary>
-    public static class Evaluator
+    internal static class Evaluator
     {
         
         /// <summary>
@@ -211,6 +211,9 @@ namespace SpreadsheetUtilities
             }
             catch (Exception e)
             {
+                if (e is DivideByZeroException)
+                    throw e; // Re-throw
+
                 throw new ArgumentException(e.Message);
             }
         }
@@ -233,7 +236,7 @@ namespace SpreadsheetUtilities
         /// <summary>
         /// A tiny structure for handling operations. Not needed, but helps keep things clean and scalable. With variables, it's &lt; 16 bytes.
         /// </summary>
-        public struct OperationToken
+        internal struct OperationToken
         {
             /// <summary>
             /// Creates a new structure for handling tokens
@@ -354,7 +357,7 @@ namespace SpreadsheetUtilities
                     return a - b;
                 if (IsDivision)
                 {
-                    if (b == 0) throw new ArgumentException("Division by zero is a nono");
+                    if (b == 0) throw new DivideByZeroException("Division by zero is a nono");
                     return a / b;
                 }
                 

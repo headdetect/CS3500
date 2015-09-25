@@ -291,6 +291,20 @@ namespace ForumlaTest
 
             Assert.AreNotEqual(f, b);
         }
+
+
+        [TestMethod]
+        public void Test45()
+        {
+            Formula f = new Formula("_hi_my_name_is_fred", Normalize, (s) => true);
+            Formula b = new Formula("_HI_MY_NAME_IS_FRED", Normalize, (s) => true);
+            Formula c = new Formula("_Hi_My_Name_Is_fred", Normalize, (s) => true);
+
+            Assert.AreEqual(f, b);
+            Assert.AreEqual(f, c);
+            Assert.AreEqual(b, c);
+        }
+
         #endregion
 
         #region Validation and Normalization tests
@@ -396,10 +410,10 @@ namespace ForumlaTest
         }
 
         [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
         public void Test34()
         {
             Formula f = new Formula("A + C /", Normalize, IsValid);
-            Assert.IsInstanceOfType(f.Evaluate(DefaultVariableFunction), typeof(FormulaError));
         }
 
         [TestMethod]
@@ -410,24 +424,24 @@ namespace ForumlaTest
         }
 
         [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
         public void Test36()
         {
             Formula f = new Formula("A - * - / - + 3", Normalize, IsValid);
-            Assert.IsInstanceOfType(f.Evaluate(DefaultVariableFunction), typeof(FormulaError));
         }
 
         [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
         public void Test37()
         {
             Formula f = new Formula("A-", Normalize, IsValid);
-            Assert.IsInstanceOfType(f.Evaluate(DefaultVariableFunction), typeof(FormulaError));
         }
 
         [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
         public void Test38()
         {
             Formula f = new Formula("", Normalize, IsValid);
-            Assert.IsInstanceOfType(f.Evaluate(DefaultVariableFunction), typeof(FormulaError));
         }
 
         [TestMethod]
@@ -438,11 +452,19 @@ namespace ForumlaTest
         }
 
         [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
         public void Test40()
         {
-            Formula f = new Formula("3 ^ 2", Normalize, IsValid);
-            Assert.IsInstanceOfType(f.Evaluate(DefaultVariableFunction), typeof(FormulaError));
+            Formula f = new Formula("", Normalize, IsValid);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException))]
+        public void Test44()
+        {
+            Formula f = new Formula(null, Normalize, IsValid);
+        }
+
         #endregion
 
     }
