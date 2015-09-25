@@ -455,7 +455,7 @@ namespace ForumlaTest
         [ExpectedException(typeof(FormulaFormatException))]
         public void Test40()
         {
-            Formula f = new Formula("", Normalize, IsValid);
+            Formula f = new Formula("+", Normalize, IsValid);
         }
 
         [TestMethod]
