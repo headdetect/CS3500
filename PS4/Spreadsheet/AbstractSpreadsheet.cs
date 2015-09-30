@@ -72,7 +72,7 @@ namespace SS
         /// <summary>
         /// Enumerates the names of all the non-empty cells in the spreadsheet.
         /// </summary>
-        public abstract IEnumerable<String> GetNamesOfAllNonemptyCells();
+        public abstract IEnumerable<string> GetNamesOfAllNonemptyCells();
 
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace SS
         /// 
         /// Otherwise, returns the contents (as opposed to the value) of the named cell.  The return
         /// value should be either a string, a double, or a Formula.
-        public abstract object GetCellContents(String name);
+        public abstract object GetCellContents(string name);
 
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace SS
         /// For example, if name is A1, B1 contains A1*2, and C1 contains B1+A1, the
         /// set {A1, B1, C1} is returned.
         /// </summary>
-        public abstract ISet<String> SetCellContents(String name, double number);
+        public abstract ISet<string> SetCellContents(string name, double number);
         
         /// <summary>
         /// If text is null, throws an ArgumentNullException.
@@ -107,7 +107,7 @@ namespace SS
         /// For example, if name is A1, B1 contains A1*2, and C1 contains B1+A1, the
         /// set {A1, B1, C1} is returned.
         /// </summary>
-        public abstract ISet<String> SetCellContents(String name, String text);
+        public abstract ISet<string> SetCellContents(string name, string text);
 
         /// <summary>
         /// If the formula parameter is null, throws an ArgumentNullException.
@@ -124,7 +124,7 @@ namespace SS
         /// For example, if name is A1, B1 contains A1*2, and C1 contains B1+A1, the
         /// set {A1, B1, C1} is returned.
         /// </summary>
-        public abstract ISet<String> SetCellContents(String name, Formula formula);
+        public abstract ISet<string> SetCellContents(string name, Formula formula);
 
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace SS
         /// D1 contains the formula B1 - C1
         /// The direct dependents of A1 are B1 and C1
         /// </summary>
-        protected abstract IEnumerable<String> GetDirectDependents(String name);
+        protected abstract IEnumerable<string> GetDirectDependents(string name);
         
         
         /// <summary>
@@ -172,11 +172,11 @@ namespace SS
         /// PLEASE NOTE THAT THIS METHOD DEPENDS ON THE ABSTRACT METHOD GetDirectDependents.
         /// IT WON'T WORK UNTIL GetDirectDependents IS IMPLEMENTED CORRECTLY.
         /// </summary>
-        protected IEnumerable<String> GetCellsToRecalculate(ISet<String> names)
+        protected IEnumerable<string> GetCellsToRecalculate(ISet<string> names)
         {
-            LinkedList<String> changed = new LinkedList<String>();
-            HashSet<String> visited = new HashSet<String>();
-            foreach (String name in names)
+            LinkedList<string> changed = new LinkedList<string>();
+            HashSet<string> visited = new HashSet<string>();
+            foreach (string name in names)
             {
                 if (!visited.Contains(name))
                 {
@@ -191,9 +191,9 @@ namespace SS
         /// A convenience method for invoking the other version of GetCellsToRecalculate
         /// with a singleton set of names.  See the other version for details.
         /// </summary>
-        protected IEnumerable<String> GetCellsToRecalculate(String name)
+        protected IEnumerable<string> GetCellsToRecalculate(string name)
         {
-            return GetCellsToRecalculate(new HashSet<String>() { name });
+            return GetCellsToRecalculate(new HashSet<string>() { name });
         }
 
 
@@ -203,10 +203,10 @@ namespace SS
         /// It will tag certain cells as visited. Once tagged, it is
         /// assumed that the tagged cell has been properly handled.
         /// </summary>
-        private void Visit(String start, String name, ISet<String> visited, LinkedList<String> changed)
+        private void Visit(string start, string name, ISet<string> visited, LinkedList<string> changed)
         {
             visited.Add(name);
-            foreach (String n in GetDirectDependents(name))
+            foreach (string n in GetDirectDependents(name))
             {
                 if (n.Equals(start))
                 {
