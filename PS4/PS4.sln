@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Formula", "..\PS3\Formula\F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyGraph", "..\PS2\SpreadsheetUtilities\DependencyGraph.csproj", "{88ACC46C-AAF9-4924-829E-2CF118C1F924}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpreadsheetTests", "SpreadsheetTests\SpreadsheetTests.csproj", "{D46BEB8E-AEBB-4D0C-AE36-397050CB9084}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,10 @@ Global
 		{88ACC46C-AAF9-4924-829E-2CF118C1F924}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88ACC46C-AAF9-4924-829E-2CF118C1F924}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88ACC46C-AAF9-4924-829E-2CF118C1F924}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D46BEB8E-AEBB-4D0C-AE36-397050CB9084}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D46BEB8E-AEBB-4D0C-AE36-397050CB9084}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D46BEB8E-AEBB-4D0C-AE36-397050CB9084}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D46BEB8E-AEBB-4D0C-AE36-397050CB9084}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
