@@ -39,8 +39,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Formula, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Formula">
       <HintPath>..\Resources\Libraries\Formula.dll</HintPath>
     </Reference>
     <Reference Include="SpreadsheetUtilities">

@@ -44,7 +44,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>cp $(TargetPath) $(SolutionDir)Resources/Libraries &gt; %25temp%25\out.txt 2&gt;&amp;1 || exit /B 0</PostBuildEvent>
+    <PostBuildEvent>cp $(TargetPath) $(SolutionDir)Resources\Libraries\$(TargetFileName)  &gt; %25temp%25\out.txt 2&gt;&amp;1 || exit /B 0</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
