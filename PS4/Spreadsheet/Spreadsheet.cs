@@ -15,6 +15,25 @@ namespace SS
     /// </summary>
     public class Spreadsheet : AbstractSpreadsheet
     {
+
+        private Dictionary<string, Cell> _cells;
+
+        /// <summary>
+        /// Creates an empty spreadsheet.
+        /// </summary>
+        public Spreadsheet() : this(new Dictionary<string, Cell>())
+        {
+        }
+
+        /// <summary>
+        /// Creates a spreadsheet from the specified cells.
+        /// </summary>
+        /// <param name="cells">Cells to put into the spreadsheet</param>
+        public Spreadsheet(Dictionary<string, Cell> cells)
+        {
+            _cells = cells;
+        }
+
         /// <summary>
         /// If name is null or invalid, throws an InvalidNameException.
         /// 
