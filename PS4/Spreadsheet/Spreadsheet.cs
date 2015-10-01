@@ -65,7 +65,7 @@ namespace SS
         /// Creates a spreadsheet from the specified cells.
         /// </summary>
         /// <param name="cells">Cells to put into the spreadsheet</param>
-        public Spreadsheet(Dictionary<string, Cell> cells)
+        private Spreadsheet(Dictionary<string, Cell> cells) // Will soon be changed to public //
         {
             if (cells == null) throw new ArgumentNullException(nameof(cells), "Cells cannot be null");
             _cells = cells;
@@ -122,6 +122,7 @@ namespace SS
             
             _cells[name].Content = formula;
             _cells[name].Value = formula.Evaluate(_resolveVariables);
+            _cells[name].Dependents.ReplaceDependents(name, formula.GetVariables());
 
             return new HashSet<string>(GetCellsToRecalculate(name));
         }

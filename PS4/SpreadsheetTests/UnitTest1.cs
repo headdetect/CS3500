@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SpreadsheetUtilities;
+using SS;
 
 namespace SpreadsheetTests
 {
@@ -121,41 +122,29 @@ namespace SpreadsheetTests
             Assert.AreEqual(75000, b2);
             Assert.AreEqual(75000 + 85000 + 90000d, b5.Evaluate(resolve));
         }  
+
         [TestMethod]
+        [ExpectedException(typeof(CircularException))]
         public void TestMethod5()
         {
             var spreadsheet = new SS.Spreadsheet();
 
-            spreadsheet.SetCellContents("A1", 2.0);
-            spreadsheet.SetCellContents("B1", 45.0);
-            spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
-
-            var resolve = _variableResolver(spreadsheet);
-
-            var formula = spreadsheet.GetCellContents("C1") as Formula;
-
-            Assert.IsNotNull(formula);
-            Assert.AreEqual(formula, new Formula("A1+B1"));
-
-            Assert.AreEqual(47.0d, formula.Evaluate(resolve));
+            spreadsheet.SetCellContents("A1", new Formula("B1"));
+            spreadsheet.SetCellContents("B1", new Formula("A1"));
+            
         }  
+
         [TestMethod]
+        [ExpectedException(typeof(CircularException))]
         public void TestMethod6()
         {
             var spreadsheet = new SS.Spreadsheet();
 
-            spreadsheet.SetCellContents("A1", 2.0);
-            spreadsheet.SetCellContents("B1", 45.0);
-            spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
-
-            var resolve = _variableResolver(spreadsheet);
-
-            var formula = spreadsheet.GetCellContents("C1") as Formula;
-
-            Assert.IsNotNull(formula);
-            Assert.AreEqual(formula, new Formula("A1+B1"));
-
-            Assert.AreEqual(47.0d, formula.Evaluate(resolve));
+            spreadsheet.SetCellContents("A1", new Formula("B1"));
+            spreadsheet.SetCellContents("B1", new Formula("C1"));
+            spreadsheet.SetCellContents("C1", new Formula("D1"));
+            spreadsheet.SetCellContents("D1", new Formula("E1"));
+            spreadsheet.SetCellContents("E1", new Formula("A1"));
         }  
         [TestMethod]
         public void TestMethod7()
