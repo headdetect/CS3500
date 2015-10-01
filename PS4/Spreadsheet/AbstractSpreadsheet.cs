@@ -80,6 +80,7 @@ namespace SS
         /// 
         /// Otherwise, returns the contents (as opposed to the value) of the named cell.  The return
         /// value should be either a string, a double, or a Formula.
+        /// </summary>
         public abstract object GetCellContents(string name);
 
 

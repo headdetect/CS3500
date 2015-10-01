@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using Spreadsheet;
 using SpreadsheetUtilities;
 
 namespace SS
@@ -16,13 +18,36 @@ namespace SS
     public class Spreadsheet : AbstractSpreadsheet
     {
 
-        private Dictionary<string, Cell> _cells;
+        private readonly Dictionary<string, Cell> _cells;
+
+        private double _resolveVariables(string variable)
+        {
+            if (!_cells.ContainsKey(variable)) return double.NaN;
+
+            var cell = _cells[variable].Value;
+            var formula = cell as Formula;
+            if (formula != null)
+                return (double) formula.Evaluate(_resolveVariables);
+
+            var value = cell as double?;
+            return value ?? double.NaN;
+        }
 
         /// <summary>
         /// Creates an empty spreadsheet.
         /// </summary>
         public Spreadsheet() : this(new Dictionary<string, Cell>())
         {
+            for (var x = 'A'; x <= 'Z'; x++)
+            {
+                for (var y = 1; y <= 50; y++)
+                {
+                    var cellName = x + y.ToString();
+
+                    _cells.Add(cellName, new Cell(cellName));
+                }
+            }
+            
         }
 
         /// <summary>
@@ -31,6 +56,7 @@ namespace SS
         /// <param name="cells">Cells to put into the spreadsheet</param>
         public Spreadsheet(Dictionary<string, Cell> cells)
         {
+            if (cells == null) throw new ArgumentNullException(nameof(cells), "Cells cannot be null");
             _cells = cells;
         }
 
@@ -42,7 +68,10 @@ namespace SS
         /// </summary>
         public override object GetCellContents(string name)
         {
-            throw new NotImplementedException();
+            if (!_cells.ContainsKey(name))
+                throw new InvalidNameException();
+
+            return _cells[name].Content;
         }
 
         /// <summary>
@@ -50,7 +79,9 @@ namespace SS
         /// </summary>
         public override IEnumerable<string> GetNamesOfAllNonemptyCells()
         {
-            throw new NotImplementedException();
+            return _cells
+                .Where(pair => !pair.Value.Content.IsEmpty())
+                .Select(pair => pair.Key);
         }
 
         /// <summary>
@@ -70,7 +101,16 @@ namespace SS
         /// </summary>
         public override ISet<string> SetCellContents(string name, Formula formula)
         {
-            throw new NotImplementedException();
+            if (!_cells.ContainsKey(name))
+                throw new InvalidNameException();
+
+            if (formula == null)
+                throw new ArgumentNullException(nameof(formula), "Formula is null");
+            
+            _cells[name].Content = formula;
+            _cells[name].Value = formula.Evaluate(_resolveVariables);
+
+            return new HashSet<string>(GetDirectDependents(name));
         }
 
         /// <summary>
@@ -87,7 +127,12 @@ namespace SS
         /// </summary>
         public override ISet<string> SetCellContents(string name, string text)
         {
-            throw new NotImplementedException();
+            if (!_cells.ContainsKey(name)) return new HashSet<string>();
+
+            _cells[name].Content = text;
+            _cells[name].Value = text;
+
+            return new HashSet<string>(GetCellsToRecalculate(name));
         }
 
         /// <summary>
@@ -102,7 +147,12 @@ namespace SS
         /// </summary>
         public override ISet<string> SetCellContents(string name, double number)
         {
-            throw new NotImplementedException();
+            if (!_cells.ContainsKey(name)) return new HashSet<string>();
+
+            _cells[name].Content = number;
+            _cells[name].Value = number;
+
+            return new HashSet<string>(GetDirectDependents(name));
         }
 
         /// <summary>
@@ -124,7 +174,14 @@ namespace SS
         /// </summary>
         protected override IEnumerable<string> GetDirectDependents(string name)
         {
-            throw new NotImplementedException();
+            if (!_cells.ContainsKey(name)) throw new InvalidNameException();
+
+            yield return name;
+
+            var cell = _cells[name];
+
+            foreach (var dependent in cell.Dependents.GetDependents(cell.Name))
+                yield return dependent;
         }
     }
 }

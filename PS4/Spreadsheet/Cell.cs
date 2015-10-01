@@ -1,4 +1,9 @@
-﻿namespace SS
+﻿using System.Collections.Generic;
+using System.Data;
+using System.Dynamic;
+using SpreadsheetUtilities;
+
+namespace SS
 {
     /**
         Specified Invariant:
@@ -20,21 +25,36 @@
     /// </summary>
     public class Cell
     {
+        private static readonly HashSet<Cell> EmptySet = new HashSet<Cell>(); 
 
         /// <summary>
         /// Gets or sets the content of the cell.
         /// </summary>
-        public string Content { get; set; }
+        public object Content { get; set; }
 
         /// <summary>
         /// Gets the evaluated value based off of <see cref="Content"/>
         /// </summary>
-        public string Value { get; internal set; }
+        public object Value { get; internal set; }
+
+        /// <summary>
+        /// Gets and sets the name of this cell.
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Gets and sets the dependents of this cell.
+        /// Say that A1 contains the forumla:
+        /// B1 + 2 - C3
+        /// This should return {B1, C3}
+        /// </summary>
+        public DependencyGraph Dependents { get; set; }
 
         /// <summary>
         /// Creates an empty cell
         /// </summary>
-        public Cell() : this(string.Empty, string.Empty)
+        /// <param name="name">The name of this cell</param>
+        public Cell(string name) : this(name, EmptySet, string.Empty, string.Empty)
         {
             
         }
@@ -42,23 +62,30 @@
         /// <summary>
         /// Creates a cell object using the specified contents and values.
         /// </summary>
+        /// <param name="name">The name of this cell</param>
         /// <param name="content">The content of the cell</param>
         /// <param name="value">The value of the cell</param>
-        public Cell(string content, string value)
+        public Cell(string name, object content, object value) : this(name, EmptySet, content, value)
         {
-            Content = content;
-            Value = value;
+            
         }
 
         /// <summary>
-        /// Returns a string that represents the current object.
+        /// Creates a cell object using the specified dependents, contents, and values.
         /// </summary>
-        /// <returns>
-        /// A string that represents the current object.
-        /// </returns>
-        public override string ToString()
+        /// <param name="name">The name of this cell</param>
+        /// <param name="dependents">The cells this cell depends on</param>
+        /// <param name="content">The content of the cell</param>
+        /// <param name="value">The value of the cell</param>
+        public Cell(string name, IEnumerable<Cell> dependents, object content, object value)
         {
-            return Content;
+            Name = name;
+            Dependents = new DependencyGraph();
+            foreach(var depend in dependents)
+                Dependents.AddDependency(name, depend.Name); // This cell depends on all those other cells //
+            Content = content;
+            Value = value;
         }
+        
     }
 }

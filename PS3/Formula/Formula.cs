@@ -39,12 +39,12 @@ namespace SpreadsheetUtilities
         /// <summary>
         /// Gets the expression
         /// </summary>
-        public string Expression { get; private set; }
+        public string Expression { get; }
 
         /// <summary>
         /// Gets the list of tokens, normalized and validated.
         /// </summary>
-        public List<string> Tokens { get; private set; }
+        public List<string> Tokens { get; }
 
         /// <summary>
         /// Creates a Formula from a string that consists of an infix expression written as
@@ -119,7 +119,6 @@ namespace SpreadsheetUtilities
                 catch (DivideByZeroException)
                 {
                     // do nothing //
-                    return;
                 }
                 catch (ArgumentException e)
                 {
@@ -216,11 +215,9 @@ namespace SpreadsheetUtilities
         /// </summary>
         public override bool Equals(object obj)
         {
-            if (!(obj is Formula)) return false;
-
             var formula = obj as Formula;
 
-            if (Tokens.Count != formula.Tokens.Count) return false;
+            if (Tokens.Count != formula?.Tokens.Count) return false;
 
             for (int i = 0; i < Tokens.Count; i++)
             {
@@ -251,7 +248,8 @@ namespace SpreadsheetUtilities
         /// </summary>
         public static bool operator ==(Formula f1, Formula f2)
         {
-            return f1.Equals(f2);
+            // Turn to object because it doesn't have an overloaded operator //
+            return ((object)f1 == null && (object)f2 == null) || ((object)f1 != null && f1.Equals(f2));
         }
 
         /// <summary>
@@ -271,12 +269,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public override int GetHashCode()
         {
-            int hash = 0;
-            foreach(var token in Tokens)
-            {
-                hash ^= token.GetHashCode();
-            }
-            return hash;
+            return Tokens.Aggregate(0, (current, token) => current ^ token.GetHashCode());
         }
 
         /// <summary>
@@ -296,17 +289,11 @@ namespace SpreadsheetUtilities
             string spacePattern = @"\s+";
 
             // Overall pattern
-            string pattern = string.Format("({0}) | ({1}) | ({2}) | ({3}) | ({4}) | ({5})",
-                                            lpPattern, rpPattern, opPattern, varPattern, doublePattern, spacePattern);
+            string pattern =
+                $"({lpPattern}) | ({rpPattern}) | ({opPattern}) | ({varPattern}) | ({doublePattern}) | ({spacePattern})";
 
             // Enumerate matching tokens that don't consist solely of white space.
-            foreach (string s in Regex.Split(formula, pattern, RegexOptions.IgnorePatternWhitespace))
-            {
-                if (!Regex.IsMatch(s, @"^\s*$", RegexOptions.Singleline))
-                {
-                    yield return s;
-                }
-            }
+            return Regex.Split(formula, pattern, RegexOptions.IgnorePatternWhitespace).Where(s => !Regex.IsMatch(s, @"^\s*$", RegexOptions.Singleline));
 
         }
     }

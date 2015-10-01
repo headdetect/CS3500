@@ -38,15 +38,16 @@ namespace SpreadsheetUtilities
     /// </summary>
     public class DependencyGraph
     {
-        private Dictionary<string, List<string>> collectionDependencies, collectionDependees;
+        private readonly Dictionary<string, List<string>> _collectionDependencies;
+        private readonly Dictionary<string, List<string>> _collectionDependees;
 
         /// <summary>
         /// Creates an empty DependencyGraph.
         /// </summary>
         public DependencyGraph()
         {
-            collectionDependencies = new Dictionary<string, List<string>>();
-            collectionDependees = new Dictionary<string, List<string>>();
+            _collectionDependencies = new Dictionary<string, List<string>>();
+            _collectionDependees = new Dictionary<string, List<string>>();
         }
 
 
@@ -55,11 +56,9 @@ namespace SpreadsheetUtilities
         /// </summary>
         public int Size
         {
-            get {
-                var count = 0;
-                foreach (var entry in collectionDependencies)
-                    count += entry.Value.Count;
-                return count;
+            get
+            {
+                return _collectionDependencies.Sum(entry => entry.Value.Count);
             }
         }
 
@@ -71,10 +70,7 @@ namespace SpreadsheetUtilities
         /// dg["a"]
         /// It should return the size of dependees("a")
         /// </summary>
-        public int this[string s]
-        {
-            get { return GetDependees(s).Count(); }
-        }
+        public int this[string s] => GetDependees(s).Count();
 
 
         /// <summary>
@@ -82,7 +78,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public bool HasDependents(string s)
         {
-            return GetDependents(s).Count() > 0;
+            return GetDependents(s).Any();
         }
 
 
@@ -91,7 +87,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public bool HasDependees(string s)
         {
-            return GetDependees(s).Count() > 0;
+            return GetDependees(s).Any();
         }
 
 
@@ -100,11 +96,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public IEnumerable<string> GetDependents(string s)
         {
-            foreach (var collection in collectionDependees)
-            {
-                if (collection.Value.Contains(s)) 
-                    yield return collection.Key;
-            }
+            return from collection in _collectionDependees where collection.Value.Contains(s) select collection.Key;
         }
 
         /// <summary>
@@ -112,7 +104,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public IEnumerable<string> GetDependees(string s)
         {
-            return collectionDependees.ContainsKey(s) ? collectionDependees[s] : Enumerable.Empty<string>();
+            return _collectionDependees.ContainsKey(s) ? _collectionDependees[s] : Enumerable.Empty<string>();
         }
 
 
@@ -128,17 +120,17 @@ namespace SpreadsheetUtilities
         /// <param name="t"> t must be evaluated first.  S depends on T</param>
         public void AddDependency(string s, string t)
         {
-            if (!collectionDependencies.ContainsKey(s))
-                collectionDependencies.Add(s, new List<string>());
+            if (!_collectionDependencies.ContainsKey(s))
+                _collectionDependencies.Add(s, new List<string>());
 
-            if (collectionDependencies[s].Contains(t)) return;
+            if (_collectionDependencies[s].Contains(t)) return;
 
-            collectionDependencies[s].Add(t);
+            _collectionDependencies[s].Add(t);
 
-            if (!collectionDependees.ContainsKey(t))
-                collectionDependees.Add(t, new List<string>());
+            if (!_collectionDependees.ContainsKey(t))
+                _collectionDependees.Add(t, new List<string>());
             
-            collectionDependees[t].Add(s);
+            _collectionDependees[t].Add(s);
         }
 
 
@@ -149,10 +141,10 @@ namespace SpreadsheetUtilities
         /// <param name="t"></param>
         public void RemoveDependency(string s, string t)
         {
-            if (!collectionDependencies.ContainsKey(s)) return;
+            if (!_collectionDependencies.ContainsKey(s)) return;
 
-            collectionDependencies[s].Remove(t);
-            collectionDependees[t].Remove(s);
+            _collectionDependencies[s].Remove(t);
+            _collectionDependees[t].Remove(s);
         }
 
 
@@ -162,12 +154,12 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependents(string s, IEnumerable<string> newDependents)
         {
-            if (collectionDependencies.ContainsKey(s))
+            if (_collectionDependencies.ContainsKey(s))
             {
-                foreach (var entry in collectionDependencies[s])
-                    collectionDependees[entry].Remove(s);
+                foreach (var entry in _collectionDependencies[s])
+                    _collectionDependees[entry].Remove(s);
 
-                collectionDependencies[s].Clear();
+                _collectionDependencies[s].Clear();
 
             }
 
@@ -182,19 +174,19 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependees(string s, IEnumerable<string> newDependees)
         {
-            if (collectionDependees.ContainsKey(s))
+            if (_collectionDependees.ContainsKey(s))
             {
-                foreach (var entry in collectionDependencies)
-                    collectionDependencies[entry.Key].Remove(s); // Remove self from dependencies. //
+                foreach (var entry in _collectionDependencies)
+                    _collectionDependencies[entry.Key].Remove(s); // Remove self from dependencies. //
 
-                collectionDependees[s].Clear();
+                _collectionDependees[s].Clear();
             }
 
             foreach (var dependee in newDependees) {
-                if (!collectionDependees.ContainsKey(s))
-                    collectionDependees.Add(s, new List<string>());
+                if (!_collectionDependees.ContainsKey(s))
+                    _collectionDependees.Add(s, new List<string>());
 
-                collectionDependees[s].Add(dependee);
+                _collectionDependees[s].Add(dependee);
             }
         }
         
