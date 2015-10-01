@@ -17,8 +17,17 @@ namespace SS
     /// </summary>
     public class Spreadsheet : AbstractSpreadsheet
     {
-
+        /// <summary>
+        /// All the cells for this spreadsheet.
+        /// </summary>
         private readonly Dictionary<string, Cell> _cells;
+
+        /// <summary>
+        /// The resolver is temporary, just to be accessed outside the class.
+        /// Made it this way because we can't make any other public methods >.>
+        /// I gettin real sneaky.
+        /// </summary>
+        private Func<string, double> _resolver;
 
         private double _resolveVariables(string variable)
         {
@@ -34,12 +43,14 @@ namespace SS
         }
 
         /// <summary>
-        /// Creates an empty spreadsheet.
+        /// Creates an empty spreadsheet. A1 - Z50
         /// </summary>
         public Spreadsheet() : this(new Dictionary<string, Cell>())
         {
+            // Iterate A - Z //
             for (var x = 'A'; x <= 'Z'; x++)
             {
+                // Iterate 1 - 50 //
                 for (var y = 1; y <= 50; y++)
                 {
                     var cellName = x + y.ToString();
@@ -58,6 +69,8 @@ namespace SS
         {
             if (cells == null) throw new ArgumentNullException(nameof(cells), "Cells cannot be null");
             _cells = cells;
+
+            _resolver = _resolveVariables;
         }
 
         /// <summary>
@@ -110,7 +123,7 @@ namespace SS
             _cells[name].Content = formula;
             _cells[name].Value = formula.Evaluate(_resolveVariables);
 
-            return new HashSet<string>(GetDirectDependents(name));
+            return new HashSet<string>(GetCellsToRecalculate(name));
         }
 
         /// <summary>
@@ -152,7 +165,7 @@ namespace SS
             _cells[name].Content = number;
             _cells[name].Value = number;
 
-            return new HashSet<string>(GetDirectDependents(name));
+            return new HashSet<string>(GetCellsToRecalculate(name));
         }
 
         /// <summary>
@@ -174,14 +187,12 @@ namespace SS
         /// </summary>
         protected override IEnumerable<string> GetDirectDependents(string name)
         {
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
             if (!_cells.ContainsKey(name)) throw new InvalidNameException();
-
-            yield return name;
-
+            
             var cell = _cells[name];
 
-            foreach (var dependent in cell.Dependents.GetDependents(cell.Name))
-                yield return dependent;
+            return cell.Dependents.GetDependents(cell.Name);
         }
     }
 }
