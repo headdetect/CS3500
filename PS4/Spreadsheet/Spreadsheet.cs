@@ -21,6 +21,14 @@ namespace SS
         private readonly Dictionary<string, Cell> _cells;
 
         /// <summary>
+        /// Gets and sets the dependents of this cell.
+        /// Say that A1 contains the forumla:
+        /// B1 + 2 - C3
+        /// This should return {B1, C3}
+        /// </summary>
+        private DependencyGraph _depenencyManager;
+
+        /// <summary>
         /// The resolver is temporary, just to be accessed outside the class.
         /// Made it this way because we can't make any other public methods >.>
         /// I gettin real sneaky.
@@ -58,6 +66,8 @@ namespace SS
             _cells = cells;
 
             _resolver = _resolveVariables;
+
+            _depenencyManager = new DependencyGraph();;
         }
 
         /// <summary>
@@ -113,14 +123,20 @@ namespace SS
             var referencedCellsEnumeration = formula.GetVariables();
             var referencedCells = referencedCellsEnumeration as string[] ?? referencedCellsEnumeration.ToArray();
 
-            _cells[name].Content = formula;
-            _cells[name].Value = formula.Evaluate(_resolveVariables);
-            
-            _cells[name].Dependents.ReplaceDependents(name, referencedCells);
+            var cell = _cells[name];
 
-            foreach (var reference in referencedCells)
+            cell.Content = formula;
+            cell.Value = formula.Evaluate(_resolveVariables);
+            _depenencyManager.ReplaceDependents(name, referencedCells);
+
+            foreach (var dep in referencedCells)
             {
-                
+                //cell.DepenencyManager.AddDependency(dep, name);
+
+                if (_cells.ContainsKey(dep))
+                {
+                    _depenencyManager.AddDependency(name, dep);
+                }
             }
 
             return new HashSet<string>(GetCellsToRecalculate(name));
@@ -206,7 +222,9 @@ namespace SS
             
             var cell = _cells[name];
 
-            return cell.Dependents.GetDependees(cell.Name);
+            return _depenencyManager.Dependees.ContainsKey(cell.Name) ?
+                _depenencyManager.Dependees[cell.Name] :
+                new List<string>(0);
         }
 
         /// <summary>

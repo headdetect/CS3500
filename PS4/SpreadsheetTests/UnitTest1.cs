@@ -323,17 +323,12 @@ namespace SpreadsheetTests
             spreadsheet.SetCellContents("A1", 2.0);
             spreadsheet.SetCellContents("B1", 45.0);
             spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
-            var result = spreadsheet.SetCellContents("A1", 3.0);
 
-            var resolve = _variableResolver(spreadsheet);
+            var result = spreadsheet.SetCellContents("A1", 3.0); // Should update them other cells //
+            
+            Assert.IsTrue(result.Contains("A1") && result.Contains("C1"));
+        }
 
-            var formula = spreadsheet.GetCellContents("C1") as Formula;
-
-            Assert.IsNotNull(formula);
-            Assert.AreEqual(formula, new Formula("A1+B1"));
-
-            Assert.AreEqual(48.0d, formula.Evaluate(resolve));
-        }  
         [TestMethod]
         public void TestMethod18()
         {
@@ -343,15 +338,12 @@ namespace SpreadsheetTests
             spreadsheet.SetCellContents("B1", 45.0);
             spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
 
-            var resolve = _variableResolver(spreadsheet);
+            var result = spreadsheet.SetCellContents("C1", 3.0);
 
-            var formula = spreadsheet.GetCellContents("C1") as Formula;
+            Assert.IsTrue(!result.Contains("B1") && !result.Contains("A1"));
+        }
 
-            Assert.IsNotNull(formula);
-            Assert.AreEqual(formula, new Formula("A1+B1"));
 
-            Assert.AreEqual(47.0d, formula.Evaluate(resolve));
-        }  
         [TestMethod]
         public void TestMethod19()
         {
@@ -360,15 +352,12 @@ namespace SpreadsheetTests
             spreadsheet.SetCellContents("A1", 2.0);
             spreadsheet.SetCellContents("B1", 45.0);
             spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
+            spreadsheet.SetCellContents("D1", new Formula("A1 + B1"));
+            spreadsheet.SetCellContents("E1", new Formula("A1 + B1"));
 
-            var resolve = _variableResolver(spreadsheet);
+            var result = spreadsheet.SetCellContents("A1", 3.0);
 
-            var formula = spreadsheet.GetCellContents("C1") as Formula;
-
-            Assert.IsNotNull(formula);
-            Assert.AreEqual(formula, new Formula("A1+B1"));
-
-            Assert.AreEqual(47.0d, formula.Evaluate(resolve));
+            Assert.IsTrue(result.Contains("C1") && result.Contains("D1") && result.Contains("E1"));
         }  
         [TestMethod]
         public void TestMethod20()
@@ -378,15 +367,12 @@ namespace SpreadsheetTests
             spreadsheet.SetCellContents("A1", 2.0);
             spreadsheet.SetCellContents("B1", 45.0);
             spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
+            spreadsheet.SetCellContents("D1", new Formula("C1 + B1"));
+            spreadsheet.SetCellContents("E1", new Formula("D1 + B1"));
 
-            var resolve = _variableResolver(spreadsheet);
+            var result = spreadsheet.SetCellContents("A1", 3.0);
 
-            var formula = spreadsheet.GetCellContents("C1") as Formula;
-
-            Assert.IsNotNull(formula);
-            Assert.AreEqual(formula, new Formula("A1+B1"));
-
-            Assert.AreEqual(47.0d, formula.Evaluate(resolve));
+            Assert.IsTrue(result.Contains("C1") && result.Contains("D1") && result.Contains("E1") && result.Contains("A1"));
         }  
 
         private IEnumerable<string> GenerateCells(int width, int height)

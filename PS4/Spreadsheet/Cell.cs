@@ -41,15 +41,7 @@ namespace SS
         /// Gets and sets the name of this cell.
         /// </summary>
         public string Name { get; set; }
-
-        /// <summary>
-        /// Gets and sets the dependents of this cell.
-        /// Say that A1 contains the forumla:
-        /// B1 + 2 - C3
-        /// This should return {B1, C3}
-        /// </summary>
-        public DependencyGraph Dependents { get; set; }
-
+        
         /// <summary>
         /// Creates an empty cell
         /// </summary>
@@ -80,9 +72,6 @@ namespace SS
         public Cell(string name, IEnumerable<Cell> dependents, object content, object value)
         {
             Name = name;
-            Dependents = new DependencyGraph();
-            foreach(var depend in dependents)
-                Dependents.AddDependency(name, depend.Name); // This cell depends on all those other cells //
             Content = content;
             Value = value;
         }
