@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using Spreadsheet;
 using SpreadsheetUtilities;
 
@@ -47,17 +45,6 @@ namespace SS
         /// </summary>
         public Spreadsheet() : this(new Dictionary<string, Cell>())
         {
-            // Iterate A - Z //
-            for (var x = 'A'; x <= 'Z'; x++)
-            {
-                // Iterate 1 - 50 //
-                for (var y = 1; y <= 50; y++)
-                {
-                    var cellName = x + y.ToString();
-
-                    _cells.Add(cellName, new Cell(cellName));
-                }
-            }
             
         }
 
@@ -65,7 +52,7 @@ namespace SS
         /// Creates a spreadsheet from the specified cells.
         /// </summary>
         /// <param name="cells">Cells to put into the spreadsheet</param>
-        private Spreadsheet(Dictionary<string, Cell> cells) // Will soon be changed to public //
+        private Spreadsheet(Dictionary<string, Cell> cells) // Will soon be changed to public. Give it time //
         {
             if (cells == null) throw new ArgumentNullException(nameof(cells), "Cells cannot be null");
             _cells = cells;
@@ -81,7 +68,7 @@ namespace SS
         /// </summary>
         public override object GetCellContents(string name)
         {
-            if (!_cells.ContainsKey(name))
+            if (string.IsNullOrWhiteSpace(name) || !_cells.ContainsKey(name))
                 throw new InvalidNameException();
 
             return _cells[name].Content;
@@ -114,15 +101,27 @@ namespace SS
         /// </summary>
         public override ISet<string> SetCellContents(string name, Formula formula)
         {
-            if (!_cells.ContainsKey(name))
+            if (string.IsNullOrWhiteSpace(name) || !IsValidName(name))
                 throw new InvalidNameException();
 
             if (formula == null)
                 throw new ArgumentNullException(nameof(formula), "Formula is null");
-            
+
+            if (!_cells.ContainsKey(name))
+                _cells.Add(name, new Cell(name));
+
+            var referencedCellsEnumeration = formula.GetVariables();
+            var referencedCells = referencedCellsEnumeration as string[] ?? referencedCellsEnumeration.ToArray();
+
             _cells[name].Content = formula;
             _cells[name].Value = formula.Evaluate(_resolveVariables);
-            _cells[name].Dependents.ReplaceDependents(name, formula.GetVariables());
+            
+            _cells[name].Dependents.ReplaceDependents(name, referencedCells);
+
+            foreach (var reference in referencedCells)
+            {
+                
+            }
 
             return new HashSet<string>(GetCellsToRecalculate(name));
         }
@@ -141,7 +140,14 @@ namespace SS
         /// </summary>
         public override ISet<string> SetCellContents(string name, string text)
         {
-            if (!_cells.ContainsKey(name)) return new HashSet<string>();
+            if (string.IsNullOrWhiteSpace(name) || !IsValidName(name))
+                throw new InvalidNameException();
+
+            if (text == null)
+                throw new ArgumentNullException(nameof(text), "text is null");
+
+            if (!_cells.ContainsKey(name))
+                _cells.Add(name, new Cell(name));
 
             _cells[name].Content = text;
             _cells[name].Value = text;
@@ -161,11 +167,15 @@ namespace SS
         /// </summary>
         public override ISet<string> SetCellContents(string name, double number)
         {
-            if (!_cells.ContainsKey(name)) return new HashSet<string>();
+            if (string.IsNullOrWhiteSpace(name) || !IsValidName(name))
+                throw new InvalidNameException();
+
+            if (!_cells.ContainsKey(name))
+                _cells.Add(name, new Cell(name));
 
             _cells[name].Content = number;
             _cells[name].Value = number;
-
+            
             return new HashSet<string>(GetCellsToRecalculate(name));
         }
 
@@ -189,11 +199,28 @@ namespace SS
         protected override IEnumerable<string> GetDirectDependents(string name)
         {
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-            if (!_cells.ContainsKey(name)) throw new InvalidNameException();
+            if (!IsValidName(name)) throw new InvalidNameException();
+
+            if (!_cells.ContainsKey(name))
+                _cells.Add(name, new Cell(name));
             
             var cell = _cells[name];
 
-            return cell.Dependents.GetDependents(cell.Name);
+            return cell.Dependents.GetDependees(cell.Name);
+        }
+
+        /// <summary>
+        /// Checks to see if the specified string is a valid variable name
+        /// </summary>
+        /// <param name="name">The string to check</param>
+        /// <returns>True if valid; false otherwise</returns>
+        protected bool IsValidName(string name)
+        {
+            // For this assignment.
+            return Regex.IsMatch(name, @"^(_|[a-zA-Z])+([a-zA-Z]|\d)");
+
+            // For next assignment.
+            // return Regex.IsMatch(name, @"^[A-Z]\d");
         }
     }
 }

@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SpreadsheetUtilities;
 using SS;
@@ -131,7 +135,6 @@ namespace SpreadsheetTests
 
             spreadsheet.SetCellContents("A1", new Formula("B1"));
             spreadsheet.SetCellContents("B1", new Formula("A1"));
-            
         }  
 
         [TestMethod]
@@ -146,96 +149,64 @@ namespace SpreadsheetTests
             spreadsheet.SetCellContents("D1", new Formula("E1"));
             spreadsheet.SetCellContents("E1", new Formula("A1"));
         }  
+
         [TestMethod]
+        
         public void TestMethod7()
         {
             var spreadsheet = new SS.Spreadsheet();
 
-            spreadsheet.SetCellContents("A1", 2.0);
-            spreadsheet.SetCellContents("B1", 45.0);
-            spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
+            spreadsheet.SetCellContents("_kanye_west", 2.0);
+            spreadsheet.SetCellContents("_kanye_north", 45.0);
+            spreadsheet.SetCellContents("C1", new Formula("_kanye_west + _kanye_north"));
 
             var resolve = _variableResolver(spreadsheet);
 
             var formula = spreadsheet.GetCellContents("C1") as Formula;
 
             Assert.IsNotNull(formula);
-            Assert.AreEqual(formula, new Formula("A1+B1"));
+            Assert.AreEqual(formula, new Formula("_kanye_west + _kanye_north"));
 
             Assert.AreEqual(47.0d, formula.Evaluate(resolve));
         }  
+
         [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
         public void TestMethod8()
         {
             var spreadsheet = new SS.Spreadsheet();
 
-            spreadsheet.SetCellContents("A1", 2.0);
-            spreadsheet.SetCellContents("B1", 45.0);
-            spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
-
-            var resolve = _variableResolver(spreadsheet);
-
-            var formula = spreadsheet.GetCellContents("C1") as Formula;
-
-            Assert.IsNotNull(formula);
-            Assert.AreEqual(formula, new Formula("A1+B1"));
-
-            Assert.AreEqual(47.0d, formula.Evaluate(resolve));
+            spreadsheet.SetCellContents("+quack", 2.0);
         }  
+
         [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
         public void TestMethod9()
         {
             var spreadsheet = new SS.Spreadsheet();
 
-            spreadsheet.SetCellContents("A1", 2.0);
-            spreadsheet.SetCellContents("B1", 45.0);
-            spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
-
-            var resolve = _variableResolver(spreadsheet);
-
-            var formula = spreadsheet.GetCellContents("C1") as Formula;
-
-            Assert.IsNotNull(formula);
-            Assert.AreEqual(formula, new Formula("A1+B1"));
-
-            Assert.AreEqual(47.0d, formula.Evaluate(resolve));
+            spreadsheet.SetCellContents("_+quack", 2.0);
         }  
+
+
         [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void TestMethod10()
         {
             var spreadsheet = new SS.Spreadsheet();
 
-            spreadsheet.SetCellContents("A1", 2.0);
-            spreadsheet.SetCellContents("B1", 45.0);
-            spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
+            spreadsheet.SetCellContents("A1", (string)null);
+        }
 
-            var resolve = _variableResolver(spreadsheet);
-
-            var formula = spreadsheet.GetCellContents("C1") as Formula;
-
-            Assert.IsNotNull(formula);
-            Assert.AreEqual(formula, new Formula("A1+B1"));
-
-            Assert.AreEqual(47.0d, formula.Evaluate(resolve));
-        }  
         [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
         public void TestMethod11()
         {
             var spreadsheet = new SS.Spreadsheet();
 
-            spreadsheet.SetCellContents("A1", 2.0);
-            spreadsheet.SetCellContents("B1", 45.0);
-            spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
+            spreadsheet.SetCellContents("A1", (Formula)null);
+        }
 
-            var resolve = _variableResolver(spreadsheet);
-
-            var formula = spreadsheet.GetCellContents("C1") as Formula;
-
-            Assert.IsNotNull(formula);
-            Assert.AreEqual(formula, new Formula("A1+B1"));
-
-            Assert.AreEqual(47.0d, formula.Evaluate(resolve));
-        }  
         [TestMethod]
         public void TestMethod12()
         {
@@ -258,73 +229,91 @@ namespace SpreadsheetTests
         public void TestMethod13()
         {
             var spreadsheet = new SS.Spreadsheet();
-
-            spreadsheet.SetCellContents("A1", 2.0);
-            spreadsheet.SetCellContents("B1", 45.0);
-            spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
-
             var resolve = _variableResolver(spreadsheet);
+            var random = new Random();
 
-            var formula = spreadsheet.GetCellContents("C1") as Formula;
+            for (var x = 'A'; x <= 'Z'; x++)
+            {
+                double sum = 0;
+                var expression = "";
 
-            Assert.IsNotNull(formula);
-            Assert.AreEqual(formula, new Formula("A1+B1"));
+                const int count = 30;
+                for (var y = 1; y < count; y++)
+                {
+                    var cell = x.ToString() + y;
+                    var randomNum = random.Next(1, 200);
 
-            Assert.AreEqual(47.0d, formula.Evaluate(resolve));
-        }  
+                    spreadsheet.SetCellContents(cell, randomNum);
+                    sum += randomNum;
+
+                    // Adds the cell with a + //
+                    expression += (y == count - 1) ? cell : cell + "+";
+                }
+                
+                var cellName = x + count.ToString();
+
+                spreadsheet.SetCellContents(cellName, new Formula(expression));
+
+                var formula = spreadsheet.GetCellContents(cellName) as Formula;
+
+                Assert.IsNotNull(formula);
+
+                Assert.AreEqual(sum, formula.Evaluate(resolve));
+            }
+        }
+
         [TestMethod]
+        [ExpectedException(typeof (InvalidNameException))]
         public void TestMethod14()
         {
             var spreadsheet = new SS.Spreadsheet();
+            spreadsheet.SetCellContents(null, 2.0);
+        }
 
-            spreadsheet.SetCellContents("A1", 2.0);
-            spreadsheet.SetCellContents("B1", 45.0);
-            spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
-
-            var resolve = _variableResolver(spreadsheet);
-
-            var formula = spreadsheet.GetCellContents("C1") as Formula;
-
-            Assert.IsNotNull(formula);
-            Assert.AreEqual(formula, new Formula("A1+B1"));
-
-            Assert.AreEqual(47.0d, formula.Evaluate(resolve));
-        }  
         [TestMethod]
         public void TestMethod15()
         {
             var spreadsheet = new SS.Spreadsheet();
 
             spreadsheet.SetCellContents("A1", 2.0);
-            spreadsheet.SetCellContents("B1", 45.0);
-            spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
+            spreadsheet.SetCellContents("C1", new Formula("A1"));
 
             var resolve = _variableResolver(spreadsheet);
 
             var formula = spreadsheet.GetCellContents("C1") as Formula;
 
             Assert.IsNotNull(formula);
-            Assert.AreEqual(formula, new Formula("A1+B1"));
+            Assert.AreEqual(formula, new Formula("A1"));
 
-            Assert.AreEqual(47.0d, formula.Evaluate(resolve));
+            Assert.AreEqual(2d, formula.Evaluate(resolve));
         }  
+
         [TestMethod]
         public void TestMethod16()
         {
             var spreadsheet = new SS.Spreadsheet();
 
-            spreadsheet.SetCellContents("A1", 2.0);
-            spreadsheet.SetCellContents("B1", 45.0);
-            spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
+            var random = new Random();
 
-            var resolve = _variableResolver(spreadsheet);
+            var listOfNonEmpty = new List<string>();
 
-            var formula = spreadsheet.GetCellContents("C1") as Formula;
+            foreach (var cell in GenerateCells(26, 26))
+            {
+                var shouldBeEmpty = random.Next() % 2 == 0;
 
-            Assert.IsNotNull(formula);
-            Assert.AreEqual(formula, new Formula("A1+B1"));
+                spreadsheet.SetCellContents(cell, shouldBeEmpty ? string.Empty : "Not empty bro");
 
-            Assert.AreEqual(47.0d, formula.Evaluate(resolve));
+                if (!shouldBeEmpty)
+                    listOfNonEmpty.Add(cell);
+            }
+
+            var notEmpties = spreadsheet.GetNamesOfAllNonemptyCells().ToList();
+
+            foreach (var element in notEmpties)
+            {
+                Assert.IsTrue(listOfNonEmpty.Contains(element));
+            }
+            
         }  
         [TestMethod]
         public void TestMethod17()
@@ -334,6 +323,7 @@ namespace SpreadsheetTests
             spreadsheet.SetCellContents("A1", 2.0);
             spreadsheet.SetCellContents("B1", 45.0);
             spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
+            var result = spreadsheet.SetCellContents("A1", 3.0);
 
             var resolve = _variableResolver(spreadsheet);
 
@@ -342,7 +332,7 @@ namespace SpreadsheetTests
             Assert.IsNotNull(formula);
             Assert.AreEqual(formula, new Formula("A1+B1"));
 
-            Assert.AreEqual(47.0d, formula.Evaluate(resolve));
+            Assert.AreEqual(48.0d, formula.Evaluate(resolve));
         }  
         [TestMethod]
         public void TestMethod18()
@@ -398,23 +388,16 @@ namespace SpreadsheetTests
 
             Assert.AreEqual(47.0d, formula.Evaluate(resolve));
         }  
-        [TestMethod]
-        public void TestMethod21()
+
+        private IEnumerable<string> GenerateCells(int width, int height)
         {
-            var spreadsheet = new SS.Spreadsheet();
-
-            spreadsheet.SetCellContents("A1", 2.0);
-            spreadsheet.SetCellContents("B1", 45.0);
-            spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
-
-            var resolve = _variableResolver(spreadsheet);
-
-            var formula = spreadsheet.GetCellContents("C1") as Formula;
-
-            Assert.IsNotNull(formula);
-            Assert.AreEqual(formula, new Formula("A1+B1"));
-
-            Assert.AreEqual(47.0d, formula.Evaluate(resolve));
+            for (var x = 'A'; x < 'A' + width; x++)
+            {
+                for (var y = 1; y <= height; y++)
+                {
+                    yield return x.ToString() + y;
+                }
+            }
         }
     }
 }

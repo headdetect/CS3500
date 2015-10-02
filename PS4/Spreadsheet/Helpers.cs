@@ -8,27 +8,27 @@ using SpreadsheetUtilities;
 namespace Spreadsheet
 {
     /// <summary>
-    /// A set of utility functions.
+    /// Utility class.
     /// </summary>
-    public static class Helper
+    public static class Helpers
     {
 
         /// <summary>
-        /// Will check to see if an object is concidered "Empty"
+        /// Checks to see if an object is concidered empty
         /// </summary>
-        /// <param name="obj">The object to check for</param>
+        /// <param name="obj">The object to check</param>
         /// <returns>True if empty; false otherwise</returns>
         public static bool IsEmpty(this object obj)
         {
+            var s = obj as string;
+            if (s != null)
+                return string.IsNullOrWhiteSpace(s);
+
             var formula = obj as Formula;
             if (formula != null)
-            {
-                return string.IsNullOrEmpty(formula.Expression);
-            }
+                return string.IsNullOrWhiteSpace(formula.Expression);
 
-            var s = obj as string;
-            return s != null && string.IsNullOrEmpty(s);
+            return false;
         }
-
     }
 }
