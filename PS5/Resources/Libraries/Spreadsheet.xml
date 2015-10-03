@@ -1,0 +1,324 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Spreadsheet</name>
+    </assembly>
+    <members>
+        <member name="T:SS.CircularException">
+            <summary>
+            Thrown to indicate that a change to a cell will cause a circular dependency.
+            </summary>
+        </member>
+        <member name="T:SS.InvalidNameException">
+            <summary>
+            Thrown to indicate that a name parameter was either null or invalid.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:SS.AbstractSpreadsheet" -->
+        <member name="M:SS.AbstractSpreadsheet.GetNamesOfAllNonemptyCells">
+            <summary>
+            Enumerates the names of all the non-empty cells in the spreadsheet.
+            </summary>
+        </member>
+        <member name="M:SS.AbstractSpreadsheet.GetCellContents(System.String)">
+            <summary>
+            If name is null or invalid, throws an InvalidNameException.
+            
+            Otherwise, returns the contents (as opposed to the value) of the named cell.  The return
+            value should be either a string, a double, or a Formula.
+            </summary>
+        </member>
+        <member name="M:SS.AbstractSpreadsheet.SetCellContents(System.String,System.Double)">
+            <summary>
+            If name is null or invalid, throws an InvalidNameException.
+            
+            Otherwise, the contents of the named cell becomes number.  The method returns a
+            set consisting of name plus the names of all other cells whose value depends, 
+            directly or indirectly, on the named cell.
+            
+            For example, if name is A1, B1 contains A1*2, and C1 contains B1+A1, the
+            set {A1, B1, C1} is returned.
+            </summary>
+        </member>
+        <member name="M:SS.AbstractSpreadsheet.SetCellContents(System.String,System.String)">
+            <summary>
+            If text is null, throws an ArgumentNullException.
+            
+            Otherwise, if name is null or invalid, throws an InvalidNameException.
+            
+            Otherwise, the contents of the named cell becomes text.  The method returns a
+            set consisting of name plus the names of all other cells whose value depends, 
+            directly or indirectly, on the named cell.
+            
+            For example, if name is A1, B1 contains A1*2, and C1 contains B1+A1, the
+            set {A1, B1, C1} is returned.
+            </summary>
+        </member>
+        <member name="M:SS.AbstractSpreadsheet.SetCellContents(System.String,SpreadsheetUtilities.Formula)">
+            <summary>
+            If the formula parameter is null, throws an ArgumentNullException.
+            
+            Otherwise, if name is null or invalid, throws an InvalidNameException.
+            
+            Otherwise, if changing the contents of the named cell to be the formula would cause a 
+            circular dependency, throws a CircularException.  (No change is made to the spreadsheet.)
+            
+            Otherwise, the contents of the named cell becomes formula.  The method returns a
+            Set consisting of name plus the names of all other cells whose value depends,
+            directly or indirectly, on the named cell.
+            
+            For example, if name is A1, B1 contains A1*2, and C1 contains B1+A1, the
+            set {A1, B1, C1} is returned.
+            </summary>
+        </member>
+        <member name="M:SS.AbstractSpreadsheet.GetDirectDependents(System.String)">
+            <summary>
+            If name is null, throws an ArgumentNullException.
+            
+            Otherwise, if name isn't a valid cell name, throws an InvalidNameException.
+            
+            Otherwise, returns an enumeration, without duplicates, of the names of all cells whose
+            values depend directly on the value of the named cell.  In other words, returns
+            an enumeration, without duplicates, of the names of all cells that contain
+            formulas containing name.
+            
+            For example, suppose that
+            A1 contains 3
+            B1 contains the formula A1 * A1
+            C1 contains the formula B1 + A1
+            D1 contains the formula B1 - C1
+            The direct dependents of A1 are B1 and C1
+            </summary>
+        </member>
+        <member name="M:SS.AbstractSpreadsheet.GetCellsToRecalculate(System.Collections.Generic.ISet{System.String})">
+            <summary>
+            Requires that names be non-null.  Also requires that if names contains s,
+            then s must be a valid non-null cell name.
+            
+            If any of the named cells are involved in a circular dependency,
+            throws a CircularException.
+            
+            Otherwise, returns an enumeration of the names of all cells whose values must
+            be recalculated, assuming that the contents of each cell named in names has changed.
+            The names are enumerated in the order in which the calculations should be done.  
+            
+            For example, suppose that 
+            A1 contains 5
+            B1 contains 7
+            C1 contains the formula A1 + B1
+            D1 contains the formula A1 * C1
+            E1 contains 15
+            
+            If A1 and B1 have changed, then A1, B1, and C1, and D1 must be recalculated,
+            and they must be recalculated in either the order A1,B1,C1,D1 or B1,A1,C1,D1.
+            The method will produce one of those enumerations.
+            
+            PLEASE NOTE THAT THIS METHOD DEPENDS ON THE ABSTRACT METHOD GetDirectDependents.
+            IT WON'T WORK UNTIL GetDirectDependents IS IMPLEMENTED CORRECTLY.
+            </summary>
+        </member>
+        <member name="M:SS.AbstractSpreadsheet.GetCellsToRecalculate(System.String)">
+            <summary>
+            A convenience method for invoking the other version of GetCellsToRecalculate
+            with a singleton set of names.  See the other version for details.
+            </summary>
+        </member>
+        <member name="M:SS.AbstractSpreadsheet.Visit(System.String,System.String,System.Collections.Generic.ISet{System.String},System.Collections.Generic.LinkedList{System.String})">
+            <summary>
+            A helper for the GetCellsToRecalculate method.
+            
+            It will tag certain cells as visited. Once tagged, it is
+            assumed that the tagged cell has been properly handled.
+            </summary>
+        </member>
+        <member name="T:SS.Cell">
+                    Specified Invariant:
+                    
+                    The "Value" is to be computed using your own methods.
+                    The result should be pushed into the Value property. 
+                    There are other ways of going about
+                    this, such as, just evaluating the content in the getter
+                    of Value. That method would require additional computation
+                    when it is not needed.
+            
+                *
+            <summary>
+            This will represent a spreadsheet 'cell'. 
+            It contains a value and content. 
+            The content is the physical input given by a user,
+            whereas the value is the content evalueated.
+            </summary>
+        </member>
+        <member name="P:SS.Cell.Content">
+            <summary>
+            Gets or sets the content of the cell.
+            </summary>
+        </member>
+        <member name="P:SS.Cell.Value">
+            <summary>
+            Gets the evaluated value based off of <see cref="P:SS.Cell.Content"/>
+            </summary>
+        </member>
+        <member name="P:SS.Cell.Name">
+            <summary>
+            Gets and sets the name of this cell.
+            </summary>
+        </member>
+        <member name="M:SS.Cell.#ctor(System.String)">
+            <summary>
+            Creates an empty cell
+            </summary>
+            <param name="name">The name of this cell</param>
+        </member>
+        <member name="M:SS.Cell.#ctor(System.String,System.Object,System.Object)">
+            <summary>
+            Creates a cell object using the specified contents and values.
+            </summary>
+            <param name="name">The name of this cell</param>
+            <param name="content">The content of the cell</param>
+            <param name="value">The value of the cell</param>
+        </member>
+        <member name="M:SS.Cell.#ctor(System.String,System.Collections.Generic.IEnumerable{SS.Cell},System.Object,System.Object)">
+            <summary>
+            Creates a cell object using the specified dependents, contents, and values.
+            </summary>
+            <param name="name">The name of this cell</param>
+            <param name="dependents">The cells this cell depends on</param>
+            <param name="content">The content of the cell</param>
+            <param name="value">The value of the cell</param>
+        </member>
+        <member name="T:SS.Spreadsheet">
+            <summary>
+            The spreadsheet class. Contains a row and column of cells that
+            can take in both functions and plain text.
+            These cells can relate to eachother by referencing them via 
+            a dependency map.
+            </summary>
+        </member>
+        <member name="F:SS.Spreadsheet._cells">
+            <summary>
+            All the cells for this spreadsheet.
+            </summary>
+        </member>
+        <member name="F:SS.Spreadsheet._depenencyManager">
+            <summary>
+            Gets and sets the dependents of this cell.
+            Say that A1 contains the forumla:
+            B1 + 2 - C3
+            This should return {B1, C3}
+            </summary>
+        </member>
+        <member name="F:SS.Spreadsheet._resolver">
+            <summary>
+            The resolver is temporary, just to be accessed outside the class.
+            Made it this way because we can't make any other public methods >.>
+            I gettin real sneaky.
+            </summary>
+        </member>
+        <member name="M:SS.Spreadsheet.#ctor">
+            <summary>
+            Creates an empty spreadsheet. A1 - Z50
+            </summary>
+        </member>
+        <member name="M:SS.Spreadsheet.#ctor(System.Collections.Generic.Dictionary{System.String,SS.Cell})">
+            <summary>
+            Creates a spreadsheet from the specified cells.
+            </summary>
+            <param name="cells">Cells to put into the spreadsheet</param>
+        </member>
+        <member name="M:SS.Spreadsheet.GetCellContents(System.String)">
+            <summary>
+            If name is null or invalid, throws an InvalidNameException.
+            
+            Otherwise, returns the contents (as opposed to the value) of the named cell.  The return
+            value should be either a string, a double, or a Formula.
+            </summary>
+        </member>
+        <member name="M:SS.Spreadsheet.GetNamesOfAllNonemptyCells">
+            <summary>
+            Enumerates the names of all the non-empty cells in the spreadsheet.
+            </summary>
+        </member>
+        <member name="M:SS.Spreadsheet.SetCellContents(System.String,SpreadsheetUtilities.Formula)">
+            <summary>
+            If the formula parameter is null, throws an ArgumentNullException.
+            
+            Otherwise, if name is null or invalid, throws an InvalidNameException.
+            
+            Otherwise, if changing the contents of the named cell to be the formula would cause a 
+            circular dependency, throws a CircularException.  (No change is made to the spreadsheet.)
+            
+            Otherwise, the contents of the named cell becomes formula.  The method returns a
+            Set consisting of name plus the names of all other cells whose value depends,
+            directly or indirectly, on the named cell.
+            
+            For example, if name is A1, B1 contains A1*2, and C1 contains B1+A1, the
+            set {A1, B1, C1} is returned.
+            </summary>
+        </member>
+        <member name="M:SS.Spreadsheet.SetCellContents(System.String,System.String)">
+            <summary>
+            If text is null, throws an ArgumentNullException.
+            
+            Otherwise, if name is null or invalid, throws an InvalidNameException.
+            
+            Otherwise, the contents of the named cell becomes text.  The method returns a
+            set consisting of name plus the names of all other cells whose value depends, 
+            directly or indirectly, on the named cell.
+            
+            For example, if name is A1, B1 contains A1*2, and C1 contains B1+A1, the
+            set {A1, B1, C1} is returned.
+            </summary>
+        </member>
+        <member name="M:SS.Spreadsheet.SetCellContents(System.String,System.Double)">
+            <summary>
+            If name is null or invalid, throws an InvalidNameException.
+            
+            Otherwise, the contents of the named cell becomes number.  The method returns a
+            set consisting of name plus the names of all other cells whose value depends, 
+            directly or indirectly, on the named cell.
+            
+            For example, if name is A1, B1 contains A1*2, and C1 contains B1+A1, the
+            set {A1, B1, C1} is returned.
+            </summary>
+        </member>
+        <member name="M:SS.Spreadsheet.GetDirectDependents(System.String)">
+            <summary>
+            If name is null, throws an ArgumentNullException.
+            
+            Otherwise, if name isn't a valid cell name, throws an InvalidNameException.
+            
+            Otherwise, returns an enumeration, without duplicates, of the names of all cells whose
+            values depend directly on the value of the named cell.  In other words, returns
+            an enumeration, without duplicates, of the names of all cells that contain
+            formulas containing name.
+            
+            For example, suppose that
+            A1 contains 3
+            B1 contains the formula A1 * A1
+            C1 contains the formula B1 + A1
+            D1 contains the formula B1 - C1
+            The direct dependents of A1 are B1 and C1
+            </summary>
+        </member>
+        <member name="M:SS.Spreadsheet.IsValidName(System.String)">
+            <summary>
+            Checks to see if the specified string is a valid variable name
+            </summary>
+            <param name="name">The string to check</param>
+            <returns>True if valid; false otherwise</returns>
+        </member>
+        <member name="T:Spreadsheet.Helper">
+            <summary>
+            A set of utility functions.
+            </summary>
+        </member>
+        <member name="M:Spreadsheet.Helper.IsEmpty(System.Object)">
+            <summary>
+            Will check to see if an object is concidered "Empty"
+            </summary>
+            <param name="obj">The object to check for</param>
+            <returns>True if empty; false otherwise</returns>
+        </member>
+    </members>
+</doc>
