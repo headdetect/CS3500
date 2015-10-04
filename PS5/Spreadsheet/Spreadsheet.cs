@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Mime;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Spreadsheet;
@@ -54,6 +55,15 @@ namespace SS
             return value ?? double.NaN;
         }
 
+
+        /// <summary>
+        /// Creates a new empty spreadsheet with a proper validation and normalization funciton.
+        /// </summary>
+        public Spreadsheet() : this(IsValidName, s => s.ToUpperInvariant())
+        {
+            
+        }
+
         /// <summary>
         /// Creates a spreadsheet that contains cells where you can put in a 
         /// string, number, or a forumla.
@@ -64,23 +74,72 @@ namespace SS
         public Spreadsheet(Func<string, bool> isValid, Func<string, string> normalize, string version = CurrentVersion) : base(isValid, normalize, version)
         {
             _cells = new Dictionary<string, Cell>();
-
             _depenencyManager = new DependencyGraph();
         }
 
         /// <summary>
-        /// If name is null or invalid, throws an InvalidNameException.
-        /// 
-        /// Otherwise, returns the contents (as opposed to the value) of the named cell.  The return
-        /// value should be either a string, a double, or a Formula.
+        /// Creates a spreadsheet from a specified file.
         /// </summary>
-        public override object GetCellContents(string name)
+        /// <param name="filename">The file </param>
+        /// <param name="isValid"></param>
+        /// <param name="normalize"></param>
+        /// <param name="version"></param>
+        public Spreadsheet(string filename, Func<string, bool> isValid, Func<string, string> normalize, string version = CurrentVersion) : this(isValid, normalize, version)
         {
-            if (string.IsNullOrWhiteSpace(name) || !_cells.ContainsKey(name))
-                throw new InvalidNameException();
-
-            return _cells[name].Content;
+            ReadSpreadsheet(version, filename);
         }
+
+        /// <summary>
+        /// Reads the specified spreadsheet file and fills the spreadsheet object out.
+        /// Created to prevent inheritence issues which allows us to circumvent the "sealed" issue.
+        /// So we don't have to have the "GetSavedVersion", "SetContentsOfCell" or the class be marked as sealed.
+        /// </summary>
+        /// <param name="version"></param>
+        /// <param name="filename"></param>
+        private void ReadSpreadsheet(string version, string filename)
+        {
+            var savedVersion = GetSavedVersion(filename);
+
+            if (version != savedVersion) throw new SpreadsheetReadWriteException("Version mismatch");
+
+            try
+            {
+                using (var reader = XmlReader.Create(filename))
+                {
+                    while (reader.Read())
+                    {
+                        if (reader.NodeType != XmlNodeType.Element) continue;
+
+                        if (reader.Name != "cell") continue;
+                    
+                        var name = string.Empty;
+                        var content = string.Empty;
+
+                        reader.Read();
+
+                        if (reader.Name == "name")
+                        {
+                            name = reader.ReadInnerXml();
+                            content = reader.ReadInnerXml();
+                        }
+
+                        if (reader.Name == "contents")
+                        {
+                            content = reader.ReadInnerXml();
+                            name = reader.ReadInnerXml();
+                        }
+
+                        SetContentsOfCell(name, content);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw new SpreadsheetReadWriteException(e.Message);
+            }
+        }
+
+
 
         /// <summary>
         /// If content is null, throws an ArgumentNullException.
@@ -119,6 +178,8 @@ namespace SS
             if (content == null)
                 throw new ArgumentNullException(nameof(content), "content is null");
 
+            name = Normalize(name);
+
             Changed = true;
 
             var getDouble = content.TryGetDouble();
@@ -131,7 +192,7 @@ namespace SS
             if (content.StartsWith("=", StringComparison.CurrentCultureIgnoreCase))
             {
                 // Is formula, parse as such //
-                return SetCellContents(name, new Formula(content, Normalize, IsValid));
+                return SetCellContents(name, new Formula(content.Substring(1), Normalize, IsValid)); // Skip first character //
             }
 
             // Is just a plain string //
@@ -157,7 +218,7 @@ namespace SS
                     return reader.Value;
                 }
             }
-            catch (IOException ioe)
+            catch (Exception ioe)
             {
                 throw new SpreadsheetReadWriteException(ioe.Message);
             } 
@@ -194,8 +255,14 @@ namespace SS
         {
             try
             {
-                using (var writer = XmlWriter.Create(filename))
+                var settings = new XmlWriterSettings
                 {
+                    //Indent = true
+                };
+
+                using (var writer = XmlWriter.Create(filename, settings))
+                {
+
                     writer.WriteStartDocument();
                     writer.WriteStartElement("spreadsheet");
                     writer.WriteAttributeString("version", Version); 
@@ -218,7 +285,7 @@ namespace SS
                 }
                 Changed = false;
             }
-            catch (IOException ioe)
+            catch (Exception ioe)
             {
                 throw new SpreadsheetReadWriteException(ioe.Message);
             }
@@ -236,7 +303,25 @@ namespace SS
             if (string.IsNullOrWhiteSpace(name) || !IsValidName(name))
                 throw new InvalidNameException();
 
+            name = Normalize(name);
+
             return !_cells.ContainsKey(name) ? string.Empty : _cells[name].Value;
+        }
+
+        /// <summary>
+        /// If name is null or invalid, throws an InvalidNameException.
+        /// 
+        /// Otherwise, returns the contents (as opposed to the value) of the named cell.  The return
+        /// value should be either a string, a double, or a Formula.
+        /// </summary>
+        public override object GetCellContents(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name) || !_cells.ContainsKey(name))
+                throw new InvalidNameException();
+
+            name = Normalize(name);
+
+            return _cells[name].Content;
         }
 
         /// <summary>

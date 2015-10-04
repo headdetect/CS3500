@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SpreadsheetUtilities;
@@ -220,7 +223,7 @@ namespace SpreadsheetTests
 
             var listOfNonEmpty = new List<string>();
 
-            foreach (var cell in GenerateCells(26, 26))
+            foreach (var cell in GenerateCells(26))
             {
                 var shouldBeEmpty = random.Next() % 2 == 0;
 
@@ -296,11 +299,162 @@ namespace SpreadsheetTests
             var result = spreadsheet.SetContentsOfCell("A1", "3.0");
 
             Assert.IsTrue(result.Contains("C1") && result.Contains("D1") && result.Contains("E1") && result.Contains("A1"));
-        }  
+        }
 
-        private IEnumerable<string> GenerateCells(int width, int height)
+        [TestMethod]
+        public void TestMethod21()
         {
-            for (var x = 'A'; x < 'A' + width; x++)
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
+
+            spreadsheet.SetContentsOfCell("A1", "2.0");
+            spreadsheet.SetContentsOfCell("B1", "45.0");
+            spreadsheet.SetContentsOfCell("C1", "=A1 + B1");
+            spreadsheet.SetContentsOfCell("D1", "=C1 + B1");
+            spreadsheet.SetContentsOfCell("E1", "=D1 + B1");
+            
+            spreadsheet.Save("Test21.cellular");
+
+            Assert.IsTrue(File.Exists("Test21.cellular"));
+        }
+
+        [TestMethod]
+        public void TestMethod22()
+        {
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
+
+            spreadsheet.SetContentsOfCell("A1", "2.0");
+            spreadsheet.SetContentsOfCell("B1", "45.0");
+            spreadsheet.SetContentsOfCell("C1", "=A1 + B1");
+            spreadsheet.SetContentsOfCell("D1", "=C1 + B1");
+            spreadsheet.SetContentsOfCell("E1", "=D1 + B1");
+
+            spreadsheet.Save("Test22.cellular");
+
+            var version = spreadsheet.GetSavedVersion("Test22.cellular");
+
+            Assert.AreEqual(version, SS.Spreadsheet.CurrentVersion);
+        }
+
+        [TestMethod]
+        public void TestMethod23()
+        {
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize, "v0.0.0a (#NoFilter)");
+
+            spreadsheet.SetContentsOfCell("A1", "2.0");
+            spreadsheet.SetContentsOfCell("B1", "45.0");
+            spreadsheet.SetContentsOfCell("C1", "=A1 + B1");
+            spreadsheet.SetContentsOfCell("D1", "=C1 + B1");
+            spreadsheet.SetContentsOfCell("E1", "=D1 + B1");
+
+            spreadsheet.Save("Test23.cellular");
+
+            var version = spreadsheet.GetSavedVersion("Test23.cellular");
+
+            Assert.AreEqual(version, "v0.0.0a (#NoFilter)");
+        }
+
+        [TestMethod]
+        public void TestMethod24()
+        {
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
+
+            spreadsheet.SetContentsOfCell("A1", "2.0");
+            spreadsheet.SetContentsOfCell("B1", "45.0");
+            spreadsheet.SetContentsOfCell("C1", "=A1 + B1");
+
+            spreadsheet.Save("Test24.cellular");
+            var contents = Regex.Replace(File.ReadAllText("Test24.cellular"), @"\s", string.Empty);
+            var shouldBe =
+                Regex.Replace("<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<spreadsheet version=\"v0.0.1 (Duck Face)\">\r\n  <cells>\r\n    <cell>\r\n      <name>A1</name>\r\n      <contents>2</contents>\r\n    </cell>\r\n    <cell>\r\n      <name>B1</name>\r\n      <contents>45</contents>\r\n    </cell>\r\n    <cell>\r\n      <name>C1</name>\r\n      <contents>=A1+B1</contents>\r\n    </cell>\r\n  </cells>\r\n</spreadsheet>", @"\s", string.Empty);
+
+            Assert.AreEqual(contents, shouldBe);
+        }
+
+        [TestMethod]
+        public void TestMethod25()
+        {
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
+
+            spreadsheet.SetContentsOfCell("A1", "2.0");
+
+            Assert.IsTrue(spreadsheet.Changed);
+
+            spreadsheet.Save("Test25.cellular");
+
+            Assert.IsFalse(spreadsheet.Changed);
+
+            spreadsheet.SetContentsOfCell("A1", "3.0");
+
+            Assert.IsTrue(spreadsheet.Changed);
+
+            spreadsheet.Save("Test25.cellular");
+
+            Assert.IsFalse(spreadsheet.Changed);
+        }
+
+        [TestMethod]
+        public void TestMethod26()
+        {
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
+            var random = new Random();
+
+            foreach (var cell in GenerateCells(100))
+            {
+                spreadsheet.SetContentsOfCell(cell, (1000 * random.NextDouble()).ToString(CultureInfo.InvariantCulture));
+            }
+
+            spreadsheet.Save("Test26.cellular");
+
+            var spreadsheet2 = new SS.Spreadsheet("Test26.cellular", _isValid, _normalize);
+
+            var insideSpreadsheet = new PrivateObject(spreadsheet);
+            var cells = insideSpreadsheet.GetFieldOrProperty("_cells") as Dictionary<string, Cell>;
+
+            Assert.IsNotNull(cells);
+
+            foreach (var cell in cells)
+            {
+                var value1 = spreadsheet.GetCellValue(cell.Key);
+                var value2 = spreadsheet2.GetCellValue(cell.Key);
+                var content1 = spreadsheet.GetCellContents(cell.Key);
+                var content2 = spreadsheet2.GetCellContents(cell.Key);
+
+                Assert.AreEqual(value1, value2);
+                Assert.AreEqual(content1, content2);
+            }
+            
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void TestMethod27()
+        {
+            // Spreadsheet that contains a circular exception //
+            const string circles = "<?xml version=\"1.0\" encoding=\"utf-8\"?><spreadsheet version=\"v0.0.1 (Duck Face)\"><cells><cell><name>A1</name><contents>=B1</contents></cell><cell><name>B1</name><contents>=A1</contents></cell></cells></spreadsheet>"; 
+
+            File.WriteAllText("Test27.cellular", circles);
+
+            var spreadsheet = new SS.Spreadsheet("Test27.cellular", _isValid, _normalize);
+        }
+
+
+        [TestMethod]
+        public void TestMethod28()
+        {
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
+            var random = new Random();
+
+            foreach (var cell in GenerateCells(10000))
+            {
+                spreadsheet.SetContentsOfCell(cell, (1000 * random.NextDouble()).ToString(CultureInfo.InvariantCulture));
+            }
+
+            spreadsheet.Save("Test26.cellular");
+        }
+
+        private IEnumerable<string> GenerateCells(int height)
+        {
+            for (var x = 'A'; x < 'Z'; x++)
             {
                 for (var y = 1; y <= height; y++)
                 {
