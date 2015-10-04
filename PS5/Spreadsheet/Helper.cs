@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SpreadsheetUtilities;
 
-namespace Spreadsheet
+namespace SS
 {
     /// <summary>
     /// A set of utility functions.
