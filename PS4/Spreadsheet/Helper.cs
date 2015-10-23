@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SpreadsheetUtilities;
 
-namespace Spreadsheet
+namespace SS
 {
     /// <summary>
     /// A set of utility functions.
@@ -28,6 +28,21 @@ namespace Spreadsheet
 
             var s = obj as string;
             return s != null && string.IsNullOrEmpty(s);
+        }
+
+
+
+        /// <summary>
+        /// Tries to get a double from the specified string, if null, not a valid double.
+        /// </summary>
+        /// <param name="str">The string to parse</param>
+        /// <returns>A double from the specified string, if null, not a valid double.</returns>
+        public static double? TryGetDouble(this string str)
+        {
+            double tryGet;
+            if (double.TryParse(str, out tryGet))
+                return tryGet;
+            return null;
         }
 
     }

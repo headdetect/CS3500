@@ -1,191 +1,148 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SpreadsheetUtilities;
 using SS;
+using Spreadsheet = SS.Spreadsheet;
 
 namespace SpreadsheetTests
 {
     [TestClass]
     public class UnitTest1
     {
-        /// <summary>
-        /// Gets the internal variable resolver for getting cells.
-        /// Because the only thing we're allowed to make public is the
-        /// already defined functions and the Constructor. So, we had
-        /// to get tricky and make it a private Func so we can access it 
-        /// using the Private Object method.
-        /// </summary>
-        /// <param name="spreadsheet">The spreadsheet that we are getting the function from</param>
-        /// <returns>The function that resolves variables</returns>
-        private Func<string, double> _variableResolver(SS.Spreadsheet spreadsheet)
-        {
-            var privateObject = new PrivateObject(spreadsheet);
-            return privateObject.GetFieldOrProperty("_resolver") as Func<string, double>;
-        }
+        private readonly Func<string, bool> _isValid = SS.Spreadsheet.IsValidName;
+        private readonly Func<string, string> _normalize = str => str.ToUpper(CultureInfo.CurrentCulture);
             
         [TestMethod]
         public void TestMethod1()
         {
-            var spreadsheet = new SS.Spreadsheet();
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
 
-            spreadsheet.SetCellContents("A1", 2.0);
-            spreadsheet.SetCellContents("B1", 45.0);
-            spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
+            spreadsheet.SetContentsOfCell("A1", "2.0");
+            spreadsheet.SetContentsOfCell("B1", "45.0");
+            spreadsheet.SetContentsOfCell("C1", "=A1 + B1");
+            
+            var result = spreadsheet.GetCellValue("C1");
 
-            var resolve = _variableResolver(spreadsheet);
-
-            var formula = spreadsheet.GetCellContents("C1") as Formula;
-
-            Assert.IsNotNull(formula);
-            Assert.AreEqual(formula, new Formula("A1+B1"));
-
-            Assert.AreEqual(47.0d, formula.Evaluate(resolve));
+            Assert.AreEqual(47.0d, result);
         }  
+
         [TestMethod]
         public void TestMethod2()
         {
-            var spreadsheet = new SS.Spreadsheet();
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
 
-            spreadsheet.SetCellContents("A1", 2.0);
-            spreadsheet.SetCellContents("B1", 45.0);
-            spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
-            spreadsheet.SetCellContents("D1", new Formula("C1 + A1"));
-
-            var resolve = _variableResolver(spreadsheet);
-
-            var d1 = spreadsheet.GetCellContents("D1") as Formula;
+            spreadsheet.SetContentsOfCell("A1", "2.0");
+            spreadsheet.SetContentsOfCell("B1", "45.0");
+            spreadsheet.SetContentsOfCell("C1","=A1 + B1");
+            spreadsheet.SetContentsOfCell("D1", "=C1 + A1");
+            
+            var d1 = spreadsheet.GetCellValue("D1");
 
             Assert.IsNotNull(d1);
-            Assert.AreEqual(d1, new Formula("C1 + A1"));
-
-            Assert.AreEqual(49.0d, d1.Evaluate(resolve));
+            Assert.AreEqual(d1, 2 + 45 + 2d);
         }  
         [TestMethod]
         public void TestMethod3()
         {
-            var spreadsheet = new SS.Spreadsheet();
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
 
-            spreadsheet.SetCellContents("A1", 1);
-            spreadsheet.SetCellContents("A2", 2);
-            spreadsheet.SetCellContents("A3", new Formula("A1 + A2"));
-            spreadsheet.SetCellContents("B1", 3);
-            spreadsheet.SetCellContents("B2", 4);
-            spreadsheet.SetCellContents("B3", new Formula("B1 + B2"));
-            spreadsheet.SetCellContents("C3", new Formula("A3 + B3"));
-            spreadsheet.SetCellContents("D3", new Formula("C3 / 2"));
+            spreadsheet.SetContentsOfCell("A1", "1");
+            spreadsheet.SetContentsOfCell("A2", "2");
+            spreadsheet.SetContentsOfCell("A3", "=A1 + A2");
+            spreadsheet.SetContentsOfCell("B1", "3");
+            spreadsheet.SetContentsOfCell("B2", "4");
+            spreadsheet.SetContentsOfCell("B3", "=B1 + B2");
+            spreadsheet.SetContentsOfCell("C3", "=A3 + B3");
+            spreadsheet.SetContentsOfCell("D3", "=C3 / 2");
+            
+            var a3 = spreadsheet.GetCellValue("A3");
+            var b3 = spreadsheet.GetCellValue("B3");
+            var c3 = spreadsheet.GetCellValue("C3");
+            var d3 = spreadsheet.GetCellValue("D3");
 
-            var resolve = _variableResolver(spreadsheet);
-
-            var a3 = spreadsheet.GetCellContents("A3") as Formula;
-            var b3 = spreadsheet.GetCellContents("B3") as Formula;
-            var c3 = spreadsheet.GetCellContents("C3") as Formula;
-            var d3 = spreadsheet.GetCellContents("D3") as Formula;
-
-            Assert.IsNotNull(a3);
-            Assert.IsNotNull(b3);
-            Assert.IsNotNull(c3);
-            Assert.IsNotNull(d3);
-
-            Assert.AreEqual(3d, a3.Evaluate(resolve));
-            Assert.AreEqual(7d, b3.Evaluate(resolve));
-            Assert.AreEqual(10d, c3.Evaluate(resolve));
-            Assert.AreEqual(5d, d3.Evaluate(resolve));
+            Assert.AreEqual(3d, a3);
+            Assert.AreEqual(7d, b3);
+            Assert.AreEqual(10d, c3);
+            Assert.AreEqual(5d, d3);
         }  
         [TestMethod]
         public void TestMethod4()
         {
-            var spreadsheet = new SS.Spreadsheet();
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
 
-            spreadsheet.SetCellContents("A1", "Title");
-            spreadsheet.SetCellContents("A2", "Tesla #1");
-            spreadsheet.SetCellContents("A3", "Tesla #2");
-            spreadsheet.SetCellContents("A4", "Tesla #3");
-            spreadsheet.SetCellContents("A5", "Total:");
+            spreadsheet.SetContentsOfCell("A1", "Title");
+            spreadsheet.SetContentsOfCell("A2", "Tesla #1");
+            spreadsheet.SetContentsOfCell("A3", "Tesla #2");
+            spreadsheet.SetContentsOfCell("A4", "Tesla #3");
+            spreadsheet.SetContentsOfCell("A5", "Total:");
 
-            spreadsheet.SetCellContents("B1", "Sales");
-            spreadsheet.SetCellContents("B2", 75000);
-            spreadsheet.SetCellContents("B3", 85000);
-            spreadsheet.SetCellContents("B4", 90000);
-            spreadsheet.SetCellContents("B5", new Formula("B2+B3+B4"));
+            spreadsheet.SetContentsOfCell("B1", "Sales");
+            spreadsheet.SetContentsOfCell("B2", "75000");
+            spreadsheet.SetContentsOfCell("B3", "85000");
+            spreadsheet.SetContentsOfCell("B4", "90000");
+            spreadsheet.SetContentsOfCell("B5", "=B2+B3+B4");
 
-            var resolve = _variableResolver(spreadsheet);
-
-            var a1 = spreadsheet.GetCellContents("A1") as string;
-            var b2 = spreadsheet.GetCellContents("B2") as double?;
-            var b5 = spreadsheet.GetCellContents("B5") as Formula;
+            var a1 = spreadsheet.GetCellValue("A1");
+            var b2 = spreadsheet.GetCellValue("B2");
+            var b5 = spreadsheet.GetCellValue("B5");
 
             Assert.IsNotNull(a1);
             Assert.IsNotNull(b2);
             Assert.IsNotNull(b5);
 
             Assert.AreEqual("Title", a1);
-            Assert.AreEqual(75000, b2);
-            Assert.AreEqual(75000 + 85000 + 90000d, b5.Evaluate(resolve));
+            Assert.AreEqual(75000d, b2);
+            Assert.AreEqual(75000 + 85000 + 90000d, b5);
         }  
 
         [TestMethod]
         [ExpectedException(typeof(CircularException))]
         public void TestMethod5()
         {
-            var spreadsheet = new SS.Spreadsheet();
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
 
-            spreadsheet.SetCellContents("A1", new Formula("B1"));
-            spreadsheet.SetCellContents("B1", new Formula("A1"));
+            spreadsheet.SetContentsOfCell("A1", "=B1");
+            spreadsheet.SetContentsOfCell("B1", "=A1");
         }  
 
         [TestMethod]
         [ExpectedException(typeof(CircularException))]
         public void TestMethod6()
         {
-            var spreadsheet = new SS.Spreadsheet();
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
 
-            spreadsheet.SetCellContents("A1", new Formula("B1"));
-            spreadsheet.SetCellContents("B1", new Formula("C1"));
-            spreadsheet.SetCellContents("C1", new Formula("D1"));
-            spreadsheet.SetCellContents("D1", new Formula("E1"));
-            spreadsheet.SetCellContents("E1", new Formula("A1"));
+            spreadsheet.SetContentsOfCell("A1", "=B1");
+            spreadsheet.SetContentsOfCell("B1", "=C1");
+            spreadsheet.SetContentsOfCell("C1", "=D1");
+            spreadsheet.SetContentsOfCell("D1", "=E1");
+            spreadsheet.SetContentsOfCell("E1", "=A1");
         }  
-
-        [TestMethod]
         
-        public void TestMethod7()
-        {
-            var spreadsheet = new SS.Spreadsheet();
-
-            spreadsheet.SetCellContents("_kanye_west", 2.0);
-            spreadsheet.SetCellContents("_kanye_north", 45.0);
-            spreadsheet.SetCellContents("C1", new Formula("_kanye_west + _kanye_north"));
-
-            var resolve = _variableResolver(spreadsheet);
-
-            var formula = spreadsheet.GetCellContents("C1") as Formula;
-
-            Assert.IsNotNull(formula);
-            Assert.AreEqual(formula, new Formula("_kanye_west + _kanye_north"));
-
-            Assert.AreEqual(47.0d, formula.Evaluate(resolve));
-        }  
 
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
         public void TestMethod8()
         {
-            var spreadsheet = new SS.Spreadsheet();
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
 
-            spreadsheet.SetCellContents("+quack", 2.0);
+            spreadsheet.SetContentsOfCell("+quack", "2.0");
         }  
 
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
         public void TestMethod9()
         {
-            var spreadsheet = new SS.Spreadsheet();
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
 
-            spreadsheet.SetCellContents("_+quack", 2.0);
+            spreadsheet.SetContentsOfCell("_+quack", "2.0");
         }  
 
 
@@ -193,43 +150,15 @@ namespace SpreadsheetTests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMethod10()
         {
-            var spreadsheet = new SS.Spreadsheet();
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
 
-            spreadsheet.SetCellContents("A1", (string)null);
+            spreadsheet.SetContentsOfCell("A1", null);
         }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void TestMethod11()
-        {
-            var spreadsheet = new SS.Spreadsheet();
-
-            spreadsheet.SetCellContents("A1", (Formula)null);
-        }
-
-        [TestMethod]
-        public void TestMethod12()
-        {
-            var spreadsheet = new SS.Spreadsheet();
-
-            spreadsheet.SetCellContents("A1", 2.0);
-            spreadsheet.SetCellContents("B1", 45.0);
-            spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
-
-            var resolve = _variableResolver(spreadsheet);
-
-            var formula = spreadsheet.GetCellContents("C1") as Formula;
-
-            Assert.IsNotNull(formula);
-            Assert.AreEqual(formula, new Formula("A1+B1"));
-
-            Assert.AreEqual(47.0d, formula.Evaluate(resolve));
-        }  
+        
         [TestMethod]
         public void TestMethod13()
         {
-            var spreadsheet = new SS.Spreadsheet();
-            var resolve = _variableResolver(spreadsheet);
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
             var random = new Random();
 
             for (var x = 'A'; x <= 'Z'; x++)
@@ -243,7 +172,7 @@ namespace SpreadsheetTests
                     var cell = x.ToString() + y;
                     var randomNum = random.Next(1, 200);
 
-                    spreadsheet.SetCellContents(cell, randomNum);
+                    spreadsheet.SetContentsOfCell(cell, randomNum.ToString());
                     sum += randomNum;
 
                     // Adds the cell with a + //
@@ -252,13 +181,13 @@ namespace SpreadsheetTests
                 
                 var cellName = x + count.ToString();
 
-                spreadsheet.SetCellContents(cellName, new Formula(expression));
+                spreadsheet.SetContentsOfCell(cellName, "=" + expression);
 
-                var formula = spreadsheet.GetCellContents(cellName) as Formula;
+                var formula = spreadsheet.GetCellValue(cellName);
 
                 Assert.IsNotNull(formula);
 
-                Assert.AreEqual(sum, formula.Evaluate(resolve));
+                Assert.AreEqual(sum, formula);
             }
         }
 
@@ -266,42 +195,39 @@ namespace SpreadsheetTests
         [ExpectedException(typeof (InvalidNameException))]
         public void TestMethod14()
         {
-            var spreadsheet = new SS.Spreadsheet();
-            spreadsheet.SetCellContents(null, 2.0);
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
+            spreadsheet.SetContentsOfCell(null, "2.0");
         }
 
         [TestMethod]
         public void TestMethod15()
         {
-            var spreadsheet = new SS.Spreadsheet();
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
 
-            spreadsheet.SetCellContents("A1", 2.0);
-            spreadsheet.SetCellContents("C1", new Formula("A1"));
-
-            var resolve = _variableResolver(spreadsheet);
-
-            var formula = spreadsheet.GetCellContents("C1") as Formula;
+            spreadsheet.SetContentsOfCell("A1", "2.0");
+            spreadsheet.SetContentsOfCell("C1", "=A1");
+            
+            var formula = spreadsheet.GetCellValue("C1");
 
             Assert.IsNotNull(formula);
-            Assert.AreEqual(formula, new Formula("A1"));
 
-            Assert.AreEqual(2d, formula.Evaluate(resolve));
+            Assert.AreEqual(2d, formula);
         }  
 
         [TestMethod]
         public void TestMethod16()
         {
-            var spreadsheet = new SS.Spreadsheet();
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
 
             var random = new Random();
 
             var listOfNonEmpty = new List<string>();
 
-            foreach (var cell in GenerateCells(26, 26))
+            foreach (var cell in GenerateCells(26))
             {
                 var shouldBeEmpty = random.Next() % 2 == 0;
 
-                spreadsheet.SetCellContents(cell, shouldBeEmpty ? string.Empty : "Not empty bro");
+                spreadsheet.SetContentsOfCell(cell, shouldBeEmpty ? string.Empty : "Not empty bro");
 
                 if (!shouldBeEmpty)
                     listOfNonEmpty.Add(cell);
@@ -318,13 +244,13 @@ namespace SpreadsheetTests
         [TestMethod]
         public void TestMethod17()
         {
-            var spreadsheet = new SS.Spreadsheet();
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
 
-            spreadsheet.SetCellContents("A1", 2.0);
-            spreadsheet.SetCellContents("B1", 45.0);
-            spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
+            spreadsheet.SetContentsOfCell("A1", "2.0");
+            spreadsheet.SetContentsOfCell("B1", "45.0");
+            spreadsheet.SetContentsOfCell("C1", "=A1 + B1");
 
-            var result = spreadsheet.SetCellContents("A1", 3.0); // Should update them other cells //
+            var result = spreadsheet.SetContentsOfCell("A1", "3.0"); // Should update them other cells //
             
             Assert.IsTrue(result.Contains("A1") && result.Contains("C1"));
         }
@@ -332,13 +258,13 @@ namespace SpreadsheetTests
         [TestMethod]
         public void TestMethod18()
         {
-            var spreadsheet = new SS.Spreadsheet();
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
 
-            spreadsheet.SetCellContents("A1", 2.0);
-            spreadsheet.SetCellContents("B1", 45.0);
-            spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
+            spreadsheet.SetContentsOfCell("A1", "2.0");
+            spreadsheet.SetContentsOfCell("B1", "45.0");
+            spreadsheet.SetContentsOfCell("C1", "=A1 + B1");
 
-            var result = spreadsheet.SetCellContents("C1", 3.0);
+            var result = spreadsheet.SetContentsOfCell("C1", "3.0");
 
             Assert.IsTrue(!result.Contains("B1") && !result.Contains("A1"));
         }
@@ -347,37 +273,291 @@ namespace SpreadsheetTests
         [TestMethod]
         public void TestMethod19()
         {
-            var spreadsheet = new SS.Spreadsheet();
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
 
-            spreadsheet.SetCellContents("A1", 2.0);
-            spreadsheet.SetCellContents("B1", 45.0);
-            spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
-            spreadsheet.SetCellContents("D1", new Formula("A1 + B1"));
-            spreadsheet.SetCellContents("E1", new Formula("A1 + B1"));
+            spreadsheet.SetContentsOfCell("A1", "2.0");
+            spreadsheet.SetContentsOfCell("B1", "45.0");
+            spreadsheet.SetContentsOfCell("C1", "=A1 + B1");
+            spreadsheet.SetContentsOfCell("D1", "=A1 + B1");
+            spreadsheet.SetContentsOfCell("E1", "=A1 + B1");
 
-            var result = spreadsheet.SetCellContents("A1", 3.0);
+            var result = spreadsheet.SetContentsOfCell("A1", "3.0");
 
             Assert.IsTrue(result.Contains("C1") && result.Contains("D1") && result.Contains("E1"));
         }  
         [TestMethod]
         public void TestMethod20()
         {
-            var spreadsheet = new SS.Spreadsheet();
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
 
-            spreadsheet.SetCellContents("A1", 2.0);
-            spreadsheet.SetCellContents("B1", 45.0);
-            spreadsheet.SetCellContents("C1", new Formula("A1 + B1"));
-            spreadsheet.SetCellContents("D1", new Formula("C1 + B1"));
-            spreadsheet.SetCellContents("E1", new Formula("D1 + B1"));
+            spreadsheet.SetContentsOfCell("A1", "2.0");
+            spreadsheet.SetContentsOfCell("B1", "45.0");
+            spreadsheet.SetContentsOfCell("C1", "=A1 + B1");
+            spreadsheet.SetContentsOfCell("D1", "=C1 + B1");
+            spreadsheet.SetContentsOfCell("E1", "=D1 + B1");
 
-            var result = spreadsheet.SetCellContents("A1", 3.0);
+            var result = spreadsheet.SetContentsOfCell("A1", "3.0");
 
             Assert.IsTrue(result.Contains("C1") && result.Contains("D1") && result.Contains("E1") && result.Contains("A1"));
-        }  
+        }
 
-        private IEnumerable<string> GenerateCells(int width, int height)
+        [TestMethod]
+        public void TestMethod21()
         {
-            for (var x = 'A'; x < 'A' + width; x++)
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
+
+            spreadsheet.SetContentsOfCell("A1", "2.0");
+            spreadsheet.SetContentsOfCell("B1", "45.0");
+            spreadsheet.SetContentsOfCell("C1", "=A1 + B1");
+            spreadsheet.SetContentsOfCell("D1", "=C1 + B1");
+            spreadsheet.SetContentsOfCell("E1", "=D1 + B1");
+            
+            spreadsheet.Save("Test21.cellular");
+
+            Assert.IsTrue(File.Exists("Test21.cellular"));
+        }
+
+        [TestMethod]
+        public void TestMethod22()
+        {
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
+
+            spreadsheet.SetContentsOfCell("A1", "2.0");
+            spreadsheet.SetContentsOfCell("B1", "45.0");
+            spreadsheet.SetContentsOfCell("C1", "=A1 + B1");
+            spreadsheet.SetContentsOfCell("D1", "=C1 + B1");
+            spreadsheet.SetContentsOfCell("E1", "=D1 + B1");
+
+            spreadsheet.Save("Test22.cellular");
+
+            var version = spreadsheet.GetSavedVersion("Test22.cellular");
+
+            Assert.AreEqual(version, SS.Spreadsheet.CurrentVersion);
+        }
+
+        [TestMethod]
+        public void TestMethod23()
+        {
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize, "v0.0.0a (#NoFilter)");
+
+            spreadsheet.SetContentsOfCell("A1", "2.0");
+            spreadsheet.SetContentsOfCell("B1", "45.0");
+            spreadsheet.SetContentsOfCell("C1", "=A1 + B1");
+            spreadsheet.SetContentsOfCell("D1", "=C1 + B1");
+            spreadsheet.SetContentsOfCell("E1", "=D1 + B1");
+
+            spreadsheet.Save("Test23.cellular");
+
+            var version = spreadsheet.GetSavedVersion("Test23.cellular");
+
+            Assert.AreEqual(version, "v0.0.0a (#NoFilter)");
+        }
+
+        [TestMethod]
+        public void TestMethod24()
+        {
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
+
+            spreadsheet.SetContentsOfCell("A1", "2.0");
+            spreadsheet.SetContentsOfCell("B1", "45.0");
+            spreadsheet.SetContentsOfCell("C1", "=A1 + B1");
+
+            spreadsheet.Save("Test24.cellular");
+            var contents = Regex.Replace(File.ReadAllText("Test24.cellular"), @"\s", string.Empty);
+            var shouldBe =
+                Regex.Replace("<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<spreadsheet version=\"v0.0.1 (Duck Face)\">\r\n  <cells>\r\n    <cell>\r\n      <name>A1</name>\r\n      <contents>2</contents>\r\n    </cell>\r\n    <cell>\r\n      <name>B1</name>\r\n      <contents>45</contents>\r\n    </cell>\r\n    <cell>\r\n      <name>C1</name>\r\n      <contents>=A1+B1</contents>\r\n    </cell>\r\n  </cells>\r\n</spreadsheet>", @"\s", string.Empty);
+
+            Assert.AreEqual(contents, shouldBe);
+        }
+
+        [TestMethod]
+        public void TestMethod25()
+        {
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
+
+            spreadsheet.SetContentsOfCell("A1", "2.0");
+
+            Assert.IsTrue(spreadsheet.Changed);
+
+            spreadsheet.Save("Test25.cellular");
+
+            Assert.IsFalse(spreadsheet.Changed);
+
+            spreadsheet.SetContentsOfCell("A1", "3.0");
+
+            Assert.IsTrue(spreadsheet.Changed);
+
+            spreadsheet.Save("Test25.cellular");
+
+            Assert.IsFalse(spreadsheet.Changed);
+        }
+
+        [TestMethod]
+        public void TestMethod26()
+        {
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
+            var random = new Random();
+
+            foreach (var cell in GenerateCells(100))
+            {
+                spreadsheet.SetContentsOfCell(cell, (1000 * random.NextDouble()).ToString(CultureInfo.InvariantCulture));
+            }
+
+            spreadsheet.Save("Test26.cellular");
+
+            var spreadsheet2 = new SS.Spreadsheet("Test26.cellular", _isValid, _normalize);
+
+            var insideSpreadsheet = new PrivateObject(spreadsheet);
+            var cells = insideSpreadsheet.GetFieldOrProperty("_cells") as Dictionary<string, Cell>;
+
+            Assert.IsNotNull(cells);
+
+            foreach (var cell in cells)
+            {
+                var value1 = spreadsheet.GetCellValue(cell.Key);
+                var value2 = spreadsheet2.GetCellValue(cell.Key);
+                var content1 = spreadsheet.GetCellContents(cell.Key);
+                var content2 = spreadsheet2.GetCellContents(cell.Key);
+
+                Assert.AreEqual(value1, value2);
+                Assert.AreEqual(content1, content2);
+            }
+            
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void TestMethod27()
+        {
+            // Spreadsheet that contains a circular exception //
+            const string circles = "<?xml version=\"1.0\" encoding=\"utf-8\"?><spreadsheet version=\"v0.0.1 (Duck Face)\"><cells><cell><name>A1</name><contents>=B1</contents></cell><cell><name>B1</name><contents>=A1</contents></cell></cells></spreadsheet>"; 
+
+            File.WriteAllText("Test27.cellular", circles);
+
+            var spreadsheet = new SS.Spreadsheet("Test27.cellular", _isValid, _normalize);
+        }
+
+
+        [TestMethod]
+        public void TestMethod28()
+        {
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
+            var random = new Random();
+
+            foreach (var cell in GenerateCells(10000))
+            {
+                spreadsheet.SetContentsOfCell(cell, (1000 * random.NextDouble()).ToString(CultureInfo.InvariantCulture));
+            }
+
+            spreadsheet.Save("Test26.cellular");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void TestMethod29()
+        {
+            var spreadsheet = new Spreadsheet();
+            spreadsheet.GetCellValue(null);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void TestMethod30()
+        {
+            var spreadsheet = new Spreadsheet();
+            spreadsheet.GetCellContents(null);
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void TestMethod31()
+        {
+            var spreadsheet = new Spreadsheet();
+            spreadsheet.GetCellContents("$%()#$*%INDF");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidNameException))]
+        public void TestMethod32()
+        {
+            var spreadsheet = new Spreadsheet();
+            spreadsheet.GetCellValue("$%()#$*%INDF");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void TestMethod33()
+        {
+            var spreadsheet = new Spreadsheet();
+            var version = spreadsheet.GetSavedVersion("Not_a_real_file.wuuuttt");
+        }
+
+
+        [TestMethod]
+        public void TestMethod34()
+        {
+            // <contents> comes before <name> //
+            const string circles = "<?xml version=\"1.0\" encoding=\"utf-8\"?><spreadsheet version=\"v0.0.1 (Duck Face)\"><cells><cell><name>A1</name><contents>=B1</contents></cell><cell><contents>ooohhh</contents><name>B1</name></cell></cells></spreadsheet>";
+
+            File.WriteAllText("Test34.cellular", circles);
+
+            var spreadsheet = new SS.Spreadsheet("Test34.cellular", _isValid, _normalize);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void TestMethod35()
+        {
+            // missing <name> //
+            const string circles = "<?xml version=\"1.0\" encoding=\"utf-8\"?><spreadsheet version=\"v0.0.1 (Duck Face)\"><cells><cell><contents>=B1</contents></cell><cell><contents>ooohhh</contents><name>B1</name></cell></cells></spreadsheet>";
+
+            File.WriteAllText("Test35.cellular", circles);
+
+            var spreadsheet = new SS.Spreadsheet("Test35.cellular", _isValid, _normalize);
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void TestMethod36()
+        {
+            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
+
+            spreadsheet.SetContentsOfCell("A1", "2.0");
+            spreadsheet.SetContentsOfCell("B1", "45.0");
+            spreadsheet.SetContentsOfCell("C1", "=A1 + B1");
+
+            spreadsheet.Save("234d(*(*#29342039_)))#($)--2--0293408)(**(*#)(............(*#&($_~_~"); // not a writable path //
+        }
+
+        [TestMethod]
+        public void TestMethod37()
+        {
+            var spreadsheet = new SS.Spreadsheet();
+
+            spreadsheet.SetContentsOfCell("A1", "2.0");
+            spreadsheet.SetContentsOfCell("B1", "45.0");
+            spreadsheet.SetContentsOfCell("C1", "=A1 + B1");
+
+            spreadsheet.Save("Test37.cellular");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(SpreadsheetReadWriteException))]
+        public void TestMethod38()
+        {
+            // Function doesn't have a valid variable //
+            const string circles = "<?xml version=\"1.0\" encoding=\"utf-8\"?><spreadsheet version=\"v0.0.1 (Duck Face)\"><cells><cell><contents>=B6</contents></cell><cell><contents>ooohhh</contents><name>B1</name></cell></cells></spreadsheet>";
+
+            File.WriteAllText("Test38.cellular", circles);
+
+            var spreadsheet = new SS.Spreadsheet("Test38.cellular", _isValid, _normalize);
+        }
+
+        private IEnumerable<string> GenerateCells(int height)
+        {
+            for (var x = 'A'; x < 'Z'; x++)
             {
                 for (var y = 1; y <= height; y++)
                 {

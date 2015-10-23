@@ -1,10 +1,10 @@
 # Spreadsheet
-### By Brayden Lopez (October 1st, 2015)
+### By Brayden Lopez (October 1st, 2015 - Updated at October 3rd, 2015)
 
 ## Designs
 At first I was going to go with a simple, implement the dependency graph, implement the formulas.
 Which is what I ended up going with, and it works.  
-The project (PS4) is set up as so:
+The project (PS5) is set up as so:
 - Spreadsheet Project: This is the project that connects all the pieces together.
 - Formula: This is the PS3 project that implements PS1 in a nice solid package.
 - DependencyGraph: This is the PS4 project that is used to show which cells depend on which cells.
@@ -33,5 +33,4 @@ internal OperationToken(char token) : this() {
 
 Which is what I didn't have... and which caused many a headache.
 
-## General Thoughts
-I was banging my head (literally) when I make the connection that every cell didn't need a dependency graph. Just thought I should make that apparent.
+In addition. Every exception is a `SpreadsheetReadWriteException`. It's strange, but w/e.
