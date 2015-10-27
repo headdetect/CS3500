@@ -20,7 +20,7 @@ namespace SS
         /// <summary>
         /// The version of this spreadsheet implementation.
         /// </summary>
-        public const string CurrentVersion = "v0.0.1 (Duck Face)";
+        public const string CurrentVersion = "ps6";
 
         /// <summary>
         /// True if this spreadsheet has been modified since it was created or saved                  
@@ -112,21 +112,29 @@ namespace SS
                     
                         var name = string.Empty;
                         var content = string.Empty;
-
-                        reader.Read();
+                        
+                        do
+                        {
+                            reader.Read();
+                        }
+                        while(string.IsNullOrEmpty(reader.Name));
 
                         if (reader.Name == "name")
                         {
                             name = reader.ReadInnerXml();
-                            content = reader.ReadInnerXml();
+
+                            do
+                            {
+                                reader.Read();
+                            }
+                            while (string.IsNullOrEmpty(reader.Name));
                         }
 
                         if (reader.Name == "contents")
                         {
                             content = reader.ReadInnerXml();
-                            name = reader.ReadInnerXml();
                         }
-
+                        
                         SetContentsOfCell(name, content);
                     }
                 }
@@ -311,12 +319,12 @@ namespace SS
         /// </summary>
         public override object GetCellContents(string name)
         {
-            if (string.IsNullOrWhiteSpace(name) || !_cells.ContainsKey(name))
+            if (string.IsNullOrWhiteSpace(name) || !IsValidName(name))
                 throw new InvalidNameException();
 
             name = Normalize(name);
 
-            return _cells[name].Content;
+            return !_cells.ContainsKey(name) ? string.Empty : _cells[name].Content;
         }
 
         /// <summary>
