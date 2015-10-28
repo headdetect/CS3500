@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -19,40 +20,34 @@ namespace SpreadsheetGUI
         /// <summary>
         /// Gets the active file for the spreadsheet gui.
         /// </summary>
-        public string ActiveFile { get; }
+        public string FileName { get; set; }
 
         /// <summary>
         /// Gets the associated spreadsheet
         /// </summary>
         public Spreadsheet Spreadsheet { get; private set; }
 
+        /// <summary>
+        /// Gets whether the current spreadsheet is untitled/unsaved
+        /// </summary>
+        public bool IsUntitled => string.IsNullOrEmpty(FileName);
+
+        /// <summary>
+        /// Gets whether the spreadsheet has been changed
+        /// </summary>
+        public bool Changed => Spreadsheet != null && Spreadsheet.Changed;
+
         private readonly Func<string, string> _normalizer = s => s.ToUpper();
 
         public Workbench(string fileName = "")
         {
             InitializeComponent();
-            ActiveFile = fileName;
+            FileName = fileName;
         }
 
         private void Workbench_Load(object sender, EventArgs e)
         {
-            DoBackgroundWork(handler =>
-            {
-                Spreadsheet = !string.IsNullOrWhiteSpace(ActiveFile)
-                    ? new Spreadsheet(ActiveFile, s => Regex.IsMatch(s, @"[A-Z][0-9]{1,2}"), _normalizer)
-                    : new Spreadsheet(s => Regex.IsMatch(s, @"[A-Z][0-9]{1,2}"), _normalizer);
-
-                foreach (var cell in Spreadsheet.GetNamesOfAllNonemptyCells())
-                {
-                    var value = Spreadsheet.GetCellValue(cell);
-                    var point = GetPointFromCellName(cell);
-                    
-                    DoForegroundWork(() => spreadsheetPanel.SetValue(point.X, point.Y, value.ToString()));
-
-                    // TODO: Check for formulas
-                }
-            });
-
+            LoadFile();
         }
 
         private void spreadsheetPanel_SelectionChanged(SS.SpreadsheetPanel sender)
@@ -60,7 +55,7 @@ namespace SpreadsheetGUI
             int row = -1;
             int col = -1;
             sender.GetSelection(out col, out row);
-         }
+        }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -74,10 +69,47 @@ namespace SpreadsheetGUI
 
             var result = openFileDialog.ShowDialog(this);
 
-            if (result == DialogResult.OK || result == DialogResult.Yes)
+            if (result != DialogResult.OK && result != DialogResult.Yes) return;
+
+            FileName = openFileDialog.FileName;
+            LoadFile();
+        }
+
+
+        private void LoadFile()
+        {
+            DoBackgroundWork(handler =>
             {
-                new Workbench(openFileDialog.FileName).Show();
-            }
+                try
+                {
+                    Spreadsheet = !string.IsNullOrWhiteSpace(FileName)
+                        ? new Spreadsheet(FileName, s => Regex.IsMatch(s, @"[A-Z][0-9]{1,2}"), _normalizer)
+                        : new Spreadsheet(s => Regex.IsMatch(s, @"[A-Z][0-9]{1,2}"), _normalizer);
+                }
+                catch (SpreadsheetReadWriteException)
+                {
+                    DoForegroundWork(() =>
+                    {
+                        MessageBox.Show(@"There was an error reading the file", @"Error reading file",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    });
+
+                    return;
+                }
+
+                foreach (var cell in Spreadsheet.GetNamesOfAllNonemptyCells())
+                {
+                    var value = Spreadsheet.GetCellValue(cell);
+                    var point = GetPointFromCellName(cell);
+
+                    DoForegroundWork(() => spreadsheetPanel.SetValue(point.X, point.Y, value.ToString()));
+
+                    // TODO: Check for formulas
+                }
+
+                SetTitle();
+            });
         }
 
         private void DoBackgroundWork(Action<DoWorkEventArgs> work)
@@ -86,6 +118,8 @@ namespace SpreadsheetGUI
             b.DoWork += (sender, e) => work(e);
             b.RunWorkerAsync();
         }
+
+        private static readonly object ForegroundLock = new object();
 
         private void DoForegroundWork(Action work)
         {
@@ -97,14 +131,36 @@ namespace SpreadsheetGUI
                 }
                 else
                 {
-                    work();
+                    lock (ForegroundLock)
+                    {
+                        work();
+                    }
                 }
             }
             catch
             {
             }
+
         }
-        
+
+
+        /// <summary>
+        /// Sets the title of the window based on the given properties.
+        /// Can be ran on any thread.
+        /// </summary>
+        private void SetTitle()
+        {
+            DoForegroundWork(() =>
+            {
+                if (IsUntitled)
+                    Text = @"Spreadsheet - untitled";
+                else
+                    Text = @"Spreadsheet - " + Path.GetFileName(FileName);
+
+                if (Changed) Text += @"*";
+            });
+        }
+
         #region Helpers
 
         private static IEnumerable<Tuple<int, int, string>> IterateCells(int height = 99)

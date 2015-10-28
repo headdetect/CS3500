@@ -26,7 +26,7 @@ namespace SS
         /// True if this spreadsheet has been modified since it was created or saved                  
         /// (whichever happened most recently); false otherwise.
         /// </summary>
-        public override bool Changed { get; protected set; }
+        public override sealed bool Changed { get; protected set; }
         
         /// <summary>
         /// All the cells for this spreadsheet.
@@ -73,6 +73,7 @@ namespace SS
         {
             _cells = new Dictionary<string, Cell>();
             _depenencyManager = new DependencyGraph();
+            Changed = true;
         }
 
         /// <summary>
@@ -85,6 +86,7 @@ namespace SS
         public Spreadsheet(string filename, Func<string, bool> isValid, Func<string, string> normalize, string version = CurrentVersion) : this(isValid, normalize, version)
         {
             ReadSpreadsheet(version, filename);
+            Changed = false; // Default to false
         }
 
         /// <summary>
