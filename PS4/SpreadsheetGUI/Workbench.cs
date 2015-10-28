@@ -188,5 +188,42 @@ namespace SpreadsheetGUI
         }
 
         #endregion
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (IsUntitled)
+            {
+                saveAsToolStripMenuItem_Click(sender, e);
+                return;
+            }
+
+            Spreadsheet?.Save(FileName);
+            SetTitle();
+        }
+
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var saveDialog = new SaveFileDialog
+            {
+                Title = @"Save the spreadsheet",
+                Filter = @"Spreadsheet|.sprd"
+            };
+
+            saveDialog.ShowDialog();
+
+            var fileName = saveDialog.FileName;
+            if (string.IsNullOrWhiteSpace(fileName)) return;
+
+            Spreadsheet?.Save(fileName);
+            FileName = fileName;
+            SetTitle();
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        
     }
 }
