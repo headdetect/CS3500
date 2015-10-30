@@ -55,6 +55,11 @@ namespace SpreadsheetGUI
             int row = -1;
             int col = -1;
             sender.GetSelection(out col, out row);
+
+            selCellLabel.Text = "Cell: " + (char)(col + 'A') + (row + 1);
+            string cellContents;
+            spreadsheetPanel.GetValue(col, row, out cellContents);
+            cellContentTextBox.Text = cellContents;
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -107,6 +112,16 @@ namespace SpreadsheetGUI
 
                     // TODO: Check for formulas
                 }
+
+                // Set selected cell to A1
+                spreadsheetPanel.SetSelection(0, 0);
+                DoForegroundWork(() =>
+                {
+                    selCellLabel.Text = "Cell: A1";
+                    string cellContents;
+                    spreadsheetPanel.GetValue(0, 0, out cellContents);
+                    cellContentTextBox.Text = cellContents;
+                });
 
                 SetTitle();
             });
@@ -224,6 +239,23 @@ namespace SpreadsheetGUI
             Close();
         }
 
-        
+        private void updateButton_Click(object sender, EventArgs e)
+        {
+            //TODO formulas
+
+            try
+            {
+                string cell = selCellLabel.Text.Substring(6);
+                Spreadsheet.SetContentsOfCell(cell, cellContentTextBox.Text);
+
+                var value = Spreadsheet.GetCellValue(cell);
+                var point = GetPointFromCellName(cell);
+
+                DoForegroundWork(() => spreadsheetPanel.SetValue(point.X, point.Y, value.ToString()));
+
+            }
+            catch { }
+
+        }
     }
 }
