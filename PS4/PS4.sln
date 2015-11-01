@@ -16,8 +16,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpreadsheetTests", "SpreadsheetTests\SpreadsheetTests.csproj", "{D46BEB8E-AEBB-4D0C-AE36-397050CB9084}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpreadsheetPanel", "SpreadsheetPanel\SpreadsheetPanel.csproj", "{F31299DC-288F-4E46-A3AF-6BF461B21C79}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resources", "Resources\Resources.csproj", "{4148799B-C4D4-496B-A598-886A21625EEB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{56EB475D-A2DE-41A1-8206-095089AA8B1B} = {56EB475D-A2DE-41A1-8206-095089AA8B1B}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpreadsheetGUI", "SpreadsheetGUI\SpreadsheetGUI.csproj", "{F4C8C952-2ACA-40F6-8074-B13A0790DB16}"
 EndProject
@@ -63,14 +64,6 @@ Global
 		{F31299DC-288F-4E46-A3AF-6BF461B21C79}.Release|Any CPU.ActiveCfg = Release|x86
 		{F31299DC-288F-4E46-A3AF-6BF461B21C79}.Release|x86.ActiveCfg = Release|x86
 		{F31299DC-288F-4E46-A3AF-6BF461B21C79}.Release|x86.Build.0 = Release|x86
-		{4148799B-C4D4-496B-A598-886A21625EEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4148799B-C4D4-496B-A598-886A21625EEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4148799B-C4D4-496B-A598-886A21625EEB}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{4148799B-C4D4-496B-A598-886A21625EEB}.Debug|x86.Build.0 = Debug|Any CPU
-		{4148799B-C4D4-496B-A598-886A21625EEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4148799B-C4D4-496B-A598-886A21625EEB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4148799B-C4D4-496B-A598-886A21625EEB}.Release|x86.ActiveCfg = Release|Any CPU
-		{4148799B-C4D4-496B-A598-886A21625EEB}.Release|x86.Build.0 = Release|Any CPU
 		{F4C8C952-2ACA-40F6-8074-B13A0790DB16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F4C8C952-2ACA-40F6-8074-B13A0790DB16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4C8C952-2ACA-40F6-8074-B13A0790DB16}.Debug|x86.ActiveCfg = Debug|Any CPU

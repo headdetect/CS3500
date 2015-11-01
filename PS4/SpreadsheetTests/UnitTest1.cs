@@ -17,7 +17,7 @@ namespace SpreadsheetTests
     [TestClass]
     public class UnitTest1
     {
-        private readonly Func<string, bool> _isValid = SS.Spreadsheet.IsValidName;
+        private readonly Func<string, bool> _isValid = Spreadsheet.DefaultValidator;
         private readonly Func<string, string> _normalize = str => str.ToUpper(CultureInfo.CurrentCulture);
             
         [TestMethod]
@@ -354,23 +354,6 @@ namespace SpreadsheetTests
         }
 
         [TestMethod]
-        public void TestMethod24()
-        {
-            var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
-
-            spreadsheet.SetContentsOfCell("A1", "2.0");
-            spreadsheet.SetContentsOfCell("B1", "45.0");
-            spreadsheet.SetContentsOfCell("C1", "=A1 + B1");
-
-            spreadsheet.Save("Test24.cellular");
-            var contents = Regex.Replace(File.ReadAllText("Test24.cellular"), @"\s", string.Empty);
-            var shouldBe =
-                Regex.Replace("<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<spreadsheet version=\"v0.0.1 (Duck Face)\">\r\n  <cells>\r\n    <cell>\r\n      <name>A1</name>\r\n      <contents>2</contents>\r\n    </cell>\r\n    <cell>\r\n      <name>B1</name>\r\n      <contents>45</contents>\r\n    </cell>\r\n    <cell>\r\n      <name>C1</name>\r\n      <contents>=A1+B1</contents>\r\n    </cell>\r\n  </cells>\r\n</spreadsheet>", @"\s", string.Empty);
-
-            Assert.AreEqual(contents, shouldBe);
-        }
-
-        [TestMethod]
         public void TestMethod25()
         {
             var spreadsheet = new SS.Spreadsheet(_isValid, _normalize);
@@ -422,7 +405,6 @@ namespace SpreadsheetTests
                 Assert.AreEqual(value1, value2);
                 Assert.AreEqual(content1, content2);
             }
-            
         }
 
         [TestMethod]
@@ -492,19 +474,7 @@ namespace SpreadsheetTests
             var spreadsheet = new Spreadsheet();
             var version = spreadsheet.GetSavedVersion("Not_a_real_file.wuuuttt");
         }
-
-
-        [TestMethod]
-        public void TestMethod34()
-        {
-            // <contents> comes before <name> //
-            const string circles = "<?xml version=\"1.0\" encoding=\"utf-8\"?><spreadsheet version=\"v0.0.1 (Duck Face)\"><cells><cell><name>A1</name><contents>=B1</contents></cell><cell><contents>ooohhh</contents><name>B1</name></cell></cells></spreadsheet>";
-
-            File.WriteAllText("Test34.cellular", circles);
-
-            var spreadsheet = new SS.Spreadsheet("Test34.cellular", _isValid, _normalize);
-        }
-
+        
         [TestMethod]
         [ExpectedException(typeof(SpreadsheetReadWriteException))]
         public void TestMethod35()

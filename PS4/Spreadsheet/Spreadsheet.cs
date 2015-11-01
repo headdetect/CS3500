@@ -20,13 +20,13 @@ namespace SS
         /// <summary>
         /// The version of this spreadsheet implementation.
         /// </summary>
-        public const string CurrentVersion = "ps6";
+        public const string CurrentVersion = "default";
 
         /// <summary>
         /// True if this spreadsheet has been modified since it was created or saved                  
         /// (whichever happened most recently); false otherwise.
         /// </summary>
-        public override sealed bool Changed { get; protected set; }
+        public override sealed bool Changed { get; protected set; } = false;
         
         /// <summary>
         /// All the cells for this spreadsheet.
@@ -40,6 +40,11 @@ namespace SS
         /// This should return {B1, C3}
         /// </summary>
         private readonly DependencyGraph _depenencyManager;
+
+        /// <summary>
+        /// Default variable validator.
+        /// </summary>
+        public static readonly Func<string, bool> DefaultValidator = name => Regex.IsMatch(name, @"^[a-zA-Z]{1,}\d{1,}");
 
         private double _resolveVariables(string variable)
         {
@@ -58,7 +63,7 @@ namespace SS
         /// <summary>
         /// Creates a new empty spreadsheet with a proper validation and normalization funciton.
         /// </summary>
-        public Spreadsheet() : this(IsValidName, s => s.ToUpperInvariant())
+        public Spreadsheet() : this(DefaultValidator, s => s)
         {
         }
 
@@ -73,7 +78,6 @@ namespace SS
         {
             _cells = new Dictionary<string, Cell>();
             _depenencyManager = new DependencyGraph();
-            Changed = true;
         }
 
         /// <summary>
@@ -86,7 +90,6 @@ namespace SS
         public Spreadsheet(string filename, Func<string, bool> isValid, Func<string, string> normalize, string version = CurrentVersion) : this(isValid, normalize, version)
         {
             ReadSpreadsheet(version, filename);
-            Changed = false; // Default to false
         }
 
         /// <summary>
@@ -106,38 +109,40 @@ namespace SS
             {
                 using (var reader = XmlReader.Create(filename))
                 {
+                    string name = null;
+                    string contents = null;
+
                     while (reader.Read())
                     {
-                        if (reader.NodeType != XmlNodeType.Element) continue;
+                        if (reader.NodeType == XmlNodeType.EndElement) continue;
 
-                        if (reader.Name != "cell") continue;
-                    
-                        var name = string.Empty;
-                        var content = string.Empty;
-                        
-                        do
+                        switch (reader.Name)
                         {
-                            reader.Read();
-                        }
-                        while(string.IsNullOrEmpty(reader.Name));
+                            case "spreadsheet":
+                                continue;
 
-                        if (reader.Name == "name")
-                        {
-                            name = reader.ReadInnerXml();
+                            case "cell":
+                                continue;
 
-                            do
-                            {
+                            case "name":
                                 reader.Read();
-                            }
-                            while (string.IsNullOrEmpty(reader.Name));
+                                name = name ?? reader.Value;
+                                if (name != null && contents != null) break;
+                                continue;
+
+                            case "contents":
+                                reader.Read();
+                                contents = contents ?? reader.Value;
+                                if (name != null && contents != null) break;
+                                continue;
+
+                            default:
+                                continue;
                         }
 
-                        if (reader.Name == "contents")
-                        {
-                            content = reader.ReadInnerXml();
-                        }
-                        
-                        SetContentsOfCell(name, content);
+                        SetContentsOfCell(name, contents);
+                        name = null;
+                        contents = null;
                     }
                 }
             }
@@ -146,6 +151,7 @@ namespace SS
                 throw new SpreadsheetReadWriteException(e.Message);
             }
         }
+        
 
 
 
@@ -180,7 +186,7 @@ namespace SS
         /// </summary>
         public override ISet<string> SetContentsOfCell(string name, string content)
         {
-            if (string.IsNullOrWhiteSpace(name) || !IsValidName(name))
+            if (string.IsNullOrWhiteSpace(name) || !IsValid(name))
                 throw new InvalidNameException();
 
             if (content == null)
@@ -190,21 +196,47 @@ namespace SS
 
             Changed = true;
 
+            ISet<string> result;
+            
             var getDouble = content.TryGetDouble();
             if (getDouble != null)
             {
                 // Is a double //
-                return SetCellContents(name, getDouble.Value);
+                result = SetCellContents(name, getDouble.Value);
             }
 
-            if (content.StartsWith("=", StringComparison.CurrentCultureIgnoreCase))
+            else if (content.StartsWith("=", StringComparison.CurrentCultureIgnoreCase))
             {
                 // Is formula, parse as such //
-                return SetCellContents(name, new Formula(content.Substring(1), Normalize, IsValid)); // Skip first character //
+                result = SetCellContents(name, new Formula(content.Substring(1), Normalize, IsValid));
+                    // Skip first character //
+            }
+            else
+            {
+                // Is just a plain string //
+                result = SetCellContents(name, content);
+            }
+            
+            // Re-evaluate cells //
+            foreach (var dep in result)
+            {
+                var depContent = _cells[dep].Content;
+
+                if (depContent is string)
+                {
+                    SetCellContents(dep, depContent.ToString());
+                }
+                else if (depContent is Formula)
+                {
+                    SetCellContents(dep, new Formula(depContent.ToString(), Normalize, IsValid));
+                }
+                else if (depContent is double)
+                {
+                    SetCellContents(dep, (double)depContent);
+                }
             }
 
-            // Is just a plain string //
-            return SetCellContents(name, content);
+            return result;
         }
 
         
@@ -305,12 +337,19 @@ namespace SS
         /// </summary>
         public override object GetCellValue(string name)
         {
-            if (string.IsNullOrWhiteSpace(name) || !IsValidName(name))
+            if (string.IsNullOrWhiteSpace(name) || !IsValid(name))
                 throw new InvalidNameException();
 
             name = Normalize(name);
 
-            return !_cells.ContainsKey(name) ? string.Empty : _cells[name].Value;
+            if (!_cells.ContainsKey(name)) return string.Empty;
+
+            var result = _cells[name].Value;
+
+            if (result is double && double.IsNaN((double) result))
+                return new FormulaError("Not a number. Variable probably doesn't exist.");
+
+            return result;
         }
 
         /// <summary>
@@ -321,7 +360,7 @@ namespace SS
         /// </summary>
         public override object GetCellContents(string name)
         {
-            if (string.IsNullOrWhiteSpace(name) || !IsValidName(name))
+            if (string.IsNullOrWhiteSpace(name) || !IsValid(name))
                 throw new InvalidNameException();
 
             name = Normalize(name);
@@ -446,7 +485,7 @@ namespace SS
         protected override IEnumerable<string> GetDirectDependents(string name)
         {
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-            if (!IsValidName(name)) throw new InvalidNameException();
+            if (!IsValid(name)) throw new InvalidNameException();
 
             if (!_cells.ContainsKey(name))
                 _cells.Add(name, new Cell(name));
@@ -456,16 +495,6 @@ namespace SS
             return _depenencyManager.Dependees.ContainsKey(cell.Name) ?
                 _depenencyManager.Dependees[cell.Name] :
                 new List<string>(0);
-        }
-
-        /// <summary>
-        /// Checks to see if the specified string is a valid variable name
-        /// </summary>
-        /// <param name="name">The string to check</param>
-        /// <returns>True if valid; false otherwise</returns>
-        public static bool IsValidName(string name)
-        {
-            return Regex.IsMatch(name, @"^[a-zA-Z]{1,}\d{1,}");
         }
     }
 }
