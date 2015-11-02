@@ -1,5 +1,5 @@
 # Spreadsheet
-### By Brayden Lopez (October 1st, 2015 - Updated at October 3rd, 2015)
+### By Brayden Lopez and Team: "You buildin a little team there?"
 
 ## Designs
 At first I was going to go with a simple, implement the dependency graph, implement the formulas.
@@ -11,7 +11,7 @@ The project (PS5) is set up as so:
 - Spreadhseet Tests: These are all the tests for the unified spreadsheet project.
 
 ## Notes:
-Make sure when compiling this project, you compile against VS2015. There's a bug (or a non-implemented feature) in the older versions:
+Make sure when compiling this project, you compile against VS2015. There's a bug (or a non-implemented feature. Probably just not implemented.) in the older versions:
 
 In VS 2013 and lower, a struct that has arguments in the constructor must call the default constructor before assigning properties. In VS15+, you do not need to call the default constructor.   
 An example of what I'm talking about:
@@ -31,6 +31,12 @@ internal OperationToken(char token) : this() {
 } 
 ```
 
-Which is what I didn't have... and which caused many a headache.
+In addition. I've added default values for properties. So the following will only compile on VS 2015+
 
-In addition. Every exception is a `SpreadsheetReadWriteException`. It's strange, but w/e.
+```
+public static bool Changed {get; protected set;} = false
+```
+
+On different version of VS, you need to assign the value in the constructor.
+
+In addition (x2). Every exception is a `SpreadsheetReadWriteException`. It's strange, but w/e.

@@ -351,6 +351,7 @@ namespace SS
 
                 // Pen, brush, and fonts to use
                 Brush brush = new SolidBrush(Color.Black);
+                Brush formulaBrush = new SolidBrush(Color.DarkGreen);
                 Pen pen = new Pen(brush);
                 Font regularFont = Font;
                 Font boldFont = new Font(regularFont, FontStyle.Bold);
@@ -416,12 +417,23 @@ namespace SS
                                                                    LABEL_ROW_HEIGHT + y * DATA_ROW_HEIGHT,
                                                                    DATA_COL_WIDTH - 2*PADDING,
                                                                    DATA_ROW_HEIGHT));
+
+                        Brush b;
+                        if (text.Length > 0 && text[0] == '=')
+                        {
+                            b = formulaBrush;
+                        }
+                        else
+                        {
+                            b = brush;
+                        }
+
                         cellClip.Intersect(clip);
                         e.Graphics.Clip = cellClip;
                         e.Graphics.DrawString(
                             text,
                             regularFont,
-                            brush,
+                            b,
                             LABEL_COL_WIDTH + x * DATA_COL_WIDTH + PADDING,
                             LABEL_ROW_HEIGHT + y * DATA_ROW_HEIGHT + (DATA_ROW_HEIGHT - height) / 2);
                     }

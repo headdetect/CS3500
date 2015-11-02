@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Workbench));
             this.spreadsheetPanel = new SS.SpreadsheetPanel();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
@@ -49,13 +50,13 @@
             this.searchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.selCellFlowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.selCellLabel = new System.Windows.Forms.Label();
             this.cellContentLabel = new System.Windows.Forms.Label();
             this.cellContentTextBox = new System.Windows.Forms.TextBox();
             this.updateButton = new System.Windows.Forms.Button();
+            this.cancelButton = new System.Windows.Forms.Button();
+            this.spreadsheetToolTips = new System.Windows.Forms.ToolTip(this.components);
             this.menuStrip1.SuspendLayout();
-            this.selCellFlowLayoutPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // spreadsheetPanel
@@ -63,10 +64,10 @@
             this.spreadsheetPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.spreadsheetPanel.Location = new System.Drawing.Point(9, 59);
+            this.spreadsheetPanel.Location = new System.Drawing.Point(9, 78);
             this.spreadsheetPanel.Margin = new System.Windows.Forms.Padding(2);
             this.spreadsheetPanel.Name = "spreadsheetPanel";
-            this.spreadsheetPanel.Size = new System.Drawing.Size(712, 285);
+            this.spreadsheetPanel.Size = new System.Drawing.Size(743, 381);
             this.spreadsheetPanel.TabIndex = 0;
             this.spreadsheetPanel.SelectionChanged += new SS.SelectionChangedHandler(this.spreadsheetPanel_SelectionChanged);
             // 
@@ -80,7 +81,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(730, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(752, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -231,25 +232,14 @@
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.aboutToolStripMenuItem.Text = "Help";
             // 
-            // selCellFlowLayoutPanel
-            // 
-            this.selCellFlowLayoutPanel.Controls.Add(this.selCellLabel);
-            this.selCellFlowLayoutPanel.Controls.Add(this.cellContentLabel);
-            this.selCellFlowLayoutPanel.Controls.Add(this.cellContentTextBox);
-            this.selCellFlowLayoutPanel.Controls.Add(this.updateButton);
-            this.selCellFlowLayoutPanel.Location = new System.Drawing.Point(9, 27);
-            this.selCellFlowLayoutPanel.Name = "selCellFlowLayoutPanel";
-            this.selCellFlowLayoutPanel.Padding = new System.Windows.Forms.Padding(5);
-            this.selCellFlowLayoutPanel.Size = new System.Drawing.Size(353, 27);
-            this.selCellFlowLayoutPanel.TabIndex = 2;
-            // 
             // selCellLabel
             // 
             this.selCellLabel.AutoSize = true;
             this.selCellLabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.selCellLabel.Location = new System.Drawing.Point(8, 5);
+            this.selCellLabel.Location = new System.Drawing.Point(9, 39);
             this.selCellLabel.Name = "selCellLabel";
-            this.selCellLabel.Size = new System.Drawing.Size(45, 15);
+            this.selCellLabel.Padding = new System.Windows.Forms.Padding(8);
+            this.selCellLabel.Size = new System.Drawing.Size(61, 31);
             this.selCellLabel.TabIndex = 0;
             this.selCellLabel.Text = "Cell: A1";
             // 
@@ -257,35 +247,60 @@
             // 
             this.cellContentLabel.AutoSize = true;
             this.cellContentLabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.cellContentLabel.Location = new System.Drawing.Point(59, 5);
+            this.cellContentLabel.Location = new System.Drawing.Point(76, 39);
             this.cellContentLabel.Name = "cellContentLabel";
-            this.cellContentLabel.Size = new System.Drawing.Size(69, 15);
+            this.cellContentLabel.Padding = new System.Windows.Forms.Padding(8);
+            this.cellContentLabel.Size = new System.Drawing.Size(85, 31);
             this.cellContentLabel.TabIndex = 1;
             this.cellContentLabel.Text = "Cell Content:";
             // 
             // cellContentTextBox
             // 
-            this.cellContentTextBox.Location = new System.Drawing.Point(134, 8);
+            this.cellContentTextBox.AcceptsReturn = true;
+            this.cellContentTextBox.AcceptsTab = true;
+            this.cellContentTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cellContentTextBox.Location = new System.Drawing.Point(167, 39);
+            this.cellContentTextBox.Multiline = true;
             this.cellContentTextBox.Name = "cellContentTextBox";
-            this.cellContentTextBox.Size = new System.Drawing.Size(100, 20);
+            this.cellContentTextBox.Size = new System.Drawing.Size(497, 31);
             this.cellContentTextBox.TabIndex = 2;
+            this.cellContentTextBox.TextChanged += new System.EventHandler(this.cellContentTextBox_TextChanged);
+            this.cellContentTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.cellContentTextBox_KeyDown);
             // 
             // updateButton
             // 
-            this.updateButton.Location = new System.Drawing.Point(240, 8);
+            this.updateButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.updateButton.Location = new System.Drawing.Point(709, 39);
             this.updateButton.Name = "updateButton";
-            this.updateButton.Size = new System.Drawing.Size(75, 23);
+            this.updateButton.Size = new System.Drawing.Size(33, 31);
             this.updateButton.TabIndex = 3;
-            this.updateButton.Text = "Update";
+            this.updateButton.Text = "✓";
+            this.spreadsheetToolTips.SetToolTip(this.updateButton, "Accept");
             this.updateButton.UseVisualStyleBackColor = true;
             this.updateButton.Click += new System.EventHandler(this.updateButton_Click);
+            // 
+            // cancelButton
+            // 
+            this.cancelButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cancelButton.Location = new System.Drawing.Point(670, 39);
+            this.cancelButton.Name = "cancelButton";
+            this.cancelButton.Size = new System.Drawing.Size(33, 31);
+            this.cancelButton.TabIndex = 4;
+            this.cancelButton.Text = "✗";
+            this.spreadsheetToolTips.SetToolTip(this.cancelButton, "Cancel");
+            this.cancelButton.UseVisualStyleBackColor = true;
+            this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
             // 
             // Workbench
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(730, 354);
-            this.Controls.Add(this.selCellFlowLayoutPanel);
+            this.ClientSize = new System.Drawing.Size(752, 459);
+            this.Controls.Add(this.cancelButton);
+            this.Controls.Add(this.updateButton);
+            this.Controls.Add(this.cellContentTextBox);
+            this.Controls.Add(this.cellContentLabel);
+            this.Controls.Add(this.selCellLabel);
             this.Controls.Add(this.spreadsheetPanel);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
@@ -295,8 +310,6 @@
             this.Load += new System.EventHandler(this.Workbench_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.selCellFlowLayoutPanel.ResumeLayout(false);
-            this.selCellFlowLayoutPanel.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -324,11 +337,12 @@
         private System.Windows.Forms.ToolStripMenuItem searchToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
-        private System.Windows.Forms.FlowLayoutPanel selCellFlowLayoutPanel;
         private System.Windows.Forms.Label selCellLabel;
         private System.Windows.Forms.Label cellContentLabel;
         private System.Windows.Forms.TextBox cellContentTextBox;
         private System.Windows.Forms.Button updateButton;
+        private System.Windows.Forms.ToolTip spreadsheetToolTips;
+        private System.Windows.Forms.Button cancelButton;
     }
 }
 

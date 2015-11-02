@@ -39,6 +39,8 @@ namespace SpreadsheetGUI
 
         private readonly Func<string, string> _normalizer = s => s.ToUpper();
 
+        private SpreadsheetCoord previouSpreadsheetCoord = SpreadsheetCoord.Invalid;
+
         public Workbench(string fileName = "")
         {
             InitializeComponent();
@@ -52,14 +54,24 @@ namespace SpreadsheetGUI
 
         private void spreadsheetPanel_SelectionChanged(SS.SpreadsheetPanel sender)
         {
-            int row = -1;
-            int col = -1;
-            sender.GetSelection(out col, out row);
+            cellContentTextBox.Focus();
 
-            selCellLabel.Text = "Cell: " + (char)(col + 'A') + (row + 1);
-            string cellContents;
-            spreadsheetPanel.GetValue(col, row, out cellContents);
-            cellContentTextBox.Text = cellContents;
+            if (previouSpreadsheetCoord != SpreadsheetCoord.Invalid)
+            {
+                string txt = spreadsheetPanel.GetValue(previouSpreadsheetCoord);
+                InvokeCellUpdate(previouSpreadsheetCoord, txt);
+            }
+
+            var selected = sender.GetSelection();
+
+            string cellName = (char)(selected.Column + 'A') + (selected.Row + 1).ToString();
+            selCellLabel.Text = @"Cell: " + cellName;
+
+            var cellContent = Spreadsheet.GetCellContents(cellName).ToString();
+
+            cellContentTextBox.Text = cellContent;
+
+            previouSpreadsheetCoord = selected;
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -106,9 +118,9 @@ namespace SpreadsheetGUI
                 foreach (var cell in Spreadsheet.GetNamesOfAllNonemptyCells())
                 {
                     var value = Spreadsheet.GetCellValue(cell);
-                    var point = GetPointFromCellName(cell);
+                    var point = SpreadsheetPanelHelpers.GetCoordFromCellName(cell);
 
-                    DoForegroundWork(() => spreadsheetPanel.SetValue(point.X, point.Y, value.ToString()));
+                    DoForegroundWork(() => spreadsheetPanel.SetValue(point.Column, point.Row, value.ToString()));
 
                     // TODO: Check for formulas
                 }
@@ -118,8 +130,7 @@ namespace SpreadsheetGUI
                 DoForegroundWork(() =>
                 {
                     selCellLabel.Text = "Cell: A1";
-                    string cellContents;
-                    spreadsheetPanel.GetValue(0, 0, out cellContents);
+                    string cellContents = spreadsheetPanel.GetValue(0, 0);
                     cellContentTextBox.Text = cellContents;
                 });
 
@@ -176,34 +187,6 @@ namespace SpreadsheetGUI
             });
         }
 
-        #region Helpers
-
-        private static IEnumerable<Tuple<int, int, string>> IterateCells(int height = 99)
-        {
-            for (var x = 'A'; x < 'Z'; x++)
-            {
-                for (var y = 1; y <= height; y++)
-                {
-                    yield return new Tuple<int, int, string>(x - 'A', y, x.ToString() + y);
-                }
-            }
-        }
-
-        private static readonly Point NonPoint = new Point(-1, -1);
-
-        private static Point GetPointFromCellName(string cell)
-        {
-            if (cell.Length < 2)
-                return NonPoint;
-
-            int col = cell[0] - 'A'; // Convert the first char to int index
-            int row = int.Parse(cell.Substring(1)) - 1; // Get the rest of the chars //
-
-            return new Point(col, row);
-        }
-
-        #endregion
-
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (IsUntitled)
@@ -245,17 +228,84 @@ namespace SpreadsheetGUI
 
             try
             {
-                string cell = selCellLabel.Text.Substring(6);
-                Spreadsheet.SetContentsOfCell(cell, cellContentTextBox.Text);
-
-                var value = Spreadsheet.GetCellValue(cell);
-                var point = GetPointFromCellName(cell);
-
-                DoForegroundWork(() => spreadsheetPanel.SetValue(point.X, point.Y, value.ToString()));
-
+                var selectedCoord = spreadsheetPanel.GetSelection();
+                InvokeCellUpdate(selectedCoord, cellContentTextBox.Text);
             }
             catch { }
+        }
 
+        private void InvokeCellUpdate(SpreadsheetCoord coord, string text)
+        {
+            DoBackgroundWork(arg =>
+            {
+                var cell = SpreadsheetPanelHelpers.GetCellNameFromCoord(coord);
+
+                Spreadsheet.SetContentsOfCell(cell, text);
+
+                var value = Spreadsheet.GetCellValue(cell);
+
+                DoForegroundWork(() => spreadsheetPanel.SetValue(coord.Column, coord.Row, value.ToString()));
+            });
+        }
+
+        private void cellContentTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            
+            if (e.KeyCode == Keys.Enter)
+            {
+                updateButton_Click(sender, e);
+
+                // Move the selected cell down a row //
+                var oldCoord = spreadsheetPanel.GetSelection();
+
+                var row = (oldCoord.Row + 1) % 99;
+                var col = oldCoord.Column;
+
+                if (row == 0) col++; // If the row got over 99, go to the next column //
+
+                spreadsheetPanel.SetSelection(col, row);
+                spreadsheetPanel_SelectionChanged(spreadsheetPanel); // Not sure why this isn't called //
+
+                e.Handled = true; // Stop the ding >:( //
+                e.SuppressKeyPress = true;
+            }
+
+            if (e.KeyCode == Keys.Escape)
+            {
+                cancelButton_Click(sender, e);
+                e.Handled = true; // Stop the ding >:( //
+                e.SuppressKeyPress = true;
+            }
+
+            if (e.KeyCode == Keys.Tab)
+            {
+                updateButton_Click(sender, e);
+
+                // Move the selected cell one to the right //
+                var oldCoord = spreadsheetPanel.GetSelection();
+
+                var row = oldCoord.Row;
+                var col = (oldCoord.Column + 1) % 26;
+
+                if (col == 0) row++; // If the col got over 26, go to the next row //
+
+                spreadsheetPanel.SetSelection(col, row);
+                spreadsheetPanel_SelectionChanged(spreadsheetPanel); // Not sure why this isn't called //
+
+                e.Handled = true; // Stop the ding >:( //
+                e.SuppressKeyPress = true;
+            }
+
+        }
+
+        private void cancelButton_Click(object sender, EventArgs e)
+        {
+            cellContentTextBox.Clear();
+        }
+
+        private void cellContentTextBox_TextChanged(object sender, EventArgs e)
+        {
+            spreadsheetPanel.SetSelectedValue(cellContentTextBox.Text);
         }
     }
 }
