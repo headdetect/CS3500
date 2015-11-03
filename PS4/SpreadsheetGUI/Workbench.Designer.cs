@@ -45,17 +45,14 @@
             this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pasteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.contentsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.indexToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.searchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
-            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.selCellLabel = new System.Windows.Forms.Label();
             this.cellContentLabel = new System.Windows.Forms.Label();
             this.cellContentTextBox = new System.Windows.Forms.TextBox();
             this.updateButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
             this.spreadsheetToolTips = new System.Windows.Forms.ToolTip(this.components);
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -193,44 +190,19 @@
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.contentsToolStripMenuItem,
-            this.indexToolStripMenuItem,
-            this.searchToolStripMenuItem,
-            this.toolStripSeparator5,
+            this.helpMenuItem,
             this.aboutToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(53, 24);
             this.helpToolStripMenuItem.Text = "&Help";
             // 
-            // contentsToolStripMenuItem
+            // helpMenuItem
             // 
-            this.contentsToolStripMenuItem.Name = "contentsToolStripMenuItem";
-            this.contentsToolStripMenuItem.Size = new System.Drawing.Size(142, 26);
-            this.contentsToolStripMenuItem.Text = "&Contents";
-            // 
-            // indexToolStripMenuItem
-            // 
-            this.indexToolStripMenuItem.Name = "indexToolStripMenuItem";
-            this.indexToolStripMenuItem.Size = new System.Drawing.Size(142, 26);
-            this.indexToolStripMenuItem.Text = "&Index";
-            // 
-            // searchToolStripMenuItem
-            // 
-            this.searchToolStripMenuItem.Name = "searchToolStripMenuItem";
-            this.searchToolStripMenuItem.Size = new System.Drawing.Size(142, 26);
-            this.searchToolStripMenuItem.Text = "&Search";
-            // 
-            // toolStripSeparator5
-            // 
-            this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(139, 6);
-            // 
-            // aboutToolStripMenuItem
-            // 
-            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(142, 26);
-            this.aboutToolStripMenuItem.Text = "Help";
+            this.helpMenuItem.Name = "helpMenuItem";
+            this.helpMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
+            this.helpMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.helpMenuItem.Text = "Help";
+            this.helpMenuItem.Click += new System.EventHandler(this.helpToolStripMenuItem_Click);
             // 
             // selCellLabel
             // 
@@ -239,7 +211,7 @@
             this.selCellLabel.Location = new System.Drawing.Point(11, 49);
             this.selCellLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.selCellLabel.Name = "selCellLabel";
-            this.selCellLabel.Padding = new System.Windows.Forms.Padding(10, 10, 10, 10);
+            this.selCellLabel.Padding = new System.Windows.Forms.Padding(10);
             this.selCellLabel.Size = new System.Drawing.Size(78, 39);
             this.selCellLabel.TabIndex = 0;
             this.selCellLabel.Text = "Cell: A1";
@@ -251,7 +223,7 @@
             this.cellContentLabel.Location = new System.Drawing.Point(95, 49);
             this.cellContentLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.cellContentLabel.Name = "cellContentLabel";
-            this.cellContentLabel.Padding = new System.Windows.Forms.Padding(10, 10, 10, 10);
+            this.cellContentLabel.Padding = new System.Windows.Forms.Padding(10);
             this.cellContentLabel.Size = new System.Drawing.Size(110, 39);
             this.cellContentLabel.TabIndex = 1;
             this.cellContentLabel.Text = "Cell Content:";
@@ -262,7 +234,7 @@
             this.cellContentTextBox.AcceptsTab = true;
             this.cellContentTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cellContentTextBox.Location = new System.Drawing.Point(209, 49);
-            this.cellContentTextBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.cellContentTextBox.Margin = new System.Windows.Forms.Padding(4);
             this.cellContentTextBox.Multiline = true;
             this.cellContentTextBox.Name = "cellContentTextBox";
             this.cellContentTextBox.Size = new System.Drawing.Size(620, 38);
@@ -274,7 +246,7 @@
             // 
             this.updateButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.updateButton.Location = new System.Drawing.Point(886, 49);
-            this.updateButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.updateButton.Margin = new System.Windows.Forms.Padding(4);
             this.updateButton.Name = "updateButton";
             this.updateButton.Size = new System.Drawing.Size(41, 39);
             this.updateButton.TabIndex = 3;
@@ -287,7 +259,7 @@
             // 
             this.cancelButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cancelButton.Location = new System.Drawing.Point(838, 49);
-            this.cancelButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.cancelButton.Margin = new System.Windows.Forms.Padding(4);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(41, 39);
             this.cancelButton.TabIndex = 4;
@@ -295,6 +267,13 @@
             this.spreadsheetToolTips.SetToolTip(this.cancelButton, "Cancel");
             this.cancelButton.UseVisualStyleBackColor = true;
             this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
+            // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.aboutToolStripMenuItem.Text = "About";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
             // Workbench
             // 
@@ -337,17 +316,14 @@
         private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem pasteToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem contentsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem indexToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem searchToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
-        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem helpMenuItem;
         private System.Windows.Forms.Label selCellLabel;
         private System.Windows.Forms.Label cellContentLabel;
         private System.Windows.Forms.TextBox cellContentTextBox;
         private System.Windows.Forms.Button updateButton;
         private System.Windows.Forms.ToolTip spreadsheetToolTips;
         private System.Windows.Forms.Button cancelButton;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
     }
 }
 

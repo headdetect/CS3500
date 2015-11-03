@@ -377,5 +377,16 @@ namespace SpreadsheetGUI
             spreadsheetPanel.SetSelection(col, row);
             spreadsheetPanel_SelectionChanged(spreadsheetPanel); // Not sure why this isn't called //
         }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            (new About()).ShowDialog();
+        }
+
+        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            (new Help()).ShowDialog();
+        }
+        
     }
 }
