@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using SpreadsheetUtilities;
 using SS;
 
 namespace SpreadsheetGUI
@@ -38,8 +39,8 @@ namespace SpreadsheetGUI
         public bool Changed => Spreadsheet != null && Spreadsheet.Changed;
 
         private readonly Func<string, string> _normalizer = s => s.ToUpper();
-
-        private SpreadsheetCoord previouSpreadsheetCoord = SpreadsheetCoord.Invalid;
+        private SpreadsheetCoord _previouSpreadsheetCoord = SpreadsheetCoord.Invalid;
+        private readonly object _spreadsheetLock = new object();
 
         public Workbench(string fileName = "")
         {
@@ -56,22 +57,29 @@ namespace SpreadsheetGUI
         {
             cellContentTextBox.Focus();
 
-            if (previouSpreadsheetCoord != SpreadsheetCoord.Invalid)
-            {
-                string txt = spreadsheetPanel.GetValue(previouSpreadsheetCoord);
-                InvokeCellUpdate(previouSpreadsheetCoord, txt);
-            }
-
             var selected = sender.GetSelection();
 
-            string cellName = (char)(selected.Column + 'A') + (selected.Row + 1).ToString();
-            selCellLabel.Text = @"Cell: " + cellName;
+            if (_previouSpreadsheetCoord != SpreadsheetCoord.Invalid && _previouSpreadsheetCoord != selected)
+            {
+                string txt = spreadsheetPanel.GetValue(_previouSpreadsheetCoord);
+                
+                if (!string.IsNullOrWhiteSpace(txt)) // Ignore if empty //
+                    InvokeCellUpdate(_previouSpreadsheetCoord, txt);
+            }
 
-            var cellContent = Spreadsheet.GetCellContents(cellName).ToString();
+            var cellName = selected.CellName;
 
-            cellContentTextBox.Text = cellContent;
+            selCellLabel.Text = $"Cell: {cellName}";
 
-            previouSpreadsheetCoord = selected;
+            var cellContent = Spreadsheet.GetCellContents(cellName);
+            
+            if (cellContent is Formula) 
+                cellContentTextBox.Text = $"={cellContent}";
+
+            if (cellContent is string || cellContent is double)
+                cellContentTextBox.Text = cellContent.ToString();
+
+            _previouSpreadsheetCoord = selected;
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -129,7 +137,7 @@ namespace SpreadsheetGUI
                 spreadsheetPanel.SetSelection(0, 0);
                 DoForegroundWork(() =>
                 {
-                    selCellLabel.Text = "Cell: A1";
+                    selCellLabel.Text = @"Cell: A1";
                     string cellContents = spreadsheetPanel.GetValue(0, 0);
                     cellContentTextBox.Text = cellContents;
                 });
@@ -153,7 +161,7 @@ namespace SpreadsheetGUI
             {
                 if (InvokeRequired)
                 {
-                    Invoke(work);
+                    BeginInvoke(work);
                 }
                 else
                 {
@@ -178,10 +186,9 @@ namespace SpreadsheetGUI
         {
             DoForegroundWork(() =>
             {
-                if (IsUntitled)
-                    Text = @"Spreadsheet - untitled";
-                else
-                    Text = @"Spreadsheet - " + Path.GetFileName(FileName);
+                Text = IsUntitled ? 
+                    @"Spreadsheet - untitled" : 
+                    $"Spreadsheet - {Path.GetFileName(FileName)}";
 
                 if (Changed) Text += @"*";
             });
@@ -238,19 +245,21 @@ namespace SpreadsheetGUI
         {
             DoBackgroundWork(arg =>
             {
-                var cell = SpreadsheetPanelHelpers.GetCellNameFromCoord(coord);
+                var cell = coord.CellName;
 
-                Spreadsheet.SetContentsOfCell(cell, text);
-
-                var value = Spreadsheet.GetCellValue(cell);
-
-                DoForegroundWork(() => spreadsheetPanel.SetValue(coord.Column, coord.Row, value.ToString()));
+                // Spreadsheet isn't threadsafe by design //
+                lock (_spreadsheetLock)
+                {
+                    Spreadsheet.SetContentsOfCell(cell, text);
+                    var value = Spreadsheet.GetCellValue(cell);
+                    
+                    DoForegroundWork(() => spreadsheetPanel.SetValue(coord.Column, coord.Row, value.ToString()));
+                }
             });
         }
 
         private void cellContentTextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            
             if (e.KeyCode == Keys.Enter)
             {
                 updateButton_Click(sender, e);

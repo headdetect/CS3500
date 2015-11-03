@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using SS;
+﻿using SS;
 
 namespace SpreadsheetGUI
 {
@@ -82,7 +76,7 @@ namespace SpreadsheetGUI
         public static string GetCellNameFromCoord(SpreadsheetCoord coord)
         {
             var col = (char)('A' + coord.Column); // Convert column to letter //
-            var row = coord.Row; // Just get the row //
+            var row = coord.Row + 1; // Just get the row //
 
             return col + row.ToString();
         }
@@ -118,6 +112,11 @@ namespace SpreadsheetGUI
             Row = row;
             Column = column;
         }
+
+        /// <summary>
+        /// The cell name/identifier of this coord
+        /// </summary>
+        public string CellName => SpreadsheetPanelHelpers.GetCellNameFromCoord(this);
 
         /// <summary>
         /// Returns the hash code for this instance.
@@ -157,6 +156,11 @@ namespace SpreadsheetGUI
         public static bool operator !=(SpreadsheetCoord a, SpreadsheetCoord b)
         {
             return !(a == b);
+        }
+
+        public override string ToString()
+        {
+            return CellName + " (" + Column + "," + Row + ")";
         }
     }
 }
