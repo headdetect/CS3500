@@ -55,14 +55,12 @@ namespace SpreadsheetGUI
 
         private void spreadsheetPanel_SelectionChanged(SS.SpreadsheetPanel sender)
         {
-            cellContentTextBox.Focus();
-
             var selected = sender.GetSelection();
 
             if (_previouSpreadsheetCoord != SpreadsheetCoord.Invalid && _previouSpreadsheetCoord != selected)
             {
                 string txt = spreadsheetPanel.GetValue(_previouSpreadsheetCoord);
-                
+
                 if (!string.IsNullOrWhiteSpace(txt)) // Ignore if empty //
                     InvokeCellUpdate(_previouSpreadsheetCoord, txt);
             }
@@ -72,8 +70,8 @@ namespace SpreadsheetGUI
             selCellLabel.Text = $"Cell: {cellName}";
 
             var cellContent = Spreadsheet.GetCellContents(cellName);
-            
-            if (cellContent is Formula) 
+
+            if (cellContent is Formula)
                 cellContentTextBox.Text = $"={cellContent}";
 
             if (cellContent is string || cellContent is double)
@@ -186,8 +184,8 @@ namespace SpreadsheetGUI
         {
             DoForegroundWork(() =>
             {
-                Text = IsUntitled ? 
-                    @"Spreadsheet - untitled" : 
+                Text = IsUntitled ?
+                    @"Spreadsheet - untitled" :
                     $"Spreadsheet - {Path.GetFileName(FileName)}";
 
                 if (Changed) Text += @"*";
@@ -252,7 +250,7 @@ namespace SpreadsheetGUI
                 {
                     Spreadsheet.SetContentsOfCell(cell, text);
                     var value = Spreadsheet.GetCellValue(cell);
-                    
+
                     DoForegroundWork(() => spreadsheetPanel.SetValue(coord.Column, coord.Row, value.ToString()));
                 }
             });
@@ -293,16 +291,28 @@ namespace SpreadsheetGUI
                 // Move the selected cell one to the right //
                 var oldCoord = spreadsheetPanel.GetSelection();
 
+                var direction = e.Shift ? -1 : 1; // Shift tab means go backwards, just tab means go forward //
+
                 var row = oldCoord.Row;
-                var col = (oldCoord.Column + 1) % 26;
+                var col = (oldCoord.Column + direction) % 26;
 
-                if (col == 0) row++; // If the col got over 26, go to the next row //
-
+                if (col == 0 && !e.Shift) row++; // If the col got over 26, go to the next row //
+                if (col == -1 && e.Shift)
+                {
+                    row--; // We went all the way left, time to wrap around //
+                    col = 25;
+                }
+                
                 spreadsheetPanel.SetSelection(col, row);
                 spreadsheetPanel_SelectionChanged(spreadsheetPanel); // Not sure why this isn't called //
 
                 e.Handled = true; // Stop the ding >:( //
                 e.SuppressKeyPress = true;
+            }
+
+            if (e.Handled)
+            {
+                spreadsheetPanel.Focus(); // Refocus on something else //
             }
 
         }
@@ -315,6 +325,33 @@ namespace SpreadsheetGUI
         private void cellContentTextBox_TextChanged(object sender, EventArgs e)
         {
             spreadsheetPanel.SetSelectedValue(cellContentTextBox.Text);
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            // The textbox shouldn't be messed with. //
+            if (!cellContentTextBox.Focused)
+            {
+                var arrows = new[] { Keys.Left, Keys.Right, Keys.Up, Keys.Down };
+                if (arrows.Contains(keyData))
+                {
+                    var oldCoord = spreadsheetPanel.GetSelection();
+
+                    var col = 1;
+                    var row = 1;
+
+                    //TODO: Make it actually do something when you press the arrow keys //
+
+                    spreadsheetPanel.SetSelection(col, row);
+                    spreadsheetPanel_SelectionChanged(spreadsheetPanel); // Not sure why this isn't called //
+                }
+                else
+                {
+                    cellContentTextBox.Focus();
+                }
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
         }
     }
 }
