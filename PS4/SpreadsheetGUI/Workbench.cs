@@ -78,6 +78,8 @@ namespace SpreadsheetGUI
                 cellContentTextBox.Text = cellContent.ToString();
 
             _previouSpreadsheetCoord = selected;
+
+            cellContentTextBox.Focus(); // Keep focus here //
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -258,6 +260,29 @@ namespace SpreadsheetGUI
 
         private void cellContentTextBox_KeyDown(object sender, KeyEventArgs e)
         {
+            var arrows = new[] { Keys.Left, Keys.Right, Keys.Up, Keys.Down };
+            if (arrows.Contains(e.KeyCode))
+            {
+                // We can use arrow keys if (and only if) the textbox is empty.
+                if (e.KeyCode == Keys.Left || e.KeyCode == Keys.Right)
+                {
+                    if (string.IsNullOrWhiteSpace(cellContentTextBox.Text))
+                    {
+                        HandleKeyPress(e.KeyCode);
+                        e.Handled = true;
+                        e.SuppressKeyPress = true;
+                    }
+                }
+                else
+                {
+                    HandleKeyPress(e.KeyCode);
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                }
+
+                
+            }
+
             if (e.KeyCode == Keys.Enter)
             {
                 updateButton_Click(sender, e);
@@ -296,25 +321,13 @@ namespace SpreadsheetGUI
                 var row = oldCoord.Row;
                 var col = (oldCoord.Column + direction) % 26;
 
-                if (col == 0 && !e.Shift) row++; // If the col got over 26, go to the next row //
-                if (col == -1 && e.Shift)
-                {
-                    row--; // We went all the way left, time to wrap around //
-                    col = 25;
-                }
-                
                 spreadsheetPanel.SetSelection(col, row);
                 spreadsheetPanel_SelectionChanged(spreadsheetPanel); // Not sure why this isn't called //
 
                 e.Handled = true; // Stop the ding >:( //
                 e.SuppressKeyPress = true;
             }
-
-            if (e.Handled)
-            {
-                spreadsheetPanel.Focus(); // Refocus on something else //
-            }
-
+            
         }
 
         private void cancelButton_Click(object sender, EventArgs e)
@@ -329,29 +342,40 @@ namespace SpreadsheetGUI
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            // The textbox shouldn't be messed with. //
+            // The textbox shouldn't be messed with. It's got its own handler //
             if (!cellContentTextBox.Focused)
             {
                 var arrows = new[] { Keys.Left, Keys.Right, Keys.Up, Keys.Down };
                 if (arrows.Contains(keyData))
                 {
-                    var oldCoord = spreadsheetPanel.GetSelection();
-
-                    var col = 1;
-                    var row = 1;
-
-                    //TODO: Make it actually do something when you press the arrow keys //
-
-                    spreadsheetPanel.SetSelection(col, row);
-                    spreadsheetPanel_SelectionChanged(spreadsheetPanel); // Not sure why this isn't called //
-                }
-                else
-                {
-                    cellContentTextBox.Focus();
+                    HandleKeyPress(keyData);
+                    return true; // Return true because we handled the event //
                 }
             }
 
             return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        private void HandleKeyPress(Keys keyData)
+        {
+            var oldCoord = spreadsheetPanel.GetSelection();
+
+            var col = oldCoord.Column;
+            var row = oldCoord.Row;
+
+            //Do modifiers //
+            if (keyData == Keys.Left)
+                col--;
+            if (keyData == Keys.Right)
+                col++;
+
+            if (keyData == Keys.Up)
+                row--;
+            if (keyData == Keys.Down)
+                row++;
+
+            spreadsheetPanel.SetSelection(col, row);
+            spreadsheetPanel_SelectionChanged(spreadsheetPanel); // Not sure why this isn't called //
         }
     }
 }
