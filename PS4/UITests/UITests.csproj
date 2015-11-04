@@ -66,9 +66,9 @@
     <None Include="UIMap.uitest" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Spreadsheet\Spreadsheet.csproj">
-      <Project>{56EB475D-A2DE-41A1-8206-095089AA8B1B}</Project>
-      <Name>Spreadsheet</Name>
+    <ProjectReference Include="..\SpreadsheetGUI\SpreadsheetGUI.csproj">
+      <Project>{f4c8c952-2aca-40f6-8074-b13a0790db16}</Project>
+      <Name>SpreadsheetGUI</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

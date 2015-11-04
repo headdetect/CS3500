@@ -20,7 +20,7 @@ namespace SpreadsheetGUI
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        public static void Main()
         {
             Packet.RegisterPacket(typeof(PacketCellUpdate));
             Packet.RegisterPacket(typeof(PacketSelectionChanged));

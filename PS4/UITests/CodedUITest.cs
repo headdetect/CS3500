@@ -4,11 +4,13 @@ using System.Text.RegularExpressions;
 using System.Windows.Input;
 using System.Windows.Forms;
 using System.Drawing;
+using System.IO;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UITesting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.VisualStudio.TestTools.UITest.Extension;
 using Microsoft.VisualStudio.TestTools.UITesting.WinControls;
-using SS;
+using SpreadsheetGUI;
 using Keyboard = Microsoft.VisualStudio.TestTools.UITesting.Keyboard;
 
 
@@ -24,46 +26,89 @@ namespace UITests
         {
         }
 
-        private static Spreadsheet GetSpreadsheet(UITestControl window)
+
+        [TestMethod]
+        public void TextboxEmtpy()
         {
-            return window.GetProperty("Spreadsheet") as Spreadsheet;
+            this.UIMap.FillSpreadsheet();
+            this.UIMap.AssertIsEmpty();
         }
 
         [TestMethod]
-        public void MakeSureTextboxEmtpy()
+        public void MatchesFormula()
         {
-            this.UIMap.MakeSureTextboxEmpty();
-            Assert.IsTrue(string.IsNullOrWhiteSpace(UIMap.MakeSureTextboxEmptyParams.UICellContentTextBoxEditText));
-            var spreadsheet = GetSpreadsheet(UIMap.UISpreadsheetuntitledWindow);
-
-            Assert.AreEqual(spreadsheet.GetCellContents("A1"), 2); // Make sure it puts 2 //
+            this.UIMap.FillSpreadsheet();
+            this.UIMap.MoveToC3();
+            this.UIMap.AssertFormulaMatches();
         }
 
         [TestMethod]
-        public void MakeSureTextboxEmptyOnClear()
+        public void MatchesCellValue()
         {
-            this.UIMap.MakeSureTextboxEmpty();
-            Assert.IsTrue(string.IsNullOrWhiteSpace(UIMap.MakeSureTextboxEmptyParams.UICellContentTextBoxEditText));
+            this.UIMap.FillSpreadsheet();
+            this.UIMap.MoveToC3();
+            this.UIMap.AssertCellValueMatches();
 
         }
+
+        [TestMethod]
+        public void MatchesCellName()
+        {
+            this.UIMap.FillSpreadsheet();
+            this.UIMap.MoveToC3();
+            this.UIMap.AssertCellNameMatches();
+
+        }
+
+        [TestMethod]
+        public void ShowsChanges()
+        {
+            this.UIMap.FillSpreadsheet();
+            this.UIMap.AssertShowsChanges();
+        }
+
+        [TestMethod]
+        public void DoesNewFile()
+        {
+            this.UIMap.FillSpreadsheet();
+            this.UIMap.SaveSpreadsheet();
+            this.UIMap.ClearSpreadsheet();
+            this.UIMap.AssertIsNewFile();
+        }
+
+        [TestMethod]
+        public void DoesSaveFile()
+        {
+            this.UIMap.FillSpreadsheet();
+            this.UIMap.SaveSpreadsheet();
+            this.UIMap.AssertIsSaved();
+
+        }
+
+        [TestMethod]
+        public void DoesSaveAsFile()
+        {
+            this.UIMap.FillSpreadsheet();
+            this.UIMap.SaveSpreadsheet();
+        }
+
 
         #region Additional test attributes
 
         // You can use the following additional attributes as you write your tests:
+        
+        [TestInitialize]
+        public void PreTest()
+        {
+            //TODO: Open executable here //
+        }
 
-        ////Use TestInitialize to run code before running each test 
-        //[TestInitialize()]
-        //public void MyTestInitialize()
-        //{        
-        //    // To generate code for this test, select "Generate Code for Coded UI Test" from the shortcut menu and select one of the menu items.
-        //}
-
-        ////Use TestCleanup to run code after each test has run
-        //[TestCleanup()]
-        //public void MyTestCleanup()
-        //{        
-        //    // To generate code for this test, select "Generate Code for Coded UI Test" from the shortcut menu and select one of the menu items.
-        //}
+        //Use TestCleanup to run code after each test has run
+        [TestCleanup()]
+        public void MyTestCleanup()
+        {
+            //TODO: Close executable here //
+        }
 
         #endregion
 
