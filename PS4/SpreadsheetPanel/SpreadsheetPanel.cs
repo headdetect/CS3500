@@ -145,6 +145,19 @@ namespace SS
             return drawingPanel.SetSelection(col, row);
         }
 
+        /// <summary>
+        /// If the zero-based column and row are in range, uses them to set
+        /// the current selection and returns true.  Otherwise, returns false.
+        /// </summary>
+        /// <param name="col"></param>
+        /// <param name="row"></param>
+        /// <returns></returns>
+
+        public bool SetOtherSelection(int col, int row)
+        {
+            return drawingPanel.SetOtherSelection(col, row);
+        }
+
 
         /// <summary>
         /// Assigns the column and row of the current selection to the
@@ -152,7 +165,7 @@ namespace SS
         /// </summary>
         /// <param name="col"></param>
         /// <param name="row"></param>
-        
+
         public void GetSelection(out int col, out int row)
         {
             drawingPanel.GetSelection(out col, out row);
@@ -319,7 +332,9 @@ namespace SS
             {
                 if (InvalidAddress(col, row))
                 {
-                    return false;
+                    // Just remove from spreadsheet //
+                    _selectedOtherCol = -1;
+                    _selectedOtherRow = -1;
                 }
                 _selectedOtherCol = col;
                 _selectedOtherRow = row;

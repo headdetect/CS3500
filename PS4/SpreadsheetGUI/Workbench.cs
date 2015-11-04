@@ -11,6 +11,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using RemoteLib.Net;
+using SpreadsheetGUI.Networking.Packets;
 using SpreadsheetUtilities;
 using SS;
 
@@ -51,8 +53,61 @@ namespace SpreadsheetGUI
         private void Workbench_Load(object sender, EventArgs e)
         {
             LoadFile();
+
+            RemoteClient.ClientLeft += RemoteClient_ClientLeft;
+
+            Packet.PacketRecieved += Packet_PacketRecieved;
         }
 
+        
+
+        private void Packet_PacketRecieved(object sender, Packet.PacketEventArgs e)
+        {
+            if (e.Packet is PacketCellUpdate)
+            {
+                var cellUpdate = (PacketCellUpdate)e.Packet;
+                InvokeCellUpdate(SpreadsheetPanelHelpers.GetCoordFromCellName(cellUpdate.Cell), cellUpdate.Content);
+            }
+
+            if (e.Packet is PacketSelectionChanged)
+            {
+                var selectionChanged = (PacketSelectionChanged)e.Packet;
+                DoForegroundWork(() =>
+                {
+                    var coords = SpreadsheetPanelHelpers.GetCoordFromCellName(selectionChanged.Cell);
+                    spreadsheetPanel.SetOtherSelection(coords.Column, coords.Row);
+                });
+            }
+
+            if (e.Packet is PacketSpreadsheetReady)
+            {
+                DoForegroundWork(() =>
+                {
+                    foreach (var cell in Spreadsheet.GetNamesOfAllNonemptyCells())
+                    {
+                        var coord = SpreadsheetPanelHelpers.GetCoordFromCellName(cell);
+                        var cellContent = Spreadsheet.GetCellContents(cell);
+
+                        if (cellContent is Formula)
+                            cellContent = $"={cellContent}";
+
+                        if (cellContent is string || cellContent is double)
+                            cellContent = cellContent.ToString();
+
+                        SendCellUpdate(coord, cellContent.ToString());
+                    }
+                });
+            }
+        }
+
+        private void RemoteClient_ClientLeft(object sender, ClientConnectionEventArgs e)
+        {
+            DoForegroundWork(() =>
+            {
+                spreadsheetPanel.SetOtherSelection(-1, -1); // Hide it from the spreadsheet //
+            });
+        }
+        
         private void spreadsheetPanel_SelectionChanged(SS.SpreadsheetPanel sender)
         {
             var selected = sender.GetSelection();
@@ -61,6 +116,7 @@ namespace SpreadsheetGUI
             {
                 string txt = spreadsheetPanel.GetValue(_previouSpreadsheetCoord);
                 InvokeCellUpdate(_previouSpreadsheetCoord, txt);
+                SendCellUpdate(_previouSpreadsheetCoord, txt);
             }
 
             var cellName = selected.CellName;
@@ -69,7 +125,7 @@ namespace SpreadsheetGUI
 
             selCellLabel.Text = $"Cell: {cellName}";
             cellContentLabel.Text = $"Cell Value: {cellValue}";
-            
+
             if (cellContent is Formula)
                 cellContentTextBox.Text = $"={cellContent}";
 
@@ -79,6 +135,15 @@ namespace SpreadsheetGUI
             _previouSpreadsheetCoord = selected;
 
             cellContentTextBox.Focus(); // Keep focus here //
+
+            DoBackgroundWork(args =>
+            {
+                // Do networking stuff //
+                var packet = new PacketSelectionChanged(cellName);
+
+                Program.Client?.PacketWriter.EnqueuePacket(packet); // Will send to server if client //
+                Program.Server?.Clients.ForEach(client => client.PacketWriter.EnqueuePacket(packet)); // Will send to all clients (should just be 1) if there's clients //
+            });
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -125,6 +190,8 @@ namespace SpreadsheetGUI
 
                     return;
                 }
+
+                spreadsheetPanel.Clear(); // Clear all cells. //
 
                 foreach (var cell in Spreadsheet.GetNamesOfAllNonemptyCells())
                 {
@@ -242,8 +309,18 @@ namespace SpreadsheetGUI
             {
                 var selectedCoord = spreadsheetPanel.GetSelection();
                 InvokeCellUpdate(selectedCoord, cellContentTextBox.Text);
+                SendCellUpdate(selectedCoord, cellContentTextBox.Text);
             }
             catch { }
+        }
+
+        private void SendCellUpdate(SpreadsheetCoord selectedCoord, string text)
+        {
+            // Do networking stuff //
+            var packet = new PacketCellUpdate(selectedCoord.CellName, text);
+
+            Program.Client?.PacketWriter.EnqueuePacket(packet); // Will send to server if client //
+            Program.Server?.Clients.ForEach(client => client.PacketWriter.EnqueuePacket(packet)); // Will send to all clients (should just be 1) if there's clients //
         }
 
         private void InvokeCellUpdate(SpreadsheetCoord coord, string text)
@@ -260,6 +337,7 @@ namespace SpreadsheetGUI
 
                     DoForegroundWork(() => spreadsheetPanel.SetValue(coord.Column, coord.Row, value.ToString()));
                 }
+                
             });
         }
 
@@ -285,7 +363,7 @@ namespace SpreadsheetGUI
                     e.SuppressKeyPress = true;
                 }
 
-                
+
             }
 
             if (e.KeyCode == Keys.Enter)
@@ -332,7 +410,7 @@ namespace SpreadsheetGUI
                 e.Handled = true; // Stop the ding >:( //
                 e.SuppressKeyPress = true;
             }
-            
+
         }
 
         private void cancelButton_Click(object sender, EventArgs e)
@@ -392,6 +470,34 @@ namespace SpreadsheetGUI
         {
             (new Help()).ShowDialog();
         }
-        
+
+        private void connectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var wasNull = Program.Client == null;
+
+            (new Connect()).ShowDialog();
+
+            if (Program.Client != null && wasNull)
+            {
+                // This means we have connected to a host, we need to clear our board //
+                FileName = string.Empty;
+                LoadFile();
+
+
+                // Do networking stuff //
+                var packet = new PacketSpreadsheetReady();
+
+                Program.Client?.PacketWriter.EnqueuePacket(packet); // Will send to server if client //
+                Program.Server?.Clients.ForEach(client => client.PacketWriter.EnqueuePacket(packet)); // Will send to all clients (should just be 1) if there's clients //
+            }
+
+
+        }
+
+        private void Workbench_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Program.Client?.Disconnect();
+            Program.StopNetworkTransactions();
+        }
     }
 }
