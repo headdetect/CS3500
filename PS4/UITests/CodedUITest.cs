@@ -7,6 +7,8 @@ using System.Drawing;
 using Microsoft.VisualStudio.TestTools.UITesting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.VisualStudio.TestTools.UITest.Extension;
+using Microsoft.VisualStudio.TestTools.UITesting.WinControls;
+using SS;
 using Keyboard = Microsoft.VisualStudio.TestTools.UITesting.Keyboard;
 
 
@@ -22,10 +24,27 @@ namespace UITests
         {
         }
 
-        [TestMethod]
-        public void CodedUITestMethod1()
+        private static Spreadsheet GetSpreadsheet(UITestControl window)
         {
-            // To generate code for this test, select "Generate Code for Coded UI Test" from the shortcut menu and select one of the menu items.
+            return window.GetProperty("Spreadsheet") as Spreadsheet;
+        }
+
+        [TestMethod]
+        public void MakeSureTextboxEmtpy()
+        {
+            this.UIMap.MakeSureTextboxEmpty();
+            Assert.IsTrue(string.IsNullOrWhiteSpace(UIMap.MakeSureTextboxEmptyParams.UICellContentTextBoxEditText));
+            var spreadsheet = GetSpreadsheet(UIMap.UISpreadsheetuntitledWindow);
+
+            Assert.AreEqual(spreadsheet.GetCellContents("A1"), 2); // Make sure it puts 2 //
+        }
+
+        [TestMethod]
+        public void MakeSureTextboxEmptyOnClear()
+        {
+            this.UIMap.MakeSureTextboxEmpty();
+            Assert.IsTrue(string.IsNullOrWhiteSpace(UIMap.MakeSureTextboxEmptyParams.UICellContentTextBoxEditText));
+
         }
 
         #region Additional test attributes
@@ -64,5 +83,20 @@ namespace UITests
             }
         }
         private TestContext testContextInstance;
+
+        public UIMap UIMap
+        {
+            get
+            {
+                if ((this.map == null))
+                {
+                    this.map = new UIMap();
+                }
+
+                return this.map;
+            }
+        }
+
+        private UIMap map;
     }
 }

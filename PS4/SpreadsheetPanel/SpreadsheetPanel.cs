@@ -211,7 +211,7 @@ namespace SS
 
             public override bool Equals(object obj)
             {
- 	            if ((obj == null) || !(obj is Address)) {
+ 	            if (!(obj is Address)) {
                     return false;
                 }
                 Address a = (Address)obj;
@@ -226,12 +226,14 @@ namespace SS
         /// current selection as well as what is supposed to be drawn in each cell.
         /// </summary>
         
-        private class DrawingPanel : Panel
+        private sealed class DrawingPanel : Panel
         {
             // Columns and rows are numbered beginning with 0.  This is the coordinate
             // of the selected cell.
             private int _selectedCol;
             private int _selectedRow;
+            private int _selectedOtherCol = -1; // Disable by default
+            private int _selectedOtherRow = -1; // Disable by default
 
             // Coordinate of cell in upper-left corner of display
             private int _firstColumn = 0;
@@ -273,7 +275,7 @@ namespace SS
                 }
 
                 Address a = new Address(col, row);
-                if (c == null || c == "")
+                if (string.IsNullOrEmpty(c))
                 {
                     _values.Remove(a);
                 }
@@ -313,11 +315,28 @@ namespace SS
                 return true;
             }
 
+            public bool SetOtherSelection(int col, int row)
+            {
+                if (InvalidAddress(col, row))
+                {
+                    return false;
+                }
+                _selectedOtherCol = col;
+                _selectedOtherRow = row;
+                Invalidate();
+                return true;
+            }
 
             public void GetSelection(out int col, out int row)
             {
                 col = _selectedCol;
                 row = _selectedRow;
+            }
+
+            public void GetOtherSelection(out int col, out int row)
+            {
+                col = _selectedOtherCol;
+                row = _selectedOtherRow;
             }
 
 
@@ -353,6 +372,7 @@ namespace SS
                 Brush brush = new SolidBrush(Color.Black);
                 Brush formulaBrush = new SolidBrush(Color.DarkGreen);
                 Pen pen = new Pen(brush);
+                Pen otherPen = new Pen(new SolidBrush(Color.Purple));
                 Font regularFont = Font;
                 Font boldFont = new Font(regularFont, FontStyle.Bold);
 
@@ -370,7 +390,7 @@ namespace SS
                 // Draw the column labels
                 for (int x = 0; x < COL_COUNT - _firstColumn; x++)
                 {
-                    Font f = (_selectedCol - _firstColumn == x) ? boldFont : Font;
+                    Font f = (_selectedCol - _firstColumn == x || _selectedOtherCol - _firstColumn == x) ? boldFont : Font;
                     DrawColumnLabel(e.Graphics, x, f);
                 }
 
@@ -388,7 +408,7 @@ namespace SS
                 // Draw the row labels
                 for (int y = 0; y < (ROW_COUNT - _firstRow); y++)
                 {
-                    Font f = (_selectedRow - _firstRow == y) ? boldFont : Font;
+                    Font f = (_selectedRow - _firstRow == y || _selectedOtherRow - _firstColumn == y) ? boldFont : Font;
                     DrawRowLabel(e.Graphics, y, f);
                 }
 
@@ -402,7 +422,17 @@ namespace SS
                                       DATA_COL_WIDTH - 2,
                                       DATA_ROW_HEIGHT - 2));
                 }
-                
+
+                if ((_selectedOtherCol - _firstColumn >= 0) && (_selectedOtherRow - _firstRow >= 0))
+                {
+                    e.Graphics.DrawRectangle(
+                        otherPen,
+                        new Rectangle(LABEL_COL_WIDTH + (_selectedOtherCol - _firstColumn) * DATA_COL_WIDTH + 1,
+                                      LABEL_ROW_HEIGHT + (_selectedOtherRow - _firstRow) * DATA_ROW_HEIGHT + 1,
+                                      DATA_COL_WIDTH - 2,
+                                      DATA_ROW_HEIGHT - 2));
+                }
+
                 // Draw the text
                 foreach (KeyValuePair<Address, String> address in _values)
                 {
@@ -498,10 +528,7 @@ namespace SS
                 {
                     _selectedCol = x + _firstColumn;
                     _selectedRow = y + _firstRow;
-                    if (_ssp.SelectionChanged != null)
-                    {
-                        _ssp.SelectionChanged(_ssp);
-                    }
+                    _ssp.SelectionChanged?.Invoke(_ssp);
                 }
                 Invalidate();
             }

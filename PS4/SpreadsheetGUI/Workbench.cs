@@ -60,17 +60,16 @@ namespace SpreadsheetGUI
             if (_previouSpreadsheetCoord != SpreadsheetCoord.Invalid && _previouSpreadsheetCoord != selected)
             {
                 string txt = spreadsheetPanel.GetValue(_previouSpreadsheetCoord);
-
-                if (!string.IsNullOrWhiteSpace(txt)) // Ignore if empty //
-                    InvokeCellUpdate(_previouSpreadsheetCoord, txt);
+                InvokeCellUpdate(_previouSpreadsheetCoord, txt);
             }
 
             var cellName = selected.CellName;
+            var cellContent = Spreadsheet.GetCellContents(cellName);
+            var cellValue = Spreadsheet.GetCellValue(cellName).ToString().Truncate(15);
 
             selCellLabel.Text = $"Cell: {cellName}";
-
-            var cellContent = Spreadsheet.GetCellContents(cellName);
-
+            cellContentLabel.Text = $"Cell Value: {cellValue}";
+            
             if (cellContent is Formula)
                 cellContentTextBox.Text = $"={cellContent}";
 
@@ -84,8 +83,10 @@ namespace SpreadsheetGUI
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var bench = new Workbench();
-            bench.Show();
+            //TODO: Ask user if they want to save if Changes == true
+
+            FileName = string.Empty;
+            LoadFile();
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -95,6 +96,8 @@ namespace SpreadsheetGUI
             var result = openFileDialog.ShowDialog(this);
 
             if (result != DialogResult.OK && result != DialogResult.Yes) return;
+
+            //TODO: Ask user if they want to save if changed == true.
 
             FileName = openFileDialog.FileName;
             LoadFile();
@@ -129,8 +132,6 @@ namespace SpreadsheetGUI
                     var point = SpreadsheetPanelHelpers.GetCoordFromCellName(cell);
 
                     DoForegroundWork(() => spreadsheetPanel.SetValue(point.Column, point.Row, value.ToString()));
-
-                    // TODO: Check for formulas
                 }
 
                 // Set selected cell to A1
@@ -140,6 +141,8 @@ namespace SpreadsheetGUI
                     selCellLabel.Text = @"Cell: A1";
                     string cellContents = spreadsheetPanel.GetValue(0, 0);
                     cellContentTextBox.Text = cellContents;
+
+                    Invalidate();
                 });
 
                 SetTitle();
@@ -202,6 +205,7 @@ namespace SpreadsheetGUI
                 return;
             }
 
+            //TODO: Handle SpreadsheetReadWriteExceptions
             Spreadsheet?.Save(FileName);
             SetTitle();
         }
@@ -219,6 +223,7 @@ namespace SpreadsheetGUI
             var fileName = saveDialog.FileName;
             if (string.IsNullOrWhiteSpace(fileName)) return;
 
+            //TODO: Handle SpreadsheetReadWriteExceptions
             Spreadsheet?.Save(fileName);
             FileName = fileName;
             SetTitle();
