@@ -332,11 +332,50 @@ namespace SpreadsheetGUI
                 // Spreadsheet isn't threadsafe by design //
                 lock (_spreadsheetLock)
                 {
-                    Spreadsheet.SetContentsOfCell(cell, text);
-                    var value = Spreadsheet.GetCellValue(cell);
+                    try
+                    {
+                        Spreadsheet.SetContentsOfCell(cell, text);
+                        var value = Spreadsheet.GetCellValue(cell);
 
-                    DoForegroundWork(() => spreadsheetPanel.SetValue(coord.Column, coord.Row, value.ToString()));
-                }
+                        // Check for invalid formulas
+                        if (value is FormulaError)
+                        {
+                            Spreadsheet.SetContentsOfCell(cell, "Invalid formula.");
+                            DoForegroundWork(() => 
+                            {
+                                spreadsheetPanel.SetSelection(coord.Column, coord.Row);
+                                selCellLabel.Text = "Cell: " + coord.CellName;
+                                cellContentTextBox.Text = "Invalid formula!";
+                                spreadsheetPanel.SetValue(coord.Column, coord.Row, "Invalid formula!");
+                                MessageBox.Show("Invalid formula!");
+                            });
+                        }
+
+                        DoForegroundWork(() => spreadsheetPanel.SetValue(coord.Column, coord.Row, value.ToString()));
+                    }
+                    catch (CircularException)
+                    {
+                        DoForegroundWork(() =>
+                        {
+                            spreadsheetPanel.SetSelection(coord.Column, coord.Row);
+                            selCellLabel.Text = "Cell: " + coord.CellName;
+                            Spreadsheet.SetContentsOfCell(cell, "=0"); //no clear way of removing this cell
+                            spreadsheetPanel.SetValue(coord.Column, coord.Row, "=0");
+                            MessageBox.Show("You cannot have circular dependencies!");
+                        });
+                    }
+                    catch (FormulaFormatException)
+                    {
+                        DoForegroundWork(() =>
+                        {
+                            spreadsheetPanel.SetSelection(coord.Column, coord.Row);
+                            selCellLabel.Text = "Cell: " + coord.CellName;
+                            cellContentTextBox.Text = "Invalid formula!";
+                            spreadsheetPanel.SetValue(coord.Column, coord.Row, "Invalid formula!");
+                            MessageBox.Show("Invalid formula!"); // both messageboxes keep popping up twice
+                        });
+                    }
+}
                 
             });
         }
