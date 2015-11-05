@@ -113,8 +113,7 @@ namespace UITests
             this.UIMap.AssertCantJoinCollaboration();
         }
 
-
-
+        
         [TestMethod]
         public void OpensAboutDialog()
         {
@@ -190,7 +189,7 @@ namespace UITests
         [TestCleanup()]
         public void MyTestCleanup()
         {
-            proc?.Close();
+            //proc?.Close();
         }
 
         #endregion

@@ -30,45 +30,252 @@ namespace UITests
     {
         
         /// <summary>
-        /// MakeSureTextboxEmpty - Use 'MakeSureTextboxEmptyParams' to pass parameters into this method.
+        /// AssertAboutDialogOpen - Use 'AssertAboutDialogOpenExpectedValues' to pass parameters into this method.
         /// </summary>
-        public void MakeSureTextboxEmpty()
+        public void AssertAboutDialogOpen()
         {
             #region Variable Declarations
-            WinWindow uIMenuStrip1Window = this.UISpreadsheetuntitledWindow.UISpreadsheetuntitledClient.UIMenuStrip1Window;
-            WinEdit uICellContentTextBoxEdit = this.UISpreadsheetuntitledWindow.UICellContentTextBoxWindow.UICellContentTextBoxEdit;
+            WinTitleBar uIAboutTitleBar = this.UIAboutWindow1.UIAboutTitleBar;
             #endregion
 
-            // Click 'menuStrip1' window
-            Mouse.Click(uIMenuStrip1Window, new Point(450, 55));
-
-            // Type '=1+1' in 'cellContentTextBox' text box
-            uICellContentTextBoxEdit.Text = this.MakeSureTextboxEmptyParams.UICellContentTextBoxEditText;
-
-            // Type '{Enter}' in 'cellContentTextBox' text box
-            Keyboard.SendKeys(uICellContentTextBoxEdit, this.MakeSureTextboxEmptyParams.UICellContentTextBoxEditSendKeys, ModifierKeys.None);
+            // Verify that the 'DisplayText' property of 'About' title bar equals 'About'
+            Assert.AreEqual(this.AssertAboutDialogOpenExpectedValues.UIAboutTitleBarDisplayText, uIAboutTitleBar.DisplayText);
         }
         
         /// <summary>
-        /// MakeSureTextboxEmpty2 - Use 'MakeSureTextboxEmpty2Params' to pass parameters into this method.
+        /// AssertCantJoinCollaboration - Use 'AssertCantJoinCollaborationExpectedValues' to pass parameters into this method.
         /// </summary>
-        public void MakeSureTextboxEmpty2()
+        public void AssertCantJoinCollaboration()
+        {
+            #region Variable Declarations
+            WinText uIErrortryingtoconnectText = this.UIErrortryingtoconnectWindow.UIErrortryingtoconnectText;
+            #endregion
+
+            // Verify that the 'DisplayText' property of 'Error trying to connect to null No such host is kn...' label equals 'Error trying to connect to null
+            //
+            //No such host is known'
+            Assert.AreEqual(this.AssertCantJoinCollaborationExpectedValues.UIErrortryingtoconnectTextDisplayText, uIErrortryingtoconnectText.DisplayText);
+        }
+        
+        /// <summary>
+        /// AssertCellNameMatches - Use 'AssertCellNameMatchesExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertCellNameMatches()
+        {
+            #region Variable Declarations
+            WinText uICellC3Text = this.UISpreadsheetuntitledWindow.UICellC3Window.UICellC3Text;
+            #endregion
+
+            // Verify that the 'DisplayText' property of 'Cell: C3' label equals 'Cell: C3'
+            Assert.AreEqual(this.AssertCellNameMatchesExpectedValues.UICellC3TextDisplayText, uICellC3Text.DisplayText);
+        }
+        
+        /// <summary>
+        /// AssertCellValueEmpty - Use 'AssertCellValueEmptyExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertCellValueEmpty()
+        {
+            #region Variable Declarations
+            WinText uICellValueText = this.UISpreadsheetuntitledWindow1.UICellValueHelloWindow.UICellValueText;
+            #endregion
+
+            // Verify that the 'DisplayText' property of 'Cell Value:' label equals 'Cell Value: '
+            Assert.AreEqual(this.AssertCellValueEmptyExpectedValues.UICellValueTextDisplayText, uICellValueText.DisplayText);
+        }
+        
+        /// <summary>
+        /// AssertCellValueHello - Use 'AssertCellValueHelloExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertCellValueHello()
+        {
+            #region Variable Declarations
+            WinText uICellValueHelloText = this.UISpreadsheetuntitledWindow1.UICellValueHelloWindow.UICellValueHelloText;
+            #endregion
+
+            // Verify that the 'DisplayText' property of 'Cell Value: Hello' label equals 'Cell Value: Hello'
+            Assert.AreEqual(this.AssertCellValueHelloExpectedValues.UICellValueHelloTextDisplayText, uICellValueHelloText.DisplayText);
+        }
+        
+        /// <summary>
+        /// AssertCellValueMatches - Use 'AssertCellValueMatchesExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertCellValueMatches()
+        {
+            #region Variable Declarations
+            WinText uICellValue15Text = this.UISpreadsheetuntitledWindow.UICellValue15Window.UICellValue15Text;
+            #endregion
+
+            // Verify that the 'DisplayText' property of 'Cell Value: 1.5' label equals 'Cell Value: 1.5'
+            Assert.AreEqual(this.AssertCellValueMatchesExpectedValues.UICellValue15TextDisplayText, uICellValue15Text.DisplayText);
+        }
+        
+        /// <summary>
+        /// AssertFileSaved - Use 'AssertFileSavedExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertFileSaved()
+        {
+            #region Variable Declarations
+            WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow.UISpreadsheetuntitledTitleBar;
+            #endregion
+
+            // Verify that the 'DisplayText' property of 'Spreadsheet - untitled' title bar equals 'Spreadsheet - garbage.sprd'
+            Assert.AreEqual(this.AssertFileSavedExpectedValues.UISpreadsheetuntitledTitleBarDisplayText, uISpreadsheetuntitledTitleBar.DisplayText, "File was not saved");
+        }
+        
+        /// <summary>
+        /// AssertFormulaMatches - Use 'AssertFormulaMatchesExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertFormulaMatches()
+        {
+            #region Variable Declarations
+            WinEdit uICellContentTextBoxEdit1 = this.UISpreadsheetuntitledWindow.UICellContentTextBoxWindow.UICellContentTextBoxEdit1;
+            #endregion
+
+            // Verify that the 'Text' property of 'cellContentTextBox' text box equals '=6/4'
+            Assert.AreEqual(this.AssertFormulaMatchesExpectedValues.UICellContentTextBoxEdit1Text, uICellContentTextBoxEdit1.Text);
+        }
+        
+        /// <summary>
+        /// AssertHelpDialogOpen - Use 'AssertHelpDialogOpenExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertHelpDialogOpen()
+        {
+            #region Variable Declarations
+            WinTitleBar uIHelpTitleBar = this.UIHelpWindow1.UIHelpTitleBar;
+            #endregion
+
+            // Verify that the 'DisplayText' property of 'Help' title bar equals 'Help'
+            Assert.AreEqual(this.AssertHelpDialogOpenExpectedValues.UIHelpTitleBarDisplayText, uIHelpTitleBar.DisplayText);
+        }
+        
+        /// <summary>
+        /// AssertHostingCollaborationStarted - Use 'AssertHostingCollaborationStartedExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertHostingCollaborationStarted()
+        {
+            #region Variable Declarations
+            WinButton uIStopCollaborationButton = this.UICollaborateWindow.UIHostCollaborationWindow.UIStopCollaborationButton;
+            #endregion
+
+            // Verify that the 'DisplayText' property of 'Stop Collaboration' button equals 'Stop Collaboration'
+            Assert.AreEqual(this.AssertHostingCollaborationStartedExpectedValues.UIStopCollaborationButtonDisplayText, uIStopCollaborationButton.DisplayText);
+        }
+        
+        /// <summary>
+        /// AssertIsEmpty - Use 'AssertIsEmptyExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertIsEmpty()
         {
             #region Variable Declarations
             WinEdit uICellContentTextBoxEdit = this.UISpreadsheetuntitledWindow.UICellContentTextBoxWindow.UICellContentTextBoxEdit;
             #endregion
 
-            // Type '=1+1' in 'cellContentTextBox' text box
-            uICellContentTextBoxEdit.Text = this.MakeSureTextboxEmpty2Params.UICellContentTextBoxEditText;
+            // Verify that the 'Text' property of 'cellContentTextBox' text box equals ''
+            Assert.AreEqual(this.AssertIsEmptyExpectedValues.UICellContentTextBoxEditText, uICellContentTextBoxEdit.Text);
+        }
+        
+        /// <summary>
+        /// AssertIsNewFile - Use 'AssertIsNewFileExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertIsNewFile()
+        {
+            #region Variable Declarations
+            WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow.UISpreadsheetuntitledTitleBar;
+            #endregion
 
-            // Type '{Enter}' in 'cellContentTextBox' text box
-            Keyboard.SendKeys(uICellContentTextBoxEdit, this.MakeSureTextboxEmpty2Params.UICellContentTextBoxEditSendKeys, ModifierKeys.None);
+            // Verify that the 'DisplayText' property of 'Spreadsheet - untitled' title bar equals 'Spreadsheet - untitled*'
+            Assert.AreEqual(this.AssertIsNewFileExpectedValues.UISpreadsheetuntitledTitleBarDisplayText, uISpreadsheetuntitledTitleBar.DisplayText);
+        }
+        
+        /// <summary>
+        /// AssertIsSaved - Use 'AssertIsSavedExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertIsSaved()
+        {
+            #region Variable Declarations
+            WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow1.UISpreadsheetuntitledTitleBar;
+            #endregion
 
-            // Type '=1+A1' in 'cellContentTextBox' text box
-            uICellContentTextBoxEdit.Text = this.MakeSureTextboxEmpty2Params.UICellContentTextBoxEditText1;
+            // Verify that the 'DisplayText' property of 'Spreadsheet - untitled*' title bar does not match '[*]'
+            StringAssert.DoesNotMatch(uISpreadsheetuntitledTitleBar.DisplayText, new Regex(this.AssertIsSavedExpectedValues.UISpreadsheetuntitledTitleBarDisplayText));
+        }
+        
+        /// <summary>
+        /// AssertMatchesFormula - Use 'AssertMatchesFormulaExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertMatchesFormula()
+        {
+            #region Variable Declarations
+            WinEdit uICellContentTextBoxEdit = this.UISpreadsheetuntitledWindow.UICellContentTextBoxWindow.UICellContentTextBoxEdit;
+            #endregion
 
-            // Type '{Enter}' in 'cellContentTextBox' text box
-            Keyboard.SendKeys(uICellContentTextBoxEdit, this.MakeSureTextboxEmpty2Params.UICellContentTextBoxEditSendKeys1, ModifierKeys.None);
+            // Verify that the 'Text' property of 'cellContentTextBox' text box equals '=6/4'
+            Assert.AreEqual(this.AssertMatchesFormulaExpectedValues.UICellContentTextBoxEditText, uICellContentTextBoxEdit.Text);
+        }
+        
+        /// <summary>
+        /// AssertShowsChanges - Use 'AssertShowsChangesExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertShowsChanges()
+        {
+            #region Variable Declarations
+            WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow.UISpreadsheetuntitledTitleBar;
+            #endregion
+
+            // Verify that the 'DisplayText' property of 'Spreadsheet - untitled' title bar ends with '*'
+            StringAssert.EndsWith(uISpreadsheetuntitledTitleBar.DisplayText, this.AssertShowsChangesExpectedValues.UISpreadsheetuntitledTitleBarDisplayText);
+        }
+        
+        /// <summary>
+        /// AssertTextboxEmpty - Use 'AssertTextboxEmptyExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertTextboxEmpty()
+        {
+            #region Variable Declarations
+            WinEdit uICellContentTextBoxEdit = this.UISpreadsheetuntitledWindow1.UICellContentTextBoxWindow.UICellContentTextBoxEdit;
+            #endregion
+
+            // Verify that the 'Text' property of 'cellContentTextBox' text box equals ''
+            Assert.AreEqual(this.AssertTextboxEmptyExpectedValues.UICellContentTextBoxEditText, uICellContentTextBoxEdit.Text);
+        }
+        
+        /// <summary>
+        /// ClearSpreadsheet
+        /// </summary>
+        public void ClearSpreadsheet()
+        {
+            #region Variable Declarations
+            WinMenuItem uINewMenuItem = this.UISpreadsheetuntitledWindow.UIMenuStrip1MenuBar.UIFileMenuItem.UINewMenuItem;
+            #endregion
+
+            // Click 'File' -> 'New' menu item
+            Mouse.Click(uINewMenuItem, new Point(24, 15));
+        }
+        
+        /// <summary>
+        /// ClickCheckmark
+        /// </summary>
+        public void ClickCheckmark()
+        {
+            #region Variable Declarations
+            WinButton uIItemButton = this.UISpreadsheetuntitledWindow1.UIItemWindow.UIItemButton;
+            #endregion
+
+            // Click '✓' button
+            Mouse.Click(uIItemButton, new Point(16, 16));
+        }
+        
+        /// <summary>
+        /// ClickXButton
+        /// </summary>
+        public void ClickXButton()
+        {
+            #region Variable Declarations
+            WinButton uIItemButton = this.UISpreadsheetuntitledWindow1.UIItemWindow1.UIItemButton;
+            #endregion
+
+            // Click '✗' button
+            Mouse.Click(uIItemButton, new Point(19, 17));
         }
         
         /// <summary>
@@ -158,188 +365,16 @@ namespace UITests
         }
         
         /// <summary>
-        /// ClearSpreadsheet
+        /// FillTextbox - Use 'FillTextboxParams' to pass parameters into this method.
         /// </summary>
-        public void ClearSpreadsheet()
+        public void FillTextbox()
         {
             #region Variable Declarations
-            WinMenuItem uINewMenuItem = this.UISpreadsheetuntitledWindow.UIMenuStrip1MenuBar.UIFileMenuItem.UINewMenuItem;
+            WinEdit uICellContentTextBoxEdit = this.UISpreadsheetuntitledWindow1.UICellContentTextBoxWindow.UICellContentTextBoxEdit;
             #endregion
 
-            // Click 'File' -> 'New' menu item
-            Mouse.Click(uINewMenuItem, new Point(24, 15));
-        }
-        
-        /// <summary>
-        /// AssertIsEmpty - Use 'AssertIsEmptyExpectedValues' to pass parameters into this method.
-        /// </summary>
-        public void AssertIsEmpty()
-        {
-            #region Variable Declarations
-            WinEdit uICellContentTextBoxEdit = this.UISpreadsheetuntitledWindow.UICellContentTextBoxWindow.UICellContentTextBoxEdit;
-            #endregion
-
-            // Verify that the 'Text' property of 'cellContentTextBox' text box equals ''
-            Assert.AreEqual(this.AssertIsEmptyExpectedValues.UICellContentTextBoxEditText, uICellContentTextBoxEdit.Text);
-        }
-        
-        /// <summary>
-        /// AssertMatchesFormula - Use 'AssertMatchesFormulaExpectedValues' to pass parameters into this method.
-        /// </summary>
-        public void AssertMatchesFormula()
-        {
-            #region Variable Declarations
-            WinEdit uICellContentTextBoxEdit = this.UISpreadsheetuntitledWindow.UICellContentTextBoxWindow.UICellContentTextBoxEdit;
-            #endregion
-
-            // Verify that the 'Text' property of 'cellContentTextBox' text box equals '=6/4'
-            Assert.AreEqual(this.AssertMatchesFormulaExpectedValues.UICellContentTextBoxEditText, uICellContentTextBoxEdit.Text);
-        }
-        
-        /// <summary>
-        /// MoveToC3 - Use 'MoveToC3Params' to pass parameters into this method.
-        /// </summary>
-        public void MoveToC3()
-        {
-            #region Variable Declarations
-            WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow.UISpreadsheetuntitledTitleBar;
-            WinEdit uICellContentTextBoxEdit = this.UISpreadsheetuntitledWindow.UICellContentTextBoxWindow.UICellContentTextBoxEdit;
-            #endregion
-
-            // Click 'Spreadsheet - untitled' title bar
-            Mouse.Click(uISpreadsheetuntitledTitleBar, new Point(560, 8));
-
-            // Type '{Up}' in 'cellContentTextBox' text box
-            Keyboard.SendKeys(uICellContentTextBoxEdit, this.MoveToC3Params.UICellContentTextBoxEditSendKeys, ModifierKeys.None);
-        }
-        
-        /// <summary>
-        /// AssertFormulaMatches - Use 'AssertFormulaMatchesExpectedValues' to pass parameters into this method.
-        /// </summary>
-        public void AssertFormulaMatches()
-        {
-            #region Variable Declarations
-            WinEdit uICellContentTextBoxEdit1 = this.UISpreadsheetuntitledWindow.UICellContentTextBoxWindow.UICellContentTextBoxEdit1;
-            #endregion
-
-            // Verify that the 'Text' property of 'cellContentTextBox' text box equals '=6/4'
-            Assert.AreEqual(this.AssertFormulaMatchesExpectedValues.UICellContentTextBoxEdit1Text, uICellContentTextBoxEdit1.Text);
-        }
-        
-        /// <summary>
-        /// AssertCellValueMatches - Use 'AssertCellValueMatchesExpectedValues' to pass parameters into this method.
-        /// </summary>
-        public void AssertCellValueMatches()
-        {
-            #region Variable Declarations
-            WinText uICellValue15Text = this.UISpreadsheetuntitledWindow.UICellValue15Window.UICellValue15Text;
-            #endregion
-
-            // Verify that the 'DisplayText' property of 'Cell Value: 1.5' label equals 'Cell Value: 1.5'
-            Assert.AreEqual(this.AssertCellValueMatchesExpectedValues.UICellValue15TextDisplayText, uICellValue15Text.DisplayText);
-        }
-        
-        /// <summary>
-        /// AssertCellNameMatches - Use 'AssertCellNameMatchesExpectedValues' to pass parameters into this method.
-        /// </summary>
-        public void AssertCellNameMatches()
-        {
-            #region Variable Declarations
-            WinText uICellC3Text = this.UISpreadsheetuntitledWindow.UICellC3Window.UICellC3Text;
-            #endregion
-
-            // Verify that the 'DisplayText' property of 'Cell: C3' label equals 'Cell: C3'
-            Assert.AreEqual(this.AssertCellNameMatchesExpectedValues.UICellC3TextDisplayText, uICellC3Text.DisplayText);
-        }
-        
-        /// <summary>
-        /// SaveSpreadsheet - Use 'SaveSpreadsheetParams' to pass parameters into this method.
-        /// </summary>
-        public void SaveSpreadsheet()
-        {
-            #region Variable Declarations
-            WinMenuItem uISaveAsMenuItem = this.UISpreadsheetuntitledWindow.UIMenuStrip1MenuBar.UIFileMenuItem.UISaveAsMenuItem;
-            WinComboBox uIFilenameComboBox = this.UISavethespreadsheetWindow.UIDetailsPanePane.UIFilenameComboBox;
-            WinButton uISaveButton = this.UISavethespreadsheetWindow.UISaveWindow.UISaveButton;
-            WinButton uIYesButton = this.UIConfirmSaveAsWindow.UIConfirmSaveAsPane.UIYesButton;
-            #endregion
-
-            // Click 'File' -> 'Save As' menu item
-            Mouse.Click(uISaveAsMenuItem, new Point(58, 17));
-
-            // Select 'garbage.sprd' in 'File name:' combo box
-            uIFilenameComboBox.EditableItem = this.SaveSpreadsheetParams.UIFilenameComboBoxEditableItem;
-
-            // Click '&Save' button
-            Mouse.Click(uISaveButton, new Point(50, 6));
-
-            // Click '&Yes' button
-            Mouse.Click(uIYesButton, new Point(15, 10));
-        }
-        
-        /// <summary>
-        /// AssertIsNewFile - Use 'AssertIsNewFileExpectedValues' to pass parameters into this method.
-        /// </summary>
-        public void AssertIsNewFile()
-        {
-            #region Variable Declarations
-            WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow.UISpreadsheetuntitledTitleBar;
-            #endregion
-
-            // Verify that the 'DisplayText' property of 'Spreadsheet - untitled' title bar equals 'Spreadsheet - untitled'
-            Assert.AreEqual(this.AssertIsNewFileExpectedValues.UISpreadsheetuntitledTitleBarDisplayText, uISpreadsheetuntitledTitleBar.DisplayText);
-        }
-        
-        /// <summary>
-        /// AssertShowsChanges - Use 'AssertShowsChangesExpectedValues' to pass parameters into this method.
-        /// </summary>
-        public void AssertShowsChanges()
-        {
-            #region Variable Declarations
-            WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow.UISpreadsheetuntitledTitleBar;
-            #endregion
-
-            // Verify that the 'DisplayText' property of 'Spreadsheet - untitled' title bar ends with '*'
-            StringAssert.EndsWith(uISpreadsheetuntitledTitleBar.DisplayText, this.AssertShowsChangesExpectedValues.UISpreadsheetuntitledTitleBarDisplayText);
-        }
-        
-        /// <summary>
-        /// SimpleSaveSpreadsheet
-        /// </summary>
-        public void SimpleSaveSpreadsheet()
-        {
-            #region Variable Declarations
-            WinMenuItem uISaveMenuItem = this.UISpreadsheetgarbagespWindow.UIMenuStrip1MenuBar.UIFileMenuItem.UISaveMenuItem;
-            #endregion
-
-            // Click 'File' -> 'Save' menu item
-            Mouse.Click(uISaveMenuItem, new Point(61, 17));
-        }
-        
-        /// <summary>
-        /// AssertIsSaved - Use 'AssertIsSavedExpectedValues' to pass parameters into this method.
-        /// </summary>
-        public void AssertIsSaved()
-        {
-            #region Variable Declarations
-            WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow1.UISpreadsheetuntitledTitleBar;
-            #endregion
-
-            // Verify that the 'DisplayText' property of 'Spreadsheet - untitled*' title bar does not match '[*]'
-            StringAssert.DoesNotMatch(uISpreadsheetuntitledTitleBar.DisplayText, new Regex(this.AssertIsSavedExpectedValues.UISpreadsheetuntitledTitleBarDisplayText));
-        }
-        
-        /// <summary>
-        /// AssertFileSaved - Use 'AssertFileSavedExpectedValues' to pass parameters into this method.
-        /// </summary>
-        public void AssertFileSaved()
-        {
-            #region Variable Declarations
-            WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow.UISpreadsheetuntitledTitleBar;
-            #endregion
-
-            // Verify that the 'DisplayText' property of 'Spreadsheet - untitled' title bar equals 'Spreadsheet - garbage.sprd'
-            Assert.AreEqual(this.AssertFileSavedExpectedValues.UISpreadsheetuntitledTitleBarDisplayText, uISpreadsheetuntitledTitleBar.DisplayText, "File was not saved");
+            // Type 'Hello' in 'cellContentTextBox' text box
+            uICellContentTextBoxEdit.Text = this.FillTextboxParams.UICellContentTextBoxEditText;
         }
         
         /// <summary>
@@ -370,32 +405,6 @@ namespace UITests
         }
         
         /// <summary>
-        /// OpenCollaborationToolBox
-        /// </summary>
-        public void OpenCollaborationToolBox()
-        {
-            #region Variable Declarations
-            WinMenuItem uICollaborateMenuItem = this.UISpreadsheetuntitledWindow1.UIMenuStrip1MenuBar.UICollaborateMenuItem;
-            #endregion
-
-            // Click 'Collaborate' menu item
-            Mouse.Click(uICollaborateMenuItem, new Point(39, 7));
-        }
-        
-        /// <summary>
-        /// AssertHostingCollaborationStarted - Use 'AssertHostingCollaborationStartedExpectedValues' to pass parameters into this method.
-        /// </summary>
-        public void AssertHostingCollaborationStarted()
-        {
-            #region Variable Declarations
-            WinButton uIStopCollaborationButton = this.UICollaborateWindow.UIHostCollaborationWindow.UIStopCollaborationButton;
-            #endregion
-
-            // Verify that the 'DisplayText' property of 'Stop Collaboration' button equals 'Stop Collaboration'
-            Assert.AreEqual(this.AssertHostingCollaborationStartedExpectedValues.UIStopCollaborationButtonDisplayText, uIStopCollaborationButton.DisplayText);
-        }
-        
-        /// <summary>
         /// JoinNullCollaboration - Use 'JoinNullCollaborationParams' to pass parameters into this method.
         /// </summary>
         public void JoinNullCollaboration()
@@ -420,18 +429,82 @@ namespace UITests
         }
         
         /// <summary>
-        /// AssertCantJoinCollaboration - Use 'AssertCantJoinCollaborationExpectedValues' to pass parameters into this method.
+        /// MakeSureTextboxEmpty - Use 'MakeSureTextboxEmptyParams' to pass parameters into this method.
         /// </summary>
-        public void AssertCantJoinCollaboration()
+        public void MakeSureTextboxEmpty()
         {
             #region Variable Declarations
-            WinText uIErrortryingtoconnectText = this.UIErrortryingtoconnectWindow.UIErrortryingtoconnectText;
+            WinWindow uIMenuStrip1Window = this.UISpreadsheetuntitledWindow.UISpreadsheetuntitledClient.UIMenuStrip1Window;
+            WinEdit uICellContentTextBoxEdit = this.UISpreadsheetuntitledWindow.UICellContentTextBoxWindow.UICellContentTextBoxEdit;
             #endregion
 
-            // Verify that the 'DisplayText' property of 'Error trying to connect to null No such host is kn...' label equals 'Error trying to connect to null
-            //
-            //No such host is known'
-            Assert.AreEqual(this.AssertCantJoinCollaborationExpectedValues.UIErrortryingtoconnectTextDisplayText, uIErrortryingtoconnectText.DisplayText);
+            // Click 'menuStrip1' window
+            Mouse.Click(uIMenuStrip1Window, new Point(450, 55));
+
+            // Type '=1+1' in 'cellContentTextBox' text box
+            uICellContentTextBoxEdit.Text = this.MakeSureTextboxEmptyParams.UICellContentTextBoxEditText;
+
+            // Type '{Enter}' in 'cellContentTextBox' text box
+            Keyboard.SendKeys(uICellContentTextBoxEdit, this.MakeSureTextboxEmptyParams.UICellContentTextBoxEditSendKeys, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// MakeSureTextboxEmpty2 - Use 'MakeSureTextboxEmpty2Params' to pass parameters into this method.
+        /// </summary>
+        public void MakeSureTextboxEmpty2()
+        {
+            #region Variable Declarations
+            WinEdit uICellContentTextBoxEdit = this.UISpreadsheetuntitledWindow.UICellContentTextBoxWindow.UICellContentTextBoxEdit;
+            #endregion
+
+            // Type '=1+1' in 'cellContentTextBox' text box
+            uICellContentTextBoxEdit.Text = this.MakeSureTextboxEmpty2Params.UICellContentTextBoxEditText;
+
+            // Type '{Enter}' in 'cellContentTextBox' text box
+            Keyboard.SendKeys(uICellContentTextBoxEdit, this.MakeSureTextboxEmpty2Params.UICellContentTextBoxEditSendKeys, ModifierKeys.None);
+
+            // Type '=1+A1' in 'cellContentTextBox' text box
+            uICellContentTextBoxEdit.Text = this.MakeSureTextboxEmpty2Params.UICellContentTextBoxEditText1;
+
+            // Type '{Enter}' in 'cellContentTextBox' text box
+            Keyboard.SendKeys(uICellContentTextBoxEdit, this.MakeSureTextboxEmpty2Params.UICellContentTextBoxEditSendKeys1, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// MoveToA1 - Use 'MoveToA1Params' to pass parameters into this method.
+        /// </summary>
+        public void MoveToA1()
+        {
+            #region Variable Declarations
+            WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow1.UISpreadsheetuntitledTitleBar;
+            WinEdit uICellContentTextBoxEdit = this.UISpreadsheetuntitledWindow1.UICellContentTextBoxWindow.UICellContentTextBoxEdit;
+            #endregion
+
+            // Click 'Spreadsheet - untitled*' title bar
+            Mouse.Click(uISpreadsheetuntitledTitleBar, new Point(462, 12));
+
+            // Click 'cellContentTextBox' text box
+            Mouse.Click(uICellContentTextBoxEdit, new Point(161, 18));
+
+            // Type '{Up}' in 'cellContentTextBox' text box
+            Keyboard.SendKeys(uICellContentTextBoxEdit, this.MoveToA1Params.UICellContentTextBoxEditSendKeys, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// MoveToC3 - Use 'MoveToC3Params' to pass parameters into this method.
+        /// </summary>
+        public void MoveToC3()
+        {
+            #region Variable Declarations
+            WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow.UISpreadsheetuntitledTitleBar;
+            WinEdit uICellContentTextBoxEdit = this.UISpreadsheetuntitledWindow.UICellContentTextBoxWindow.UICellContentTextBoxEdit;
+            #endregion
+
+            // Click 'Spreadsheet - untitled' title bar
+            Mouse.Click(uISpreadsheetuntitledTitleBar, new Point(560, 8));
+
+            // Type '{Up}' in 'cellContentTextBox' text box
+            Keyboard.SendKeys(uICellContentTextBoxEdit, this.MoveToC3Params.UICellContentTextBoxEditSendKeys, ModifierKeys.None);
         }
         
         /// <summary>
@@ -448,16 +521,16 @@ namespace UITests
         }
         
         /// <summary>
-        /// AssertAboutDialogOpen - Use 'AssertAboutDialogOpenExpectedValues' to pass parameters into this method.
+        /// OpenCollaborationToolBox
         /// </summary>
-        public void AssertAboutDialogOpen()
+        public void OpenCollaborationToolBox()
         {
             #region Variable Declarations
-            WinTitleBar uIAboutTitleBar = this.UIAboutWindow.UIAboutTitleBar;
+            WinMenuItem uICollaborateMenuItem = this.UISpreadsheetuntitledWindow1.UIMenuStrip1MenuBar.UICollaborateMenuItem;
             #endregion
 
-            // Verify that the 'DisplayText' property of 'About' title bar equals 'About'
-            Assert.AreEqual(this.AssertAboutDialogOpenExpectedValues.UIAboutTitleBarDisplayText, uIAboutTitleBar.DisplayText);
+            // Click 'Collaborate' menu item
+            Mouse.Click(uICollaborateMenuItem, new Point(39, 7));
         }
         
         /// <summary>
@@ -495,49 +568,6 @@ namespace UITests
         }
         
         /// <summary>
-        /// AssertHelpDialogOpen - Use 'AssertHelpDialogOpenExpectedValues' to pass parameters into this method.
-        /// </summary>
-        public void AssertHelpDialogOpen()
-        {
-            #region Variable Declarations
-            WinTitleBar uIHelpTitleBar = this.UIHelpWindow.UIHelpTitleBar;
-            #endregion
-
-            // Verify that the 'DisplayText' property of 'Help' title bar equals 'Help'
-            Assert.AreEqual(this.AssertHelpDialogOpenExpectedValues.UIHelpTitleBarDisplayText, uIHelpTitleBar.DisplayText);
-        }
-        
-        /// <summary>
-        /// FillTextbox - Use 'FillTextboxParams' to pass parameters into this method.
-        /// </summary>
-        public void FillTextbox()
-        {
-            #region Variable Declarations
-            WinEdit uICellContentTextBoxEdit = this.UISpreadsheetuntitledWindow1.UICellContentTextBoxWindow.UICellContentTextBoxEdit;
-            #endregion
-
-            // Type 'Hello' in 'cellContentTextBox' text box
-            uICellContentTextBoxEdit.Text = this.FillTextboxParams.UICellContentTextBoxEditText;
-        }
-        
-        /// <summary>
-        /// PressEscOnTextbox - Use 'PressEscOnTextboxParams' to pass parameters into this method.
-        /// </summary>
-        public void PressEscOnTextbox()
-        {
-            #region Variable Declarations
-            WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow1.UISpreadsheetuntitledTitleBar;
-            WinEdit uICellContentTextBoxEdit = this.UISpreadsheetuntitledWindow1.UICellContentTextBoxWindow.UICellContentTextBoxEdit;
-            #endregion
-
-            // Click 'Spreadsheet - untitled*' title bar
-            Mouse.Click(uISpreadsheetuntitledTitleBar, new Point(422, 14));
-
-            // Type '{Escape}' in 'cellContentTextBox' text box
-            Keyboard.SendKeys(uICellContentTextBoxEdit, this.PressEscOnTextboxParams.UICellContentTextBoxEditSendKeys, ModifierKeys.None);
-        }
-        
-        /// <summary>
         /// PressEnterInTextbox - Use 'PressEnterInTextboxParams' to pass parameters into this method.
         /// </summary>
         public void PressEnterInTextbox()
@@ -558,9 +588,9 @@ namespace UITests
         }
         
         /// <summary>
-        /// MoveToA1 - Use 'MoveToA1Params' to pass parameters into this method.
+        /// PressEscOnTextbox - Use 'PressEscOnTextboxParams' to pass parameters into this method.
         /// </summary>
-        public void MoveToA1()
+        public void PressEscOnTextbox()
         {
             #region Variable Declarations
             WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow1.UISpreadsheetuntitledTitleBar;
@@ -568,81 +598,279 @@ namespace UITests
             #endregion
 
             // Click 'Spreadsheet - untitled*' title bar
-            Mouse.Click(uISpreadsheetuntitledTitleBar, new Point(462, 12));
+            Mouse.Click(uISpreadsheetuntitledTitleBar, new Point(422, 14));
 
-            // Click 'cellContentTextBox' text box
-            Mouse.Click(uICellContentTextBoxEdit, new Point(161, 18));
-
-            // Type '{Up}' in 'cellContentTextBox' text box
-            Keyboard.SendKeys(uICellContentTextBoxEdit, this.MoveToA1Params.UICellContentTextBoxEditSendKeys, ModifierKeys.None);
+            // Type '{Escape}' in 'cellContentTextBox' text box
+            Keyboard.SendKeys(uICellContentTextBoxEdit, this.PressEscOnTextboxParams.UICellContentTextBoxEditSendKeys, ModifierKeys.None);
         }
         
         /// <summary>
-        /// AssertCellValueHello - Use 'AssertCellValueHelloExpectedValues' to pass parameters into this method.
+        /// SaveSpreadsheet - Use 'SaveSpreadsheetParams' to pass parameters into this method.
         /// </summary>
-        public void AssertCellValueHello()
+        public void SaveSpreadsheet()
         {
             #region Variable Declarations
-            WinText uICellValueHelloText = this.UISpreadsheetuntitledWindow1.UICellValueHelloWindow.UICellValueHelloText;
+            WinMenuItem uISaveAsMenuItem = this.UISpreadsheetuntitledWindow.UIMenuStrip1MenuBar.UIFileMenuItem.UISaveAsMenuItem;
+            WinComboBox uIFilenameComboBox = this.UISavethespreadsheetWindow.UIDetailsPanePane.UIFilenameComboBox;
+            WinButton uISaveButton = this.UISavethespreadsheetWindow.UISaveWindow.UISaveButton;
+            WinButton uIYesButton = this.UIConfirmSaveAsWindow.UIConfirmSaveAsPane.UIYesButton;
             #endregion
 
-            // Verify that the 'DisplayText' property of 'Cell Value: Hello' label equals 'Cell Value: Hello'
-            Assert.AreEqual(this.AssertCellValueHelloExpectedValues.UICellValueHelloTextDisplayText, uICellValueHelloText.DisplayText);
+            // Click 'File' -> 'Save As' menu item
+            Mouse.Click(uISaveAsMenuItem, new Point(58, 17));
+
+            // Select 'garbage.sprd' in 'File name:' combo box
+            uIFilenameComboBox.EditableItem = this.SaveSpreadsheetParams.UIFilenameComboBoxEditableItem;
+
+            // Click '&Save' button
+            Mouse.Click(uISaveButton, new Point(50, 6));
+
+            // Click '&Yes' button
+            Mouse.Click(uIYesButton, new Point(15, 10));
         }
         
         /// <summary>
-        /// AssertTextboxEmpty - Use 'AssertTextboxEmptyExpectedValues' to pass parameters into this method.
+        /// SimpleSaveSpreadsheet
         /// </summary>
-        public void AssertTextboxEmpty()
+        public void SimpleSaveSpreadsheet()
         {
             #region Variable Declarations
-            WinEdit uICellContentTextBoxEdit = this.UISpreadsheetuntitledWindow1.UICellContentTextBoxWindow.UICellContentTextBoxEdit;
+            WinMenuItem uISaveMenuItem = this.UISpreadsheetgarbagespWindow.UIMenuStrip1MenuBar.UIFileMenuItem.UISaveMenuItem;
             #endregion
 
-            // Verify that the 'Text' property of 'cellContentTextBox' text box equals ''
-            Assert.AreEqual(this.AssertTextboxEmptyExpectedValues.UICellContentTextBoxEditText, uICellContentTextBoxEdit.Text);
-        }
-        
-        /// <summary>
-        /// AssertCellValueEmpty - Use 'AssertCellValueEmptyExpectedValues' to pass parameters into this method.
-        /// </summary>
-        public void AssertCellValueEmpty()
-        {
-            #region Variable Declarations
-            WinText uICellValueText = this.UISpreadsheetuntitledWindow1.UICellValueHelloWindow.UICellValueText;
-            #endregion
-
-            // Verify that the 'DisplayText' property of 'Cell Value:' label equals 'Cell Value: '
-            Assert.AreEqual(this.AssertCellValueEmptyExpectedValues.UICellValueTextDisplayText, uICellValueText.DisplayText);
-        }
-        
-        /// <summary>
-        /// ClickCheckmark
-        /// </summary>
-        public void ClickCheckmark()
-        {
-            #region Variable Declarations
-            WinButton uIItemButton = this.UISpreadsheetuntitledWindow1.UIItemWindow.UIItemButton;
-            #endregion
-
-            // Click '✓' button
-            Mouse.Click(uIItemButton, new Point(16, 16));
-        }
-        
-        /// <summary>
-        /// ClickXButton
-        /// </summary>
-        public void ClickXButton()
-        {
-            #region Variable Declarations
-            WinButton uIItemButton = this.UISpreadsheetuntitledWindow1.UIItemWindow1.UIItemButton;
-            #endregion
-
-            // Click '✗' button
-            Mouse.Click(uIItemButton, new Point(19, 17));
+            // Click 'File' -> 'Save' menu item
+            Mouse.Click(uISaveMenuItem, new Point(61, 17));
         }
         
         #region Properties
+        public virtual AssertAboutDialogOpenExpectedValues AssertAboutDialogOpenExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertAboutDialogOpenExpectedValues == null))
+                {
+                    this.mAssertAboutDialogOpenExpectedValues = new AssertAboutDialogOpenExpectedValues();
+                }
+                return this.mAssertAboutDialogOpenExpectedValues;
+            }
+        }
+        
+        public virtual AssertCantJoinCollaborationExpectedValues AssertCantJoinCollaborationExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertCantJoinCollaborationExpectedValues == null))
+                {
+                    this.mAssertCantJoinCollaborationExpectedValues = new AssertCantJoinCollaborationExpectedValues();
+                }
+                return this.mAssertCantJoinCollaborationExpectedValues;
+            }
+        }
+        
+        public virtual AssertCellNameMatchesExpectedValues AssertCellNameMatchesExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertCellNameMatchesExpectedValues == null))
+                {
+                    this.mAssertCellNameMatchesExpectedValues = new AssertCellNameMatchesExpectedValues();
+                }
+                return this.mAssertCellNameMatchesExpectedValues;
+            }
+        }
+        
+        public virtual AssertCellValueEmptyExpectedValues AssertCellValueEmptyExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertCellValueEmptyExpectedValues == null))
+                {
+                    this.mAssertCellValueEmptyExpectedValues = new AssertCellValueEmptyExpectedValues();
+                }
+                return this.mAssertCellValueEmptyExpectedValues;
+            }
+        }
+        
+        public virtual AssertCellValueHelloExpectedValues AssertCellValueHelloExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertCellValueHelloExpectedValues == null))
+                {
+                    this.mAssertCellValueHelloExpectedValues = new AssertCellValueHelloExpectedValues();
+                }
+                return this.mAssertCellValueHelloExpectedValues;
+            }
+        }
+        
+        public virtual AssertCellValueMatchesExpectedValues AssertCellValueMatchesExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertCellValueMatchesExpectedValues == null))
+                {
+                    this.mAssertCellValueMatchesExpectedValues = new AssertCellValueMatchesExpectedValues();
+                }
+                return this.mAssertCellValueMatchesExpectedValues;
+            }
+        }
+        
+        public virtual AssertFileSavedExpectedValues AssertFileSavedExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertFileSavedExpectedValues == null))
+                {
+                    this.mAssertFileSavedExpectedValues = new AssertFileSavedExpectedValues();
+                }
+                return this.mAssertFileSavedExpectedValues;
+            }
+        }
+        
+        public virtual AssertFormulaMatchesExpectedValues AssertFormulaMatchesExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertFormulaMatchesExpectedValues == null))
+                {
+                    this.mAssertFormulaMatchesExpectedValues = new AssertFormulaMatchesExpectedValues();
+                }
+                return this.mAssertFormulaMatchesExpectedValues;
+            }
+        }
+        
+        public virtual AssertHelpDialogOpenExpectedValues AssertHelpDialogOpenExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertHelpDialogOpenExpectedValues == null))
+                {
+                    this.mAssertHelpDialogOpenExpectedValues = new AssertHelpDialogOpenExpectedValues();
+                }
+                return this.mAssertHelpDialogOpenExpectedValues;
+            }
+        }
+        
+        public virtual AssertHostingCollaborationStartedExpectedValues AssertHostingCollaborationStartedExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertHostingCollaborationStartedExpectedValues == null))
+                {
+                    this.mAssertHostingCollaborationStartedExpectedValues = new AssertHostingCollaborationStartedExpectedValues();
+                }
+                return this.mAssertHostingCollaborationStartedExpectedValues;
+            }
+        }
+        
+        public virtual AssertIsEmptyExpectedValues AssertIsEmptyExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertIsEmptyExpectedValues == null))
+                {
+                    this.mAssertIsEmptyExpectedValues = new AssertIsEmptyExpectedValues();
+                }
+                return this.mAssertIsEmptyExpectedValues;
+            }
+        }
+        
+        public virtual AssertIsNewFileExpectedValues AssertIsNewFileExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertIsNewFileExpectedValues == null))
+                {
+                    this.mAssertIsNewFileExpectedValues = new AssertIsNewFileExpectedValues();
+                }
+                return this.mAssertIsNewFileExpectedValues;
+            }
+        }
+        
+        public virtual AssertIsSavedExpectedValues AssertIsSavedExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertIsSavedExpectedValues == null))
+                {
+                    this.mAssertIsSavedExpectedValues = new AssertIsSavedExpectedValues();
+                }
+                return this.mAssertIsSavedExpectedValues;
+            }
+        }
+        
+        public virtual AssertMatchesFormulaExpectedValues AssertMatchesFormulaExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertMatchesFormulaExpectedValues == null))
+                {
+                    this.mAssertMatchesFormulaExpectedValues = new AssertMatchesFormulaExpectedValues();
+                }
+                return this.mAssertMatchesFormulaExpectedValues;
+            }
+        }
+        
+        public virtual AssertShowsChangesExpectedValues AssertShowsChangesExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertShowsChangesExpectedValues == null))
+                {
+                    this.mAssertShowsChangesExpectedValues = new AssertShowsChangesExpectedValues();
+                }
+                return this.mAssertShowsChangesExpectedValues;
+            }
+        }
+        
+        public virtual AssertTextboxEmptyExpectedValues AssertTextboxEmptyExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertTextboxEmptyExpectedValues == null))
+                {
+                    this.mAssertTextboxEmptyExpectedValues = new AssertTextboxEmptyExpectedValues();
+                }
+                return this.mAssertTextboxEmptyExpectedValues;
+            }
+        }
+        
+        public virtual FillSpreadsheetParams FillSpreadsheetParams
+        {
+            get
+            {
+                if ((this.mFillSpreadsheetParams == null))
+                {
+                    this.mFillSpreadsheetParams = new FillSpreadsheetParams();
+                }
+                return this.mFillSpreadsheetParams;
+            }
+        }
+        
+        public virtual FillTextboxParams FillTextboxParams
+        {
+            get
+            {
+                if ((this.mFillTextboxParams == null))
+                {
+                    this.mFillTextboxParams = new FillTextboxParams();
+                }
+                return this.mFillTextboxParams;
+            }
+        }
+        
+        public virtual JoinNullCollaborationParams JoinNullCollaborationParams
+        {
+            get
+            {
+                if ((this.mJoinNullCollaborationParams == null))
+                {
+                    this.mJoinNullCollaborationParams = new JoinNullCollaborationParams();
+                }
+                return this.mJoinNullCollaborationParams;
+            }
+        }
+        
         public virtual MakeSureTextboxEmptyParams MakeSureTextboxEmptyParams
         {
             get
@@ -667,39 +895,15 @@ namespace UITests
             }
         }
         
-        public virtual FillSpreadsheetParams FillSpreadsheetParams
+        public virtual MoveToA1Params MoveToA1Params
         {
             get
             {
-                if ((this.mFillSpreadsheetParams == null))
+                if ((this.mMoveToA1Params == null))
                 {
-                    this.mFillSpreadsheetParams = new FillSpreadsheetParams();
+                    this.mMoveToA1Params = new MoveToA1Params();
                 }
-                return this.mFillSpreadsheetParams;
-            }
-        }
-        
-        public virtual AssertIsEmptyExpectedValues AssertIsEmptyExpectedValues
-        {
-            get
-            {
-                if ((this.mAssertIsEmptyExpectedValues == null))
-                {
-                    this.mAssertIsEmptyExpectedValues = new AssertIsEmptyExpectedValues();
-                }
-                return this.mAssertIsEmptyExpectedValues;
-            }
-        }
-        
-        public virtual AssertMatchesFormulaExpectedValues AssertMatchesFormulaExpectedValues
-        {
-            get
-            {
-                if ((this.mAssertMatchesFormulaExpectedValues == null))
-                {
-                    this.mAssertMatchesFormulaExpectedValues = new AssertMatchesFormulaExpectedValues();
-                }
-                return this.mAssertMatchesFormulaExpectedValues;
+                return this.mMoveToA1Params;
             }
         }
         
@@ -715,150 +919,6 @@ namespace UITests
             }
         }
         
-        public virtual AssertFormulaMatchesExpectedValues AssertFormulaMatchesExpectedValues
-        {
-            get
-            {
-                if ((this.mAssertFormulaMatchesExpectedValues == null))
-                {
-                    this.mAssertFormulaMatchesExpectedValues = new AssertFormulaMatchesExpectedValues();
-                }
-                return this.mAssertFormulaMatchesExpectedValues;
-            }
-        }
-        
-        public virtual AssertCellValueMatchesExpectedValues AssertCellValueMatchesExpectedValues
-        {
-            get
-            {
-                if ((this.mAssertCellValueMatchesExpectedValues == null))
-                {
-                    this.mAssertCellValueMatchesExpectedValues = new AssertCellValueMatchesExpectedValues();
-                }
-                return this.mAssertCellValueMatchesExpectedValues;
-            }
-        }
-        
-        public virtual AssertCellNameMatchesExpectedValues AssertCellNameMatchesExpectedValues
-        {
-            get
-            {
-                if ((this.mAssertCellNameMatchesExpectedValues == null))
-                {
-                    this.mAssertCellNameMatchesExpectedValues = new AssertCellNameMatchesExpectedValues();
-                }
-                return this.mAssertCellNameMatchesExpectedValues;
-            }
-        }
-        
-        public virtual SaveSpreadsheetParams SaveSpreadsheetParams
-        {
-            get
-            {
-                if ((this.mSaveSpreadsheetParams == null))
-                {
-                    this.mSaveSpreadsheetParams = new SaveSpreadsheetParams();
-                }
-                return this.mSaveSpreadsheetParams;
-            }
-        }
-        
-        public virtual AssertIsNewFileExpectedValues AssertIsNewFileExpectedValues
-        {
-            get
-            {
-                if ((this.mAssertIsNewFileExpectedValues == null))
-                {
-                    this.mAssertIsNewFileExpectedValues = new AssertIsNewFileExpectedValues();
-                }
-                return this.mAssertIsNewFileExpectedValues;
-            }
-        }
-        
-        public virtual AssertShowsChangesExpectedValues AssertShowsChangesExpectedValues
-        {
-            get
-            {
-                if ((this.mAssertShowsChangesExpectedValues == null))
-                {
-                    this.mAssertShowsChangesExpectedValues = new AssertShowsChangesExpectedValues();
-                }
-                return this.mAssertShowsChangesExpectedValues;
-            }
-        }
-        
-        public virtual AssertIsSavedExpectedValues AssertIsSavedExpectedValues
-        {
-            get
-            {
-                if ((this.mAssertIsSavedExpectedValues == null))
-                {
-                    this.mAssertIsSavedExpectedValues = new AssertIsSavedExpectedValues();
-                }
-                return this.mAssertIsSavedExpectedValues;
-            }
-        }
-        
-        public virtual AssertFileSavedExpectedValues AssertFileSavedExpectedValues
-        {
-            get
-            {
-                if ((this.mAssertFileSavedExpectedValues == null))
-                {
-                    this.mAssertFileSavedExpectedValues = new AssertFileSavedExpectedValues();
-                }
-                return this.mAssertFileSavedExpectedValues;
-            }
-        }
-        
-        public virtual AssertHostingCollaborationStartedExpectedValues AssertHostingCollaborationStartedExpectedValues
-        {
-            get
-            {
-                if ((this.mAssertHostingCollaborationStartedExpectedValues == null))
-                {
-                    this.mAssertHostingCollaborationStartedExpectedValues = new AssertHostingCollaborationStartedExpectedValues();
-                }
-                return this.mAssertHostingCollaborationStartedExpectedValues;
-            }
-        }
-        
-        public virtual JoinNullCollaborationParams JoinNullCollaborationParams
-        {
-            get
-            {
-                if ((this.mJoinNullCollaborationParams == null))
-                {
-                    this.mJoinNullCollaborationParams = new JoinNullCollaborationParams();
-                }
-                return this.mJoinNullCollaborationParams;
-            }
-        }
-        
-        public virtual AssertCantJoinCollaborationExpectedValues AssertCantJoinCollaborationExpectedValues
-        {
-            get
-            {
-                if ((this.mAssertCantJoinCollaborationExpectedValues == null))
-                {
-                    this.mAssertCantJoinCollaborationExpectedValues = new AssertCantJoinCollaborationExpectedValues();
-                }
-                return this.mAssertCantJoinCollaborationExpectedValues;
-            }
-        }
-        
-        public virtual AssertAboutDialogOpenExpectedValues AssertAboutDialogOpenExpectedValues
-        {
-            get
-            {
-                if ((this.mAssertAboutDialogOpenExpectedValues == null))
-                {
-                    this.mAssertAboutDialogOpenExpectedValues = new AssertAboutDialogOpenExpectedValues();
-                }
-                return this.mAssertAboutDialogOpenExpectedValues;
-            }
-        }
-        
         public virtual OpenHelpDialogF1Params OpenHelpDialogF1Params
         {
             get
@@ -868,42 +928,6 @@ namespace UITests
                     this.mOpenHelpDialogF1Params = new OpenHelpDialogF1Params();
                 }
                 return this.mOpenHelpDialogF1Params;
-            }
-        }
-        
-        public virtual AssertHelpDialogOpenExpectedValues AssertHelpDialogOpenExpectedValues
-        {
-            get
-            {
-                if ((this.mAssertHelpDialogOpenExpectedValues == null))
-                {
-                    this.mAssertHelpDialogOpenExpectedValues = new AssertHelpDialogOpenExpectedValues();
-                }
-                return this.mAssertHelpDialogOpenExpectedValues;
-            }
-        }
-        
-        public virtual FillTextboxParams FillTextboxParams
-        {
-            get
-            {
-                if ((this.mFillTextboxParams == null))
-                {
-                    this.mFillTextboxParams = new FillTextboxParams();
-                }
-                return this.mFillTextboxParams;
-            }
-        }
-        
-        public virtual PressEscOnTextboxParams PressEscOnTextboxParams
-        {
-            get
-            {
-                if ((this.mPressEscOnTextboxParams == null))
-                {
-                    this.mPressEscOnTextboxParams = new PressEscOnTextboxParams();
-                }
-                return this.mPressEscOnTextboxParams;
             }
         }
         
@@ -919,51 +943,27 @@ namespace UITests
             }
         }
         
-        public virtual MoveToA1Params MoveToA1Params
+        public virtual PressEscOnTextboxParams PressEscOnTextboxParams
         {
             get
             {
-                if ((this.mMoveToA1Params == null))
+                if ((this.mPressEscOnTextboxParams == null))
                 {
-                    this.mMoveToA1Params = new MoveToA1Params();
+                    this.mPressEscOnTextboxParams = new PressEscOnTextboxParams();
                 }
-                return this.mMoveToA1Params;
+                return this.mPressEscOnTextboxParams;
             }
         }
         
-        public virtual AssertCellValueHelloExpectedValues AssertCellValueHelloExpectedValues
+        public virtual SaveSpreadsheetParams SaveSpreadsheetParams
         {
             get
             {
-                if ((this.mAssertCellValueHelloExpectedValues == null))
+                if ((this.mSaveSpreadsheetParams == null))
                 {
-                    this.mAssertCellValueHelloExpectedValues = new AssertCellValueHelloExpectedValues();
+                    this.mSaveSpreadsheetParams = new SaveSpreadsheetParams();
                 }
-                return this.mAssertCellValueHelloExpectedValues;
-            }
-        }
-        
-        public virtual AssertTextboxEmptyExpectedValues AssertTextboxEmptyExpectedValues
-        {
-            get
-            {
-                if ((this.mAssertTextboxEmptyExpectedValues == null))
-                {
-                    this.mAssertTextboxEmptyExpectedValues = new AssertTextboxEmptyExpectedValues();
-                }
-                return this.mAssertTextboxEmptyExpectedValues;
-            }
-        }
-        
-        public virtual AssertCellValueEmptyExpectedValues AssertCellValueEmptyExpectedValues
-        {
-            get
-            {
-                if ((this.mAssertCellValueEmptyExpectedValues == null))
-                {
-                    this.mAssertCellValueEmptyExpectedValues = new AssertCellValueEmptyExpectedValues();
-                }
-                return this.mAssertCellValueEmptyExpectedValues;
+                return this.mSaveSpreadsheetParams;
             }
         }
         
@@ -1098,62 +1098,86 @@ namespace UITests
                 return this.mUIUserPromotedNotificaWindow;
             }
         }
+        
+        public UIHelpWindow1 UIHelpWindow1
+        {
+            get
+            {
+                if ((this.mUIHelpWindow1 == null))
+                {
+                    this.mUIHelpWindow1 = new UIHelpWindow1();
+                }
+                return this.mUIHelpWindow1;
+            }
+        }
+        
+        public UIAboutWindow1 UIAboutWindow1
+        {
+            get
+            {
+                if ((this.mUIAboutWindow1 == null))
+                {
+                    this.mUIAboutWindow1 = new UIAboutWindow1();
+                }
+                return this.mUIAboutWindow1;
+            }
+        }
         #endregion
         
         #region Fields
+        private AssertAboutDialogOpenExpectedValues mAssertAboutDialogOpenExpectedValues;
+        
+        private AssertCantJoinCollaborationExpectedValues mAssertCantJoinCollaborationExpectedValues;
+        
+        private AssertCellNameMatchesExpectedValues mAssertCellNameMatchesExpectedValues;
+        
+        private AssertCellValueEmptyExpectedValues mAssertCellValueEmptyExpectedValues;
+        
+        private AssertCellValueHelloExpectedValues mAssertCellValueHelloExpectedValues;
+        
+        private AssertCellValueMatchesExpectedValues mAssertCellValueMatchesExpectedValues;
+        
+        private AssertFileSavedExpectedValues mAssertFileSavedExpectedValues;
+        
+        private AssertFormulaMatchesExpectedValues mAssertFormulaMatchesExpectedValues;
+        
+        private AssertHelpDialogOpenExpectedValues mAssertHelpDialogOpenExpectedValues;
+        
+        private AssertHostingCollaborationStartedExpectedValues mAssertHostingCollaborationStartedExpectedValues;
+        
+        private AssertIsEmptyExpectedValues mAssertIsEmptyExpectedValues;
+        
+        private AssertIsNewFileExpectedValues mAssertIsNewFileExpectedValues;
+        
+        private AssertIsSavedExpectedValues mAssertIsSavedExpectedValues;
+        
+        private AssertMatchesFormulaExpectedValues mAssertMatchesFormulaExpectedValues;
+        
+        private AssertShowsChangesExpectedValues mAssertShowsChangesExpectedValues;
+        
+        private AssertTextboxEmptyExpectedValues mAssertTextboxEmptyExpectedValues;
+        
+        private FillSpreadsheetParams mFillSpreadsheetParams;
+        
+        private FillTextboxParams mFillTextboxParams;
+        
+        private JoinNullCollaborationParams mJoinNullCollaborationParams;
+        
         private MakeSureTextboxEmptyParams mMakeSureTextboxEmptyParams;
         
         private MakeSureTextboxEmpty2Params mMakeSureTextboxEmpty2Params;
         
-        private FillSpreadsheetParams mFillSpreadsheetParams;
-        
-        private AssertIsEmptyExpectedValues mAssertIsEmptyExpectedValues;
-        
-        private AssertMatchesFormulaExpectedValues mAssertMatchesFormulaExpectedValues;
+        private MoveToA1Params mMoveToA1Params;
         
         private MoveToC3Params mMoveToC3Params;
         
-        private AssertFormulaMatchesExpectedValues mAssertFormulaMatchesExpectedValues;
-        
-        private AssertCellValueMatchesExpectedValues mAssertCellValueMatchesExpectedValues;
-        
-        private AssertCellNameMatchesExpectedValues mAssertCellNameMatchesExpectedValues;
-        
-        private SaveSpreadsheetParams mSaveSpreadsheetParams;
-        
-        private AssertIsNewFileExpectedValues mAssertIsNewFileExpectedValues;
-        
-        private AssertShowsChangesExpectedValues mAssertShowsChangesExpectedValues;
-        
-        private AssertIsSavedExpectedValues mAssertIsSavedExpectedValues;
-        
-        private AssertFileSavedExpectedValues mAssertFileSavedExpectedValues;
-        
-        private AssertHostingCollaborationStartedExpectedValues mAssertHostingCollaborationStartedExpectedValues;
-        
-        private JoinNullCollaborationParams mJoinNullCollaborationParams;
-        
-        private AssertCantJoinCollaborationExpectedValues mAssertCantJoinCollaborationExpectedValues;
-        
-        private AssertAboutDialogOpenExpectedValues mAssertAboutDialogOpenExpectedValues;
-        
         private OpenHelpDialogF1Params mOpenHelpDialogF1Params;
-        
-        private AssertHelpDialogOpenExpectedValues mAssertHelpDialogOpenExpectedValues;
-        
-        private FillTextboxParams mFillTextboxParams;
-        
-        private PressEscOnTextboxParams mPressEscOnTextboxParams;
         
         private PressEnterInTextboxParams mPressEnterInTextboxParams;
         
-        private MoveToA1Params mMoveToA1Params;
+        private PressEscOnTextboxParams mPressEscOnTextboxParams;
         
-        private AssertCellValueHelloExpectedValues mAssertCellValueHelloExpectedValues;
-        
-        private AssertTextboxEmptyExpectedValues mAssertTextboxEmptyExpectedValues;
-        
-        private AssertCellValueEmptyExpectedValues mAssertCellValueEmptyExpectedValues;
+        private SaveSpreadsheetParams mSaveSpreadsheetParams;
         
         private UISpreadsheetuntitledWindow mUISpreadsheetuntitledWindow;
         
@@ -1176,56 +1200,252 @@ namespace UITests
         private UIHelpWindow mUIHelpWindow;
         
         private UIUserPromotedNotificaWindow mUIUserPromotedNotificaWindow;
+        
+        private UIHelpWindow1 mUIHelpWindow1;
+        
+        private UIAboutWindow1 mUIAboutWindow1;
         #endregion
     }
     
     /// <summary>
-    /// Parameters to be passed into 'MakeSureTextboxEmpty'
+    /// Parameters to be passed into 'AssertAboutDialogOpen'
     /// </summary>
     [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class MakeSureTextboxEmptyParams
+    public class AssertAboutDialogOpenExpectedValues
     {
         
         #region Fields
         /// <summary>
-        /// Type '=1+1' in 'cellContentTextBox' text box
+        /// Verify that the 'DisplayText' property of 'About' title bar equals 'About'
         /// </summary>
-        public string UICellContentTextBoxEditText = "=1+1";
-        
-        /// <summary>
-        /// Type '{Enter}' in 'cellContentTextBox' text box
-        /// </summary>
-        public string UICellContentTextBoxEditSendKeys = "{Enter}";
+        public string UIAboutTitleBarDisplayText = "About";
         #endregion
     }
     
     /// <summary>
-    /// Parameters to be passed into 'MakeSureTextboxEmpty2'
+    /// Parameters to be passed into 'AssertCantJoinCollaboration'
     /// </summary>
     [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class MakeSureTextboxEmpty2Params
+    public class AssertCantJoinCollaborationExpectedValues
     {
         
         #region Fields
         /// <summary>
-        /// Type '=1+1' in 'cellContentTextBox' text box
+        /// Verify that the 'DisplayText' property of 'Error trying to connect to null No such host is kn...' label equals 'Error trying to connect to null
+        ///
+        ///No such host is known'
         /// </summary>
-        public string UICellContentTextBoxEditText = "=1+1";
+        public string UIErrortryingtoconnectTextDisplayText = "Error trying to connect to null\r\n\r\nNo such host is known";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertCellNameMatches'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertCellNameMatchesExpectedValues
+    {
         
+        #region Fields
         /// <summary>
-        /// Type '{Enter}' in 'cellContentTextBox' text box
+        /// Verify that the 'DisplayText' property of 'Cell: C3' label equals 'Cell: C3'
         /// </summary>
-        public string UICellContentTextBoxEditSendKeys = "{Enter}";
+        public string UICellC3TextDisplayText = "Cell: C3";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertCellValueEmpty'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertCellValueEmptyExpectedValues
+    {
         
+        #region Fields
         /// <summary>
-        /// Type '=1+A1' in 'cellContentTextBox' text box
+        /// Verify that the 'DisplayText' property of 'Cell Value:' label equals 'Cell Value: '
         /// </summary>
-        public string UICellContentTextBoxEditText1 = "=1+A1";
+        public string UICellValueTextDisplayText = "Cell Value: ";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertCellValueHello'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertCellValueHelloExpectedValues
+    {
         
+        #region Fields
         /// <summary>
-        /// Type '{Enter}' in 'cellContentTextBox' text box
+        /// Verify that the 'DisplayText' property of 'Cell Value: Hello' label equals 'Cell Value: Hello'
         /// </summary>
-        public string UICellContentTextBoxEditSendKeys1 = "{Enter}";
+        public string UICellValueHelloTextDisplayText = "Cell Value: Hello";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertCellValueMatches'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertCellValueMatchesExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'DisplayText' property of 'Cell Value: 1.5' label equals 'Cell Value: 1.5'
+        /// </summary>
+        public string UICellValue15TextDisplayText = "Cell Value: 1.5";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertFileSaved'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertFileSavedExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'DisplayText' property of 'Spreadsheet - untitled' title bar equals 'Spreadsheet - garbage.sprd'
+        /// </summary>
+        public string UISpreadsheetuntitledTitleBarDisplayText = "Spreadsheet - garbage.sprd";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertFormulaMatches'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertFormulaMatchesExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'Text' property of 'cellContentTextBox' text box equals '=6/4'
+        /// </summary>
+        public string UICellContentTextBoxEdit1Text = "=6/4";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertHelpDialogOpen'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertHelpDialogOpenExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'DisplayText' property of 'Help' title bar equals 'Help'
+        /// </summary>
+        public string UIHelpTitleBarDisplayText = "Help";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertHostingCollaborationStarted'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertHostingCollaborationStartedExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'DisplayText' property of 'Stop Collaboration' button equals 'Stop Collaboration'
+        /// </summary>
+        public string UIStopCollaborationButtonDisplayText = "Stop Collaboration";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertIsEmpty'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertIsEmptyExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'Text' property of 'cellContentTextBox' text box equals ''
+        /// </summary>
+        public string UICellContentTextBoxEditText = "";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertIsNewFile'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertIsNewFileExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'DisplayText' property of 'Spreadsheet - untitled' title bar equals 'Spreadsheet - untitled*'
+        /// </summary>
+        public string UISpreadsheetuntitledTitleBarDisplayText = "Spreadsheet - untitled*";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertIsSaved'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertIsSavedExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'DisplayText' property of 'Spreadsheet - untitled*' title bar does not match '[*]'
+        /// </summary>
+        public string UISpreadsheetuntitledTitleBarDisplayText = "[*]";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertMatchesFormula'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertMatchesFormulaExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'Text' property of 'cellContentTextBox' text box equals '=6/4'
+        /// </summary>
+        public string UICellContentTextBoxEditText = "=6/4";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertShowsChanges'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertShowsChangesExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'DisplayText' property of 'Spreadsheet - untitled' title bar ends with '*'
+        /// </summary>
+        public string UISpreadsheetuntitledTitleBarDisplayText = "*";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertTextboxEmpty'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertTextboxEmptyExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'Text' property of 'cellContentTextBox' text box equals ''
+        /// </summary>
+        public string UICellContentTextBoxEditText = "";
         #endregion
     }
     
@@ -1351,182 +1571,17 @@ namespace UITests
     }
     
     /// <summary>
-    /// Parameters to be passed into 'AssertIsEmpty'
+    /// Parameters to be passed into 'FillTextbox'
     /// </summary>
     [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class AssertIsEmptyExpectedValues
+    public class FillTextboxParams
     {
         
         #region Fields
         /// <summary>
-        /// Verify that the 'Text' property of 'cellContentTextBox' text box equals ''
+        /// Type 'Hello' in 'cellContentTextBox' text box
         /// </summary>
-        public string UICellContentTextBoxEditText = "";
-        #endregion
-    }
-    
-    /// <summary>
-    /// Parameters to be passed into 'AssertMatchesFormula'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class AssertMatchesFormulaExpectedValues
-    {
-        
-        #region Fields
-        /// <summary>
-        /// Verify that the 'Text' property of 'cellContentTextBox' text box equals '=6/4'
-        /// </summary>
-        public string UICellContentTextBoxEditText = "=6/4";
-        #endregion
-    }
-    
-    /// <summary>
-    /// Parameters to be passed into 'MoveToC3'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class MoveToC3Params
-    {
-        
-        #region Fields
-        /// <summary>
-        /// Type '{Up}' in 'cellContentTextBox' text box
-        /// </summary>
-        public string UICellContentTextBoxEditSendKeys = "{Up}";
-        #endregion
-    }
-    
-    /// <summary>
-    /// Parameters to be passed into 'AssertFormulaMatches'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class AssertFormulaMatchesExpectedValues
-    {
-        
-        #region Fields
-        /// <summary>
-        /// Verify that the 'Text' property of 'cellContentTextBox' text box equals '=6/4'
-        /// </summary>
-        public string UICellContentTextBoxEdit1Text = "=6/4";
-        #endregion
-    }
-    
-    /// <summary>
-    /// Parameters to be passed into 'AssertCellValueMatches'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class AssertCellValueMatchesExpectedValues
-    {
-        
-        #region Fields
-        /// <summary>
-        /// Verify that the 'DisplayText' property of 'Cell Value: 1.5' label equals 'Cell Value: 1.5'
-        /// </summary>
-        public string UICellValue15TextDisplayText = "Cell Value: 1.5";
-        #endregion
-    }
-    
-    /// <summary>
-    /// Parameters to be passed into 'AssertCellNameMatches'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class AssertCellNameMatchesExpectedValues
-    {
-        
-        #region Fields
-        /// <summary>
-        /// Verify that the 'DisplayText' property of 'Cell: C3' label equals 'Cell: C3'
-        /// </summary>
-        public string UICellC3TextDisplayText = "Cell: C3";
-        #endregion
-    }
-    
-    /// <summary>
-    /// Parameters to be passed into 'SaveSpreadsheet'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class SaveSpreadsheetParams
-    {
-        
-        #region Fields
-        /// <summary>
-        /// Select 'garbage.sprd' in 'File name:' combo box
-        /// </summary>
-        public string UIFilenameComboBoxEditableItem = "garbage.sprd";
-        #endregion
-    }
-    
-    /// <summary>
-    /// Parameters to be passed into 'AssertIsNewFile'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class AssertIsNewFileExpectedValues
-    {
-        
-        #region Fields
-        /// <summary>
-        /// Verify that the 'DisplayText' property of 'Spreadsheet - untitled' title bar equals 'Spreadsheet - untitled'
-        /// </summary>
-        public string UISpreadsheetuntitledTitleBarDisplayText = "Spreadsheet - untitled";
-        #endregion
-    }
-    
-    /// <summary>
-    /// Parameters to be passed into 'AssertShowsChanges'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class AssertShowsChangesExpectedValues
-    {
-        
-        #region Fields
-        /// <summary>
-        /// Verify that the 'DisplayText' property of 'Spreadsheet - untitled' title bar ends with '*'
-        /// </summary>
-        public string UISpreadsheetuntitledTitleBarDisplayText = "*";
-        #endregion
-    }
-    
-    /// <summary>
-    /// Parameters to be passed into 'AssertIsSaved'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class AssertIsSavedExpectedValues
-    {
-        
-        #region Fields
-        /// <summary>
-        /// Verify that the 'DisplayText' property of 'Spreadsheet - untitled*' title bar does not match '[*]'
-        /// </summary>
-        public string UISpreadsheetuntitledTitleBarDisplayText = "[*]";
-        #endregion
-    }
-    
-    /// <summary>
-    /// Parameters to be passed into 'AssertFileSaved'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class AssertFileSavedExpectedValues
-    {
-        
-        #region Fields
-        /// <summary>
-        /// Verify that the 'DisplayText' property of 'Spreadsheet - untitled' title bar equals 'Spreadsheet - garbage.sprd'
-        /// </summary>
-        public string UISpreadsheetuntitledTitleBarDisplayText = "Spreadsheet - garbage.sprd";
-        #endregion
-    }
-    
-    /// <summary>
-    /// Parameters to be passed into 'AssertHostingCollaborationStarted'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class AssertHostingCollaborationStartedExpectedValues
-    {
-        
-        #region Fields
-        /// <summary>
-        /// Verify that the 'DisplayText' property of 'Stop Collaboration' button equals 'Stop Collaboration'
-        /// </summary>
-        public string UIStopCollaborationButtonDisplayText = "Stop Collaboration";
+        public string UICellContentTextBoxEditText = "Hello";
         #endregion
     }
     
@@ -1551,109 +1606,52 @@ namespace UITests
     }
     
     /// <summary>
-    /// Parameters to be passed into 'AssertCantJoinCollaboration'
+    /// Parameters to be passed into 'MakeSureTextboxEmpty'
     /// </summary>
     [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class AssertCantJoinCollaborationExpectedValues
+    public class MakeSureTextboxEmptyParams
     {
         
         #region Fields
         /// <summary>
-        /// Verify that the 'DisplayText' property of 'Error trying to connect to null No such host is kn...' label equals 'Error trying to connect to null
-        ///
-        ///No such host is known'
+        /// Type '=1+1' in 'cellContentTextBox' text box
         /// </summary>
-        public string UIErrortryingtoconnectTextDisplayText = "Error trying to connect to null\n\nNo such host is known";
-        #endregion
-    }
-    
-    /// <summary>
-    /// Parameters to be passed into 'AssertAboutDialogOpen'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class AssertAboutDialogOpenExpectedValues
-    {
+        public string UICellContentTextBoxEditText = "=1+1";
         
-        #region Fields
-        /// <summary>
-        /// Verify that the 'DisplayText' property of 'About' title bar equals 'About'
-        /// </summary>
-        public string UIAboutTitleBarDisplayText = "About";
-        #endregion
-    }
-    
-    /// <summary>
-    /// Parameters to be passed into 'OpenHelpDialogF1'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class OpenHelpDialogF1Params
-    {
-        
-        #region Fields
-        /// <summary>
-        /// Type '{F1}' in 'Cell: A1' client
-        /// </summary>
-        public string UICellA1ClientSendKeys = "{F1}";
-        #endregion
-    }
-    
-    /// <summary>
-    /// Parameters to be passed into 'AssertHelpDialogOpen'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class AssertHelpDialogOpenExpectedValues
-    {
-        
-        #region Fields
-        /// <summary>
-        /// Verify that the 'DisplayText' property of 'Help' title bar equals 'Help'
-        /// </summary>
-        public string UIHelpTitleBarDisplayText = "Help";
-        #endregion
-    }
-    
-    /// <summary>
-    /// Parameters to be passed into 'FillTextbox'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class FillTextboxParams
-    {
-        
-        #region Fields
-        /// <summary>
-        /// Type 'Hello' in 'cellContentTextBox' text box
-        /// </summary>
-        public string UICellContentTextBoxEditText = "Hello";
-        #endregion
-    }
-    
-    /// <summary>
-    /// Parameters to be passed into 'PressEscOnTextbox'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class PressEscOnTextboxParams
-    {
-        
-        #region Fields
-        /// <summary>
-        /// Type '{Escape}' in 'cellContentTextBox' text box
-        /// </summary>
-        public string UICellContentTextBoxEditSendKeys = "{Escape}";
-        #endregion
-    }
-    
-    /// <summary>
-    /// Parameters to be passed into 'PressEnterInTextbox'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class PressEnterInTextboxParams
-    {
-        
-        #region Fields
         /// <summary>
         /// Type '{Enter}' in 'cellContentTextBox' text box
         /// </summary>
         public string UICellContentTextBoxEditSendKeys = "{Enter}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'MakeSureTextboxEmpty2'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class MakeSureTextboxEmpty2Params
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '=1+1' in 'cellContentTextBox' text box
+        /// </summary>
+        public string UICellContentTextBoxEditText = "=1+1";
+        
+        /// <summary>
+        /// Type '{Enter}' in 'cellContentTextBox' text box
+        /// </summary>
+        public string UICellContentTextBoxEditSendKeys = "{Enter}";
+        
+        /// <summary>
+        /// Type '=1+A1' in 'cellContentTextBox' text box
+        /// </summary>
+        public string UICellContentTextBoxEditText1 = "=1+A1";
+        
+        /// <summary>
+        /// Type '{Enter}' in 'cellContentTextBox' text box
+        /// </summary>
+        public string UICellContentTextBoxEditSendKeys1 = "{Enter}";
         #endregion
     }
     
@@ -1673,47 +1671,77 @@ namespace UITests
     }
     
     /// <summary>
-    /// Parameters to be passed into 'AssertCellValueHello'
+    /// Parameters to be passed into 'MoveToC3'
     /// </summary>
     [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class AssertCellValueHelloExpectedValues
+    public class MoveToC3Params
     {
         
         #region Fields
         /// <summary>
-        /// Verify that the 'DisplayText' property of 'Cell Value: Hello' label equals 'Cell Value: Hello'
+        /// Type '{Up}' in 'cellContentTextBox' text box
         /// </summary>
-        public string UICellValueHelloTextDisplayText = "Cell Value: Hello";
+        public string UICellContentTextBoxEditSendKeys = "{Up}";
         #endregion
     }
     
     /// <summary>
-    /// Parameters to be passed into 'AssertTextboxEmpty'
+    /// Parameters to be passed into 'OpenHelpDialogF1'
     /// </summary>
     [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class AssertTextboxEmptyExpectedValues
+    public class OpenHelpDialogF1Params
     {
         
         #region Fields
         /// <summary>
-        /// Verify that the 'Text' property of 'cellContentTextBox' text box equals ''
+        /// Type '{F1}' in 'Cell: A1' client
         /// </summary>
-        public string UICellContentTextBoxEditText = "";
+        public string UICellA1ClientSendKeys = "{F1}";
         #endregion
     }
     
     /// <summary>
-    /// Parameters to be passed into 'AssertCellValueEmpty'
+    /// Parameters to be passed into 'PressEnterInTextbox'
     /// </summary>
     [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class AssertCellValueEmptyExpectedValues
+    public class PressEnterInTextboxParams
     {
         
         #region Fields
         /// <summary>
-        /// Verify that the 'DisplayText' property of 'Cell Value:' label equals 'Cell Value: '
+        /// Type '{Enter}' in 'cellContentTextBox' text box
         /// </summary>
-        public string UICellValueTextDisplayText = "Cell Value: ";
+        public string UICellContentTextBoxEditSendKeys = "{Enter}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'PressEscOnTextbox'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class PressEscOnTextboxParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '{Escape}' in 'cellContentTextBox' text box
+        /// </summary>
+        public string UICellContentTextBoxEditSendKeys = "{Escape}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'SaveSpreadsheet'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class SaveSpreadsheetParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Select 'garbage.sprd' in 'File name:' combo box
+        /// </summary>
+        public string UIFilenameComboBoxEditableItem = "garbage.sprd";
         #endregion
     }
     
@@ -2269,9 +2297,9 @@ namespace UITests
         public UISpreadsheetuntitledWindow1()
         {
             #region Search Criteria
-            this.SearchProperties[WinWindow.PropertyNames.Name] = "Spreadsheet - untitled*";
+            this.SearchProperties[WinWindow.PropertyNames.Name] = "Spreadsheet - untitled";
             this.SearchProperties.Add(new PropertyExpression(WinWindow.PropertyNames.ClassName, "WindowsForms10.Window", PropertyExpressionOperator.Contains));
-            this.WindowTitles.Add("Spreadsheet - untitled*");
+            this.WindowTitles.Add("Spreadsheet - untitled");
             #endregion
         }
         
@@ -3103,9 +3131,9 @@ namespace UITests
         public UIErrortryingtoconnectWindow()
         {
             #region Search Criteria
-            this.SearchProperties[WinWindow.PropertyNames.Name] = "Error trying to connect to null\n\nNo such host is known";
+            this.SearchProperties[WinWindow.PropertyNames.Name] = "Error trying to connect to null\r\n\r\nNo such host is known";
             this.SearchProperties[WinWindow.PropertyNames.ClassName] = "Static";
-            this.WindowTitles.Add("Error trying to connect to null\n\nNo such host is known");
+            this.WindowTitles.Add("Error trying to connect to null\r\n\r\nNo such host is known");
             #endregion
         }
         
@@ -3119,7 +3147,7 @@ namespace UITests
                     this.mUIErrortryingtoconnectText = new WinText(this);
                     #region Search Criteria
                     this.mUIErrortryingtoconnectText.SearchProperties[WinText.PropertyNames.Name] = "Error trying to connect to nullNo such host is known";
-                    this.mUIErrortryingtoconnectText.WindowTitles.Add("Error trying to connect to null\n\nNo such host is known");
+                    this.mUIErrortryingtoconnectText.WindowTitles.Add("Error trying to connect to null\r\n\r\nNo such host is known");
                     #endregion
                 }
                 return this.mUIErrortryingtoconnectText;
@@ -3267,6 +3295,76 @@ namespace UITests
         
         #region Fields
         private WinButton mUISpeakersUSB24Button;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UIHelpWindow1 : WinWindow
+    {
+        
+        public UIHelpWindow1()
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.Name] = "Help";
+            this.SearchProperties[WinWindow.PropertyNames.ClassName] = "#32770";
+            this.WindowTitles.Add("Help");
+            #endregion
+        }
+        
+        #region Properties
+        public WinTitleBar UIHelpTitleBar
+        {
+            get
+            {
+                if ((this.mUIHelpTitleBar == null))
+                {
+                    this.mUIHelpTitleBar = new WinTitleBar(this);
+                    #region Search Criteria
+                    this.mUIHelpTitleBar.WindowTitles.Add("Help");
+                    #endregion
+                }
+                return this.mUIHelpTitleBar;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinTitleBar mUIHelpTitleBar;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UIAboutWindow1 : WinWindow
+    {
+        
+        public UIAboutWindow1()
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.Name] = "About";
+            this.SearchProperties[WinWindow.PropertyNames.ClassName] = "#32770";
+            this.WindowTitles.Add("About");
+            #endregion
+        }
+        
+        #region Properties
+        public WinTitleBar UIAboutTitleBar
+        {
+            get
+            {
+                if ((this.mUIAboutTitleBar == null))
+                {
+                    this.mUIAboutTitleBar = new WinTitleBar(this);
+                    #region Search Criteria
+                    this.mUIAboutTitleBar.WindowTitles.Add("About");
+                    #endregion
+                }
+                return this.mUIAboutTitleBar;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinTitleBar mUIAboutTitleBar;
         #endregion
     }
 }
