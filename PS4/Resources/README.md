@@ -45,3 +45,6 @@ In addition (x3). Every spreadsheet IO based exception is a `SpreadsheetReadWrit
 
 ## Modules/Dependencies
 We used [RemoteSharp](https://www.nuget.org/packages/RemoteLib/) for our "_cool feature_"
+User can collaborate spreadsheet data with others online.
+
+Project finished on 11/5/2015
