@@ -291,19 +291,6 @@ namespace UITests
         }
         
         /// <summary>
-        /// AssertIsSaved - Use 'AssertIsSavedExpectedValues' to pass parameters into this method.
-        /// </summary>
-        public void AssertIsSaved()
-        {
-            #region Variable Declarations
-            WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow.UISpreadsheetuntitledTitleBar;
-            #endregion
-
-            // Verify that the 'DisplayText' property of 'Spreadsheet - untitled' title bar does not match '*'
-            StringAssert.DoesNotMatch(uISpreadsheetuntitledTitleBar.DisplayText, new Regex(this.AssertIsSavedExpectedValues.UISpreadsheetuntitledTitleBarDisplayText));
-        }
-        
-        /// <summary>
         /// AssertShowsChanges - Use 'AssertShowsChangesExpectedValues' to pass parameters into this method.
         /// </summary>
         public void AssertShowsChanges()
@@ -314,6 +301,345 @@ namespace UITests
 
             // Verify that the 'DisplayText' property of 'Spreadsheet - untitled' title bar ends with '*'
             StringAssert.EndsWith(uISpreadsheetuntitledTitleBar.DisplayText, this.AssertShowsChangesExpectedValues.UISpreadsheetuntitledTitleBarDisplayText);
+        }
+        
+        /// <summary>
+        /// SimpleSaveSpreadsheet
+        /// </summary>
+        public void SimpleSaveSpreadsheet()
+        {
+            #region Variable Declarations
+            WinMenuItem uISaveMenuItem = this.UISpreadsheetgarbagespWindow.UIMenuStrip1MenuBar.UIFileMenuItem.UISaveMenuItem;
+            #endregion
+
+            // Click 'File' -> 'Save' menu item
+            Mouse.Click(uISaveMenuItem, new Point(61, 17));
+        }
+        
+        /// <summary>
+        /// AssertIsSaved - Use 'AssertIsSavedExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertIsSaved()
+        {
+            #region Variable Declarations
+            WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow1.UISpreadsheetuntitledTitleBar;
+            #endregion
+
+            // Verify that the 'DisplayText' property of 'Spreadsheet - untitled*' title bar does not match '[*]'
+            StringAssert.DoesNotMatch(uISpreadsheetuntitledTitleBar.DisplayText, new Regex(this.AssertIsSavedExpectedValues.UISpreadsheetuntitledTitleBarDisplayText));
+        }
+        
+        /// <summary>
+        /// AssertFileSaved - Use 'AssertFileSavedExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertFileSaved()
+        {
+            #region Variable Declarations
+            WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow.UISpreadsheetuntitledTitleBar;
+            #endregion
+
+            // Verify that the 'DisplayText' property of 'Spreadsheet - untitled' title bar equals 'Spreadsheet - garbage.sprd'
+            Assert.AreEqual(this.AssertFileSavedExpectedValues.UISpreadsheetuntitledTitleBarDisplayText, uISpreadsheetuntitledTitleBar.DisplayText, "File was not saved");
+        }
+        
+        /// <summary>
+        /// HostCollaboration
+        /// </summary>
+        public void HostCollaboration()
+        {
+            #region Variable Declarations
+            WinMenuItem uICollaborateMenuItem = this.UISpreadsheetuntitledWindow1.UIMenuStrip1MenuBar.UICollaborateMenuItem;
+            WinClient uICollaborateClient = this.UICollaborateWindow.UICollaborateClient;
+            WinButton uIHostCollaborationButton = this.UICollaborateWindow.UIHostCollaborationWindow.UIHostCollaborationButton;
+            WinButton uIOKButton = this.UISuccessWindow.UIOKWindow.UIOKButton;
+            #endregion
+
+            // Click 'Collaborate' menu item
+            Mouse.Click(uICollaborateMenuItem, new Point(67, 16));
+
+            // Last mouse action was not recorded.
+
+            // Click 'Collaborate' client
+            Mouse.Click(uICollaborateClient, new Point(202, 1));
+
+            // Click 'Host Collaboration' button
+            Mouse.Click(uIHostCollaborationButton, new Point(78, 20));
+
+            // Click 'OK' button
+            Mouse.Click(uIOKButton, new Point(49, 14));
+        }
+        
+        /// <summary>
+        /// OpenCollaborationToolBox
+        /// </summary>
+        public void OpenCollaborationToolBox()
+        {
+            #region Variable Declarations
+            WinMenuItem uICollaborateMenuItem = this.UISpreadsheetuntitledWindow1.UIMenuStrip1MenuBar.UICollaborateMenuItem;
+            #endregion
+
+            // Click 'Collaborate' menu item
+            Mouse.Click(uICollaborateMenuItem, new Point(39, 7));
+        }
+        
+        /// <summary>
+        /// AssertHostingCollaborationStarted - Use 'AssertHostingCollaborationStartedExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertHostingCollaborationStarted()
+        {
+            #region Variable Declarations
+            WinButton uIStopCollaborationButton = this.UICollaborateWindow.UIHostCollaborationWindow.UIStopCollaborationButton;
+            #endregion
+
+            // Verify that the 'DisplayText' property of 'Stop Collaboration' button equals 'Stop Collaboration'
+            Assert.AreEqual(this.AssertHostingCollaborationStartedExpectedValues.UIStopCollaborationButtonDisplayText, uIStopCollaborationButton.DisplayText);
+        }
+        
+        /// <summary>
+        /// JoinNullCollaboration - Use 'JoinNullCollaborationParams' to pass parameters into this method.
+        /// </summary>
+        public void JoinNullCollaboration()
+        {
+            #region Variable Declarations
+            WinMenuItem uICollaborateMenuItem = this.UISpreadsheetuntitledWindow1.UIMenuStrip1MenuBar.UICollaborateMenuItem;
+            WinMenuItem uICollaborateMenuItem1 = this.UISpreadsheetuntitledWindow1.UIMenuStrip1MenuBar.UICollaborateMenuItem1;
+            WinEdit uITxtAddressEdit = this.UICollaborateWindow.UITxtAddressWindow.UITxtAddressEdit;
+            #endregion
+
+            // Click 'Collaborate' menu item
+            Mouse.Click(uICollaborateMenuItem, new Point(47, 9));
+
+            // Click 'Collaborate' menu item
+            Mouse.Click(uICollaborateMenuItem1, new Point(47, 9));
+
+            // Type 'null' in 'txtAddress' text box
+            uITxtAddressEdit.Text = this.JoinNullCollaborationParams.UITxtAddressEditText;
+
+            // Type '{Enter}' in 'txtAddress' text box
+            Keyboard.SendKeys(uITxtAddressEdit, this.JoinNullCollaborationParams.UITxtAddressEditSendKeys, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// AssertCantJoinCollaboration - Use 'AssertCantJoinCollaborationExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertCantJoinCollaboration()
+        {
+            #region Variable Declarations
+            WinText uIErrortryingtoconnectText = this.UIErrortryingtoconnectWindow.UIErrortryingtoconnectText;
+            #endregion
+
+            // Verify that the 'DisplayText' property of 'Error trying to connect to null No such host is kn...' label equals 'Error trying to connect to null
+            //
+            //No such host is known'
+            Assert.AreEqual(this.AssertCantJoinCollaborationExpectedValues.UIErrortryingtoconnectTextDisplayText, uIErrortryingtoconnectText.DisplayText);
+        }
+        
+        /// <summary>
+        /// OpenAboutDialog
+        /// </summary>
+        public void OpenAboutDialog()
+        {
+            #region Variable Declarations
+            WinMenuItem uIAboutMenuItem = this.UISpreadsheetuntitledWindow1.UIMenuStrip1MenuBar.UIHelpMenuItem.UIAboutMenuItem;
+            #endregion
+
+            // Click 'Help' -> 'About' menu item
+            Mouse.Click(uIAboutMenuItem, new Point(53, 15));
+        }
+        
+        /// <summary>
+        /// AssertAboutDialogOpen - Use 'AssertAboutDialogOpenExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertAboutDialogOpen()
+        {
+            #region Variable Declarations
+            WinTitleBar uIAboutTitleBar = this.UIAboutWindow.UIAboutTitleBar;
+            #endregion
+
+            // Verify that the 'DisplayText' property of 'About' title bar equals 'About'
+            Assert.AreEqual(this.AssertAboutDialogOpenExpectedValues.UIAboutTitleBarDisplayText, uIAboutTitleBar.DisplayText);
+        }
+        
+        /// <summary>
+        /// OpenHelpDialog
+        /// </summary>
+        public void OpenHelpDialog()
+        {
+            #region Variable Declarations
+            WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow1.UISpreadsheetuntitledTitleBar;
+            WinMenuItem uIHelpMenuItem1 = this.UISpreadsheetuntitledWindow1.UIMenuStrip1MenuBar.UIHelpMenuItem.UIHelpMenuItem1;
+            #endregion
+
+            // Click 'Spreadsheet - untitled*' title bar
+            Mouse.Click(uISpreadsheetuntitledTitleBar, new Point(207, 10));
+
+            // Click 'Help' -> 'Help' menu item
+            Mouse.Click(uIHelpMenuItem1, new Point(50, 15));
+        }
+        
+        /// <summary>
+        /// OpenHelpDialogF1 - Use 'OpenHelpDialogF1Params' to pass parameters into this method.
+        /// </summary>
+        public void OpenHelpDialogF1()
+        {
+            #region Variable Declarations
+            WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow1.UISpreadsheetuntitledTitleBar;
+            WinClient uICellA1Client = this.UISpreadsheetuntitledWindow1.UISpreadsheetPanelWindow.UICellA1Client;
+            #endregion
+
+            // Click 'Spreadsheet - untitled*' title bar
+            Mouse.Click(uISpreadsheetuntitledTitleBar, new Point(136, 8));
+
+            // Type '{F1}' in 'Cell: A1' client
+            Keyboard.SendKeys(uICellA1Client, this.OpenHelpDialogF1Params.UICellA1ClientSendKeys, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// AssertHelpDialogOpen - Use 'AssertHelpDialogOpenExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertHelpDialogOpen()
+        {
+            #region Variable Declarations
+            WinTitleBar uIHelpTitleBar = this.UIHelpWindow.UIHelpTitleBar;
+            #endregion
+
+            // Verify that the 'DisplayText' property of 'Help' title bar equals 'Help'
+            Assert.AreEqual(this.AssertHelpDialogOpenExpectedValues.UIHelpTitleBarDisplayText, uIHelpTitleBar.DisplayText);
+        }
+        
+        /// <summary>
+        /// FillTextbox - Use 'FillTextboxParams' to pass parameters into this method.
+        /// </summary>
+        public void FillTextbox()
+        {
+            #region Variable Declarations
+            WinEdit uICellContentTextBoxEdit = this.UISpreadsheetuntitledWindow1.UICellContentTextBoxWindow.UICellContentTextBoxEdit;
+            #endregion
+
+            // Type 'Hello' in 'cellContentTextBox' text box
+            uICellContentTextBoxEdit.Text = this.FillTextboxParams.UICellContentTextBoxEditText;
+        }
+        
+        /// <summary>
+        /// PressEscOnTextbox - Use 'PressEscOnTextboxParams' to pass parameters into this method.
+        /// </summary>
+        public void PressEscOnTextbox()
+        {
+            #region Variable Declarations
+            WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow1.UISpreadsheetuntitledTitleBar;
+            WinEdit uICellContentTextBoxEdit = this.UISpreadsheetuntitledWindow1.UICellContentTextBoxWindow.UICellContentTextBoxEdit;
+            #endregion
+
+            // Click 'Spreadsheet - untitled*' title bar
+            Mouse.Click(uISpreadsheetuntitledTitleBar, new Point(422, 14));
+
+            // Type '{Escape}' in 'cellContentTextBox' text box
+            Keyboard.SendKeys(uICellContentTextBoxEdit, this.PressEscOnTextboxParams.UICellContentTextBoxEditSendKeys, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// PressEnterInTextbox - Use 'PressEnterInTextboxParams' to pass parameters into this method.
+        /// </summary>
+        public void PressEnterInTextbox()
+        {
+            #region Variable Declarations
+            WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow1.UISpreadsheetuntitledTitleBar;
+            WinEdit uICellContentTextBoxEdit = this.UISpreadsheetuntitledWindow1.UICellContentTextBoxWindow.UICellContentTextBoxEdit;
+            #endregion
+
+            // Click 'Spreadsheet - untitled*' title bar
+            Mouse.Click(uISpreadsheetuntitledTitleBar, new Point(484, 17));
+
+            // Click 'cellContentTextBox' text box
+            Mouse.Click(uICellContentTextBoxEdit, new Point(164, 11));
+
+            // Type '{Enter}' in 'cellContentTextBox' text box
+            Keyboard.SendKeys(uICellContentTextBoxEdit, this.PressEnterInTextboxParams.UICellContentTextBoxEditSendKeys, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// MoveToA1 - Use 'MoveToA1Params' to pass parameters into this method.
+        /// </summary>
+        public void MoveToA1()
+        {
+            #region Variable Declarations
+            WinTitleBar uISpreadsheetuntitledTitleBar = this.UISpreadsheetuntitledWindow1.UISpreadsheetuntitledTitleBar;
+            WinEdit uICellContentTextBoxEdit = this.UISpreadsheetuntitledWindow1.UICellContentTextBoxWindow.UICellContentTextBoxEdit;
+            #endregion
+
+            // Click 'Spreadsheet - untitled*' title bar
+            Mouse.Click(uISpreadsheetuntitledTitleBar, new Point(462, 12));
+
+            // Click 'cellContentTextBox' text box
+            Mouse.Click(uICellContentTextBoxEdit, new Point(161, 18));
+
+            // Type '{Up}' in 'cellContentTextBox' text box
+            Keyboard.SendKeys(uICellContentTextBoxEdit, this.MoveToA1Params.UICellContentTextBoxEditSendKeys, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// AssertCellValueHello - Use 'AssertCellValueHelloExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertCellValueHello()
+        {
+            #region Variable Declarations
+            WinText uICellValueHelloText = this.UISpreadsheetuntitledWindow1.UICellValueHelloWindow.UICellValueHelloText;
+            #endregion
+
+            // Verify that the 'DisplayText' property of 'Cell Value: Hello' label equals 'Cell Value: Hello'
+            Assert.AreEqual(this.AssertCellValueHelloExpectedValues.UICellValueHelloTextDisplayText, uICellValueHelloText.DisplayText);
+        }
+        
+        /// <summary>
+        /// AssertTextboxEmpty - Use 'AssertTextboxEmptyExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertTextboxEmpty()
+        {
+            #region Variable Declarations
+            WinEdit uICellContentTextBoxEdit = this.UISpreadsheetuntitledWindow1.UICellContentTextBoxWindow.UICellContentTextBoxEdit;
+            #endregion
+
+            // Verify that the 'Text' property of 'cellContentTextBox' text box equals ''
+            Assert.AreEqual(this.AssertTextboxEmptyExpectedValues.UICellContentTextBoxEditText, uICellContentTextBoxEdit.Text);
+        }
+        
+        /// <summary>
+        /// AssertCellValueEmpty - Use 'AssertCellValueEmptyExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertCellValueEmpty()
+        {
+            #region Variable Declarations
+            WinText uICellValueText = this.UISpreadsheetuntitledWindow1.UICellValueHelloWindow.UICellValueText;
+            #endregion
+
+            // Verify that the 'DisplayText' property of 'Cell Value:' label equals 'Cell Value: '
+            Assert.AreEqual(this.AssertCellValueEmptyExpectedValues.UICellValueTextDisplayText, uICellValueText.DisplayText);
+        }
+        
+        /// <summary>
+        /// ClickCheckmark
+        /// </summary>
+        public void ClickCheckmark()
+        {
+            #region Variable Declarations
+            WinButton uIItemButton = this.UISpreadsheetuntitledWindow1.UIItemWindow.UIItemButton;
+            #endregion
+
+            // Click '✓' button
+            Mouse.Click(uIItemButton, new Point(16, 16));
+        }
+        
+        /// <summary>
+        /// ClickXButton
+        /// </summary>
+        public void ClickXButton()
+        {
+            #region Variable Declarations
+            WinButton uIItemButton = this.UISpreadsheetuntitledWindow1.UIItemWindow1.UIItemButton;
+            #endregion
+
+            // Click '✗' button
+            Mouse.Click(uIItemButton, new Point(19, 17));
         }
         
         #region Properties
@@ -449,6 +775,18 @@ namespace UITests
             }
         }
         
+        public virtual AssertShowsChangesExpectedValues AssertShowsChangesExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertShowsChangesExpectedValues == null))
+                {
+                    this.mAssertShowsChangesExpectedValues = new AssertShowsChangesExpectedValues();
+                }
+                return this.mAssertShowsChangesExpectedValues;
+            }
+        }
+        
         public virtual AssertIsSavedExpectedValues AssertIsSavedExpectedValues
         {
             get
@@ -461,15 +799,171 @@ namespace UITests
             }
         }
         
-        public virtual AssertShowsChangesExpectedValues AssertShowsChangesExpectedValues
+        public virtual AssertFileSavedExpectedValues AssertFileSavedExpectedValues
         {
             get
             {
-                if ((this.mAssertShowsChangesExpectedValues == null))
+                if ((this.mAssertFileSavedExpectedValues == null))
                 {
-                    this.mAssertShowsChangesExpectedValues = new AssertShowsChangesExpectedValues();
+                    this.mAssertFileSavedExpectedValues = new AssertFileSavedExpectedValues();
                 }
-                return this.mAssertShowsChangesExpectedValues;
+                return this.mAssertFileSavedExpectedValues;
+            }
+        }
+        
+        public virtual AssertHostingCollaborationStartedExpectedValues AssertHostingCollaborationStartedExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertHostingCollaborationStartedExpectedValues == null))
+                {
+                    this.mAssertHostingCollaborationStartedExpectedValues = new AssertHostingCollaborationStartedExpectedValues();
+                }
+                return this.mAssertHostingCollaborationStartedExpectedValues;
+            }
+        }
+        
+        public virtual JoinNullCollaborationParams JoinNullCollaborationParams
+        {
+            get
+            {
+                if ((this.mJoinNullCollaborationParams == null))
+                {
+                    this.mJoinNullCollaborationParams = new JoinNullCollaborationParams();
+                }
+                return this.mJoinNullCollaborationParams;
+            }
+        }
+        
+        public virtual AssertCantJoinCollaborationExpectedValues AssertCantJoinCollaborationExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertCantJoinCollaborationExpectedValues == null))
+                {
+                    this.mAssertCantJoinCollaborationExpectedValues = new AssertCantJoinCollaborationExpectedValues();
+                }
+                return this.mAssertCantJoinCollaborationExpectedValues;
+            }
+        }
+        
+        public virtual AssertAboutDialogOpenExpectedValues AssertAboutDialogOpenExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertAboutDialogOpenExpectedValues == null))
+                {
+                    this.mAssertAboutDialogOpenExpectedValues = new AssertAboutDialogOpenExpectedValues();
+                }
+                return this.mAssertAboutDialogOpenExpectedValues;
+            }
+        }
+        
+        public virtual OpenHelpDialogF1Params OpenHelpDialogF1Params
+        {
+            get
+            {
+                if ((this.mOpenHelpDialogF1Params == null))
+                {
+                    this.mOpenHelpDialogF1Params = new OpenHelpDialogF1Params();
+                }
+                return this.mOpenHelpDialogF1Params;
+            }
+        }
+        
+        public virtual AssertHelpDialogOpenExpectedValues AssertHelpDialogOpenExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertHelpDialogOpenExpectedValues == null))
+                {
+                    this.mAssertHelpDialogOpenExpectedValues = new AssertHelpDialogOpenExpectedValues();
+                }
+                return this.mAssertHelpDialogOpenExpectedValues;
+            }
+        }
+        
+        public virtual FillTextboxParams FillTextboxParams
+        {
+            get
+            {
+                if ((this.mFillTextboxParams == null))
+                {
+                    this.mFillTextboxParams = new FillTextboxParams();
+                }
+                return this.mFillTextboxParams;
+            }
+        }
+        
+        public virtual PressEscOnTextboxParams PressEscOnTextboxParams
+        {
+            get
+            {
+                if ((this.mPressEscOnTextboxParams == null))
+                {
+                    this.mPressEscOnTextboxParams = new PressEscOnTextboxParams();
+                }
+                return this.mPressEscOnTextboxParams;
+            }
+        }
+        
+        public virtual PressEnterInTextboxParams PressEnterInTextboxParams
+        {
+            get
+            {
+                if ((this.mPressEnterInTextboxParams == null))
+                {
+                    this.mPressEnterInTextboxParams = new PressEnterInTextboxParams();
+                }
+                return this.mPressEnterInTextboxParams;
+            }
+        }
+        
+        public virtual MoveToA1Params MoveToA1Params
+        {
+            get
+            {
+                if ((this.mMoveToA1Params == null))
+                {
+                    this.mMoveToA1Params = new MoveToA1Params();
+                }
+                return this.mMoveToA1Params;
+            }
+        }
+        
+        public virtual AssertCellValueHelloExpectedValues AssertCellValueHelloExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertCellValueHelloExpectedValues == null))
+                {
+                    this.mAssertCellValueHelloExpectedValues = new AssertCellValueHelloExpectedValues();
+                }
+                return this.mAssertCellValueHelloExpectedValues;
+            }
+        }
+        
+        public virtual AssertTextboxEmptyExpectedValues AssertTextboxEmptyExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertTextboxEmptyExpectedValues == null))
+                {
+                    this.mAssertTextboxEmptyExpectedValues = new AssertTextboxEmptyExpectedValues();
+                }
+                return this.mAssertTextboxEmptyExpectedValues;
+            }
+        }
+        
+        public virtual AssertCellValueEmptyExpectedValues AssertCellValueEmptyExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertCellValueEmptyExpectedValues == null))
+                {
+                    this.mAssertCellValueEmptyExpectedValues = new AssertCellValueEmptyExpectedValues();
+                }
+                return this.mAssertCellValueEmptyExpectedValues;
             }
         }
         
@@ -508,6 +1002,102 @@ namespace UITests
                 return this.mUIConfirmSaveAsWindow;
             }
         }
+        
+        public UISpreadsheetuntitledWindow1 UISpreadsheetuntitledWindow1
+        {
+            get
+            {
+                if ((this.mUISpreadsheetuntitledWindow1 == null))
+                {
+                    this.mUISpreadsheetuntitledWindow1 = new UISpreadsheetuntitledWindow1();
+                }
+                return this.mUISpreadsheetuntitledWindow1;
+            }
+        }
+        
+        public UISpreadsheetgarbagespWindow UISpreadsheetgarbagespWindow
+        {
+            get
+            {
+                if ((this.mUISpreadsheetgarbagespWindow == null))
+                {
+                    this.mUISpreadsheetgarbagespWindow = new UISpreadsheetgarbagespWindow();
+                }
+                return this.mUISpreadsheetgarbagespWindow;
+            }
+        }
+        
+        public UICollaborateWindow UICollaborateWindow
+        {
+            get
+            {
+                if ((this.mUICollaborateWindow == null))
+                {
+                    this.mUICollaborateWindow = new UICollaborateWindow();
+                }
+                return this.mUICollaborateWindow;
+            }
+        }
+        
+        public UISuccessWindow UISuccessWindow
+        {
+            get
+            {
+                if ((this.mUISuccessWindow == null))
+                {
+                    this.mUISuccessWindow = new UISuccessWindow();
+                }
+                return this.mUISuccessWindow;
+            }
+        }
+        
+        public UIErrortryingtoconnectWindow UIErrortryingtoconnectWindow
+        {
+            get
+            {
+                if ((this.mUIErrortryingtoconnectWindow == null))
+                {
+                    this.mUIErrortryingtoconnectWindow = new UIErrortryingtoconnectWindow();
+                }
+                return this.mUIErrortryingtoconnectWindow;
+            }
+        }
+        
+        public UIAboutWindow UIAboutWindow
+        {
+            get
+            {
+                if ((this.mUIAboutWindow == null))
+                {
+                    this.mUIAboutWindow = new UIAboutWindow();
+                }
+                return this.mUIAboutWindow;
+            }
+        }
+        
+        public UIHelpWindow UIHelpWindow
+        {
+            get
+            {
+                if ((this.mUIHelpWindow == null))
+                {
+                    this.mUIHelpWindow = new UIHelpWindow();
+                }
+                return this.mUIHelpWindow;
+            }
+        }
+        
+        public UIUserPromotedNotificaWindow UIUserPromotedNotificaWindow
+        {
+            get
+            {
+                if ((this.mUIUserPromotedNotificaWindow == null))
+                {
+                    this.mUIUserPromotedNotificaWindow = new UIUserPromotedNotificaWindow();
+                }
+                return this.mUIUserPromotedNotificaWindow;
+            }
+        }
         #endregion
         
         #region Fields
@@ -533,15 +1123,59 @@ namespace UITests
         
         private AssertIsNewFileExpectedValues mAssertIsNewFileExpectedValues;
         
+        private AssertShowsChangesExpectedValues mAssertShowsChangesExpectedValues;
+        
         private AssertIsSavedExpectedValues mAssertIsSavedExpectedValues;
         
-        private AssertShowsChangesExpectedValues mAssertShowsChangesExpectedValues;
+        private AssertFileSavedExpectedValues mAssertFileSavedExpectedValues;
+        
+        private AssertHostingCollaborationStartedExpectedValues mAssertHostingCollaborationStartedExpectedValues;
+        
+        private JoinNullCollaborationParams mJoinNullCollaborationParams;
+        
+        private AssertCantJoinCollaborationExpectedValues mAssertCantJoinCollaborationExpectedValues;
+        
+        private AssertAboutDialogOpenExpectedValues mAssertAboutDialogOpenExpectedValues;
+        
+        private OpenHelpDialogF1Params mOpenHelpDialogF1Params;
+        
+        private AssertHelpDialogOpenExpectedValues mAssertHelpDialogOpenExpectedValues;
+        
+        private FillTextboxParams mFillTextboxParams;
+        
+        private PressEscOnTextboxParams mPressEscOnTextboxParams;
+        
+        private PressEnterInTextboxParams mPressEnterInTextboxParams;
+        
+        private MoveToA1Params mMoveToA1Params;
+        
+        private AssertCellValueHelloExpectedValues mAssertCellValueHelloExpectedValues;
+        
+        private AssertTextboxEmptyExpectedValues mAssertTextboxEmptyExpectedValues;
+        
+        private AssertCellValueEmptyExpectedValues mAssertCellValueEmptyExpectedValues;
         
         private UISpreadsheetuntitledWindow mUISpreadsheetuntitledWindow;
         
         private UISavethespreadsheetWindow mUISavethespreadsheetWindow;
         
         private UIConfirmSaveAsWindow mUIConfirmSaveAsWindow;
+        
+        private UISpreadsheetuntitledWindow1 mUISpreadsheetuntitledWindow1;
+        
+        private UISpreadsheetgarbagespWindow mUISpreadsheetgarbagespWindow;
+        
+        private UICollaborateWindow mUICollaborateWindow;
+        
+        private UISuccessWindow mUISuccessWindow;
+        
+        private UIErrortryingtoconnectWindow mUIErrortryingtoconnectWindow;
+        
+        private UIAboutWindow mUIAboutWindow;
+        
+        private UIHelpWindow mUIHelpWindow;
+        
+        private UIUserPromotedNotificaWindow mUIUserPromotedNotificaWindow;
         #endregion
     }
     
@@ -837,21 +1471,6 @@ namespace UITests
     }
     
     /// <summary>
-    /// Parameters to be passed into 'AssertIsSaved'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
-    public class AssertIsSavedExpectedValues
-    {
-        
-        #region Fields
-        /// <summary>
-        /// Verify that the 'DisplayText' property of 'Spreadsheet - untitled' title bar does not match '*'
-        /// </summary>
-        public string UISpreadsheetuntitledTitleBarDisplayText = "*";
-        #endregion
-    }
-    
-    /// <summary>
     /// Parameters to be passed into 'AssertShowsChanges'
     /// </summary>
     [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
@@ -863,6 +1482,238 @@ namespace UITests
         /// Verify that the 'DisplayText' property of 'Spreadsheet - untitled' title bar ends with '*'
         /// </summary>
         public string UISpreadsheetuntitledTitleBarDisplayText = "*";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertIsSaved'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertIsSavedExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'DisplayText' property of 'Spreadsheet - untitled*' title bar does not match '[*]'
+        /// </summary>
+        public string UISpreadsheetuntitledTitleBarDisplayText = "[*]";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertFileSaved'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertFileSavedExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'DisplayText' property of 'Spreadsheet - untitled' title bar equals 'Spreadsheet - garbage.sprd'
+        /// </summary>
+        public string UISpreadsheetuntitledTitleBarDisplayText = "Spreadsheet - garbage.sprd";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertHostingCollaborationStarted'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertHostingCollaborationStartedExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'DisplayText' property of 'Stop Collaboration' button equals 'Stop Collaboration'
+        /// </summary>
+        public string UIStopCollaborationButtonDisplayText = "Stop Collaboration";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'JoinNullCollaboration'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class JoinNullCollaborationParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type 'null' in 'txtAddress' text box
+        /// </summary>
+        public string UITxtAddressEditText = "null";
+        
+        /// <summary>
+        /// Type '{Enter}' in 'txtAddress' text box
+        /// </summary>
+        public string UITxtAddressEditSendKeys = "{Enter}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertCantJoinCollaboration'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertCantJoinCollaborationExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'DisplayText' property of 'Error trying to connect to null No such host is kn...' label equals 'Error trying to connect to null
+        ///
+        ///No such host is known'
+        /// </summary>
+        public string UIErrortryingtoconnectTextDisplayText = "Error trying to connect to null\n\nNo such host is known";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertAboutDialogOpen'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertAboutDialogOpenExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'DisplayText' property of 'About' title bar equals 'About'
+        /// </summary>
+        public string UIAboutTitleBarDisplayText = "About";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'OpenHelpDialogF1'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class OpenHelpDialogF1Params
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '{F1}' in 'Cell: A1' client
+        /// </summary>
+        public string UICellA1ClientSendKeys = "{F1}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertHelpDialogOpen'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertHelpDialogOpenExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'DisplayText' property of 'Help' title bar equals 'Help'
+        /// </summary>
+        public string UIHelpTitleBarDisplayText = "Help";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'FillTextbox'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class FillTextboxParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type 'Hello' in 'cellContentTextBox' text box
+        /// </summary>
+        public string UICellContentTextBoxEditText = "Hello";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'PressEscOnTextbox'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class PressEscOnTextboxParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '{Escape}' in 'cellContentTextBox' text box
+        /// </summary>
+        public string UICellContentTextBoxEditSendKeys = "{Escape}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'PressEnterInTextbox'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class PressEnterInTextboxParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '{Enter}' in 'cellContentTextBox' text box
+        /// </summary>
+        public string UICellContentTextBoxEditSendKeys = "{Enter}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'MoveToA1'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class MoveToA1Params
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '{Up}' in 'cellContentTextBox' text box
+        /// </summary>
+        public string UICellContentTextBoxEditSendKeys = "{Up}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertCellValueHello'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertCellValueHelloExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'DisplayText' property of 'Cell Value: Hello' label equals 'Cell Value: Hello'
+        /// </summary>
+        public string UICellValueHelloTextDisplayText = "Cell Value: Hello";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertTextboxEmpty'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertTextboxEmptyExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'Text' property of 'cellContentTextBox' text box equals ''
+        /// </summary>
+        public string UICellContentTextBoxEditText = "";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertCellValueEmpty'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertCellValueEmptyExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'DisplayText' property of 'Cell Value:' label equals 'Cell Value: '
+        /// </summary>
+        public string UICellValueTextDisplayText = "Cell Value: ";
         #endregion
     }
     
@@ -1408,6 +2259,1014 @@ namespace UITests
         
         #region Fields
         private WinButton mUIYesButton;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UISpreadsheetuntitledWindow1 : WinWindow
+    {
+        
+        public UISpreadsheetuntitledWindow1()
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.Name] = "Spreadsheet - untitled*";
+            this.SearchProperties.Add(new PropertyExpression(WinWindow.PropertyNames.ClassName, "WindowsForms10.Window", PropertyExpressionOperator.Contains));
+            this.WindowTitles.Add("Spreadsheet - untitled*");
+            #endregion
+        }
+        
+        #region Properties
+        public UIMenuStrip1MenuBar1 UIMenuStrip1MenuBar
+        {
+            get
+            {
+                if ((this.mUIMenuStrip1MenuBar == null))
+                {
+                    this.mUIMenuStrip1MenuBar = new UIMenuStrip1MenuBar1(this);
+                }
+                return this.mUIMenuStrip1MenuBar;
+            }
+        }
+        
+        public WinTitleBar UISpreadsheetuntitledTitleBar
+        {
+            get
+            {
+                if ((this.mUISpreadsheetuntitledTitleBar == null))
+                {
+                    this.mUISpreadsheetuntitledTitleBar = new WinTitleBar(this);
+                    #region Search Criteria
+                    this.mUISpreadsheetuntitledTitleBar.WindowTitles.Add("Spreadsheet - untitled*");
+                    #endregion
+                }
+                return this.mUISpreadsheetuntitledTitleBar;
+            }
+        }
+        
+        public UISpreadsheetPanelWindow UISpreadsheetPanelWindow
+        {
+            get
+            {
+                if ((this.mUISpreadsheetPanelWindow == null))
+                {
+                    this.mUISpreadsheetPanelWindow = new UISpreadsheetPanelWindow(this);
+                }
+                return this.mUISpreadsheetPanelWindow;
+            }
+        }
+        
+        public UICellContentTextBoxWindow1 UICellContentTextBoxWindow
+        {
+            get
+            {
+                if ((this.mUICellContentTextBoxWindow == null))
+                {
+                    this.mUICellContentTextBoxWindow = new UICellContentTextBoxWindow1(this);
+                }
+                return this.mUICellContentTextBoxWindow;
+            }
+        }
+        
+        public UICellValueHelloWindow UICellValueHelloWindow
+        {
+            get
+            {
+                if ((this.mUICellValueHelloWindow == null))
+                {
+                    this.mUICellValueHelloWindow = new UICellValueHelloWindow(this);
+                }
+                return this.mUICellValueHelloWindow;
+            }
+        }
+        
+        public UIItemWindow UIItemWindow
+        {
+            get
+            {
+                if ((this.mUIItemWindow == null))
+                {
+                    this.mUIItemWindow = new UIItemWindow(this);
+                }
+                return this.mUIItemWindow;
+            }
+        }
+        
+        public UIItemWindow1 UIItemWindow1
+        {
+            get
+            {
+                if ((this.mUIItemWindow1 == null))
+                {
+                    this.mUIItemWindow1 = new UIItemWindow1(this);
+                }
+                return this.mUIItemWindow1;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private UIMenuStrip1MenuBar1 mUIMenuStrip1MenuBar;
+        
+        private WinTitleBar mUISpreadsheetuntitledTitleBar;
+        
+        private UISpreadsheetPanelWindow mUISpreadsheetPanelWindow;
+        
+        private UICellContentTextBoxWindow1 mUICellContentTextBoxWindow;
+        
+        private UICellValueHelloWindow mUICellValueHelloWindow;
+        
+        private UIItemWindow mUIItemWindow;
+        
+        private UIItemWindow1 mUIItemWindow1;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UIMenuStrip1MenuBar1 : WinMenuBar
+    {
+        
+        public UIMenuStrip1MenuBar1(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinMenu.PropertyNames.Name] = "menuStrip1";
+            this.WindowTitles.Add("Spreadsheet - untitled*");
+            #endregion
+        }
+        
+        #region Properties
+        public UIFileMenuItem1 UIFileMenuItem
+        {
+            get
+            {
+                if ((this.mUIFileMenuItem == null))
+                {
+                    this.mUIFileMenuItem = new UIFileMenuItem1(this);
+                }
+                return this.mUIFileMenuItem;
+            }
+        }
+        
+        public WinMenuItem UICollaborateMenuItem
+        {
+            get
+            {
+                if ((this.mUICollaborateMenuItem == null))
+                {
+                    this.mUICollaborateMenuItem = new WinMenuItem(this);
+                    #region Search Criteria
+                    this.mUICollaborateMenuItem.SearchProperties[WinMenuItem.PropertyNames.Name] = "Collaborate";
+                    this.mUICollaborateMenuItem.WindowTitles.Add("Spreadsheet - untitled*");
+                    #endregion
+                }
+                return this.mUICollaborateMenuItem;
+            }
+        }
+        
+        public WinMenuItem UICollaborateMenuItem1
+        {
+            get
+            {
+                if ((this.mUICollaborateMenuItem1 == null))
+                {
+                    this.mUICollaborateMenuItem1 = new WinMenuItem(this);
+                    #region Search Criteria
+                    this.mUICollaborateMenuItem1.SearchProperties[WinMenuItem.PropertyNames.Name] = "Collaborate";
+                    this.mUICollaborateMenuItem1.WindowTitles.Add("Spreadsheet - untitled*");
+                    #endregion
+                }
+                return this.mUICollaborateMenuItem1;
+            }
+        }
+        
+        public UIHelpMenuItem UIHelpMenuItem
+        {
+            get
+            {
+                if ((this.mUIHelpMenuItem == null))
+                {
+                    this.mUIHelpMenuItem = new UIHelpMenuItem(this);
+                }
+                return this.mUIHelpMenuItem;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private UIFileMenuItem1 mUIFileMenuItem;
+        
+        private WinMenuItem mUICollaborateMenuItem;
+        
+        private WinMenuItem mUICollaborateMenuItem1;
+        
+        private UIHelpMenuItem mUIHelpMenuItem;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UIFileMenuItem1 : WinMenuItem
+    {
+        
+        public UIFileMenuItem1(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinMenuItem.PropertyNames.Name] = "File";
+            this.WindowTitles.Add("Spreadsheet - untitled*");
+            #endregion
+        }
+        
+        #region Properties
+        public WinMenuItem UISaveMenuItem
+        {
+            get
+            {
+                if ((this.mUISaveMenuItem == null))
+                {
+                    this.mUISaveMenuItem = new WinMenuItem(this);
+                    #region Search Criteria
+                    this.mUISaveMenuItem.SearchProperties[WinMenuItem.PropertyNames.Name] = "Save";
+                    this.mUISaveMenuItem.SearchConfigurations.Add(SearchConfiguration.ExpandWhileSearching);
+                    this.mUISaveMenuItem.WindowTitles.Add("Spreadsheet - untitled*");
+                    #endregion
+                }
+                return this.mUISaveMenuItem;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinMenuItem mUISaveMenuItem;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UIHelpMenuItem : WinMenuItem
+    {
+        
+        public UIHelpMenuItem(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinMenuItem.PropertyNames.Name] = "Help";
+            this.WindowTitles.Add("Spreadsheet - untitled*");
+            #endregion
+        }
+        
+        #region Properties
+        public WinMenuItem UIAboutMenuItem
+        {
+            get
+            {
+                if ((this.mUIAboutMenuItem == null))
+                {
+                    this.mUIAboutMenuItem = new WinMenuItem(this);
+                    #region Search Criteria
+                    this.mUIAboutMenuItem.SearchProperties[WinMenuItem.PropertyNames.Name] = "About";
+                    this.mUIAboutMenuItem.SearchConfigurations.Add(SearchConfiguration.ExpandWhileSearching);
+                    this.mUIAboutMenuItem.WindowTitles.Add("Spreadsheet - untitled*");
+                    #endregion
+                }
+                return this.mUIAboutMenuItem;
+            }
+        }
+        
+        public WinMenuItem UIHelpMenuItem1
+        {
+            get
+            {
+                if ((this.mUIHelpMenuItem1 == null))
+                {
+                    this.mUIHelpMenuItem1 = new WinMenuItem(this);
+                    #region Search Criteria
+                    this.mUIHelpMenuItem1.SearchProperties[WinMenuItem.PropertyNames.Name] = "Help";
+                    this.mUIHelpMenuItem1.SearchConfigurations.Add(SearchConfiguration.ExpandWhileSearching);
+                    this.mUIHelpMenuItem1.SearchConfigurations.Add(SearchConfiguration.DisambiguateChild);
+                    this.mUIHelpMenuItem1.WindowTitles.Add("Spreadsheet - untitled*");
+                    #endregion
+                }
+                return this.mUIHelpMenuItem1;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinMenuItem mUIAboutMenuItem;
+        
+        private WinMenuItem mUIHelpMenuItem1;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UISpreadsheetPanelWindow : WinWindow
+    {
+        
+        public UISpreadsheetPanelWindow(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.ControlName] = "spreadsheetPanel";
+            this.WindowTitles.Add("Spreadsheet - untitled*");
+            #endregion
+        }
+        
+        #region Properties
+        public WinClient UICellA1Client
+        {
+            get
+            {
+                if ((this.mUICellA1Client == null))
+                {
+                    this.mUICellA1Client = new WinClient(this);
+                    #region Search Criteria
+                    this.mUICellA1Client.SearchProperties[WinControl.PropertyNames.Name] = "Cell: A1";
+                    this.mUICellA1Client.WindowTitles.Add("Spreadsheet - untitled*");
+                    #endregion
+                }
+                return this.mUICellA1Client;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinClient mUICellA1Client;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UICellContentTextBoxWindow1 : WinWindow
+    {
+        
+        public UICellContentTextBoxWindow1(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.ControlName] = "cellContentTextBox";
+            this.WindowTitles.Add("Spreadsheet - untitled*");
+            #endregion
+        }
+        
+        #region Properties
+        public WinEdit UICellContentTextBoxEdit
+        {
+            get
+            {
+                if ((this.mUICellContentTextBoxEdit == null))
+                {
+                    this.mUICellContentTextBoxEdit = new WinEdit(this);
+                    #region Search Criteria
+                    this.mUICellContentTextBoxEdit.SearchProperties[WinEdit.PropertyNames.Name] = "Cell Value: ";
+                    this.mUICellContentTextBoxEdit.WindowTitles.Add("Spreadsheet - untitled*");
+                    #endregion
+                }
+                return this.mUICellContentTextBoxEdit;
+            }
+        }
+        
+        public WinEdit UICellContentTextBoxEdit1
+        {
+            get
+            {
+                if ((this.mUICellContentTextBoxEdit1 == null))
+                {
+                    this.mUICellContentTextBoxEdit1 = new WinEdit(this);
+                    #region Search Criteria
+                    this.mUICellContentTextBoxEdit1.SearchProperties[WinEdit.PropertyNames.Name] = "Cell Value: Hello";
+                    this.mUICellContentTextBoxEdit1.WindowTitles.Add("Spreadsheet - untitled*");
+                    #endregion
+                }
+                return this.mUICellContentTextBoxEdit1;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinEdit mUICellContentTextBoxEdit;
+        
+        private WinEdit mUICellContentTextBoxEdit1;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UICellValueHelloWindow : WinWindow
+    {
+        
+        public UICellValueHelloWindow(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.ControlName] = "cellContentLabel";
+            this.WindowTitles.Add("Spreadsheet - untitled*");
+            #endregion
+        }
+        
+        #region Properties
+        public WinText UICellValueHelloText
+        {
+            get
+            {
+                if ((this.mUICellValueHelloText == null))
+                {
+                    this.mUICellValueHelloText = new WinText(this);
+                    #region Search Criteria
+                    this.mUICellValueHelloText.SearchProperties[WinText.PropertyNames.Name] = "Cell Value: Hello";
+                    this.mUICellValueHelloText.WindowTitles.Add("Spreadsheet - untitled*");
+                    #endregion
+                }
+                return this.mUICellValueHelloText;
+            }
+        }
+        
+        public WinText UICellValueText
+        {
+            get
+            {
+                if ((this.mUICellValueText == null))
+                {
+                    this.mUICellValueText = new WinText(this);
+                    #region Search Criteria
+                    this.mUICellValueText.SearchProperties[WinText.PropertyNames.Name] = "Cell Value: ";
+                    this.mUICellValueText.WindowTitles.Add("Spreadsheet - untitled*");
+                    #endregion
+                }
+                return this.mUICellValueText;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinText mUICellValueHelloText;
+        
+        private WinText mUICellValueText;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UIItemWindow : WinWindow
+    {
+        
+        public UIItemWindow(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.ControlName] = "updateButton";
+            this.WindowTitles.Add("Spreadsheet - untitled*");
+            #endregion
+        }
+        
+        #region Properties
+        public WinButton UIItemButton
+        {
+            get
+            {
+                if ((this.mUIItemButton == null))
+                {
+                    this.mUIItemButton = new WinButton(this);
+                    #region Search Criteria
+                    this.mUIItemButton.SearchProperties[WinButton.PropertyNames.Name] = "✓";
+                    this.mUIItemButton.WindowTitles.Add("Spreadsheet - untitled*");
+                    #endregion
+                }
+                return this.mUIItemButton;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinButton mUIItemButton;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UIItemWindow1 : WinWindow
+    {
+        
+        public UIItemWindow1(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.ControlName] = "cancelButton";
+            this.WindowTitles.Add("Spreadsheet - untitled*");
+            #endregion
+        }
+        
+        #region Properties
+        public WinButton UIItemButton
+        {
+            get
+            {
+                if ((this.mUIItemButton == null))
+                {
+                    this.mUIItemButton = new WinButton(this);
+                    #region Search Criteria
+                    this.mUIItemButton.SearchProperties[WinButton.PropertyNames.Name] = "✗";
+                    this.mUIItemButton.WindowTitles.Add("Spreadsheet - untitled*");
+                    #endregion
+                }
+                return this.mUIItemButton;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinButton mUIItemButton;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UISpreadsheetgarbagespWindow : WinWindow
+    {
+        
+        public UISpreadsheetgarbagespWindow()
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.Name] = "Spreadsheet - garbage.sprd*";
+            this.SearchProperties.Add(new PropertyExpression(WinWindow.PropertyNames.ClassName, "WindowsForms10.Window", PropertyExpressionOperator.Contains));
+            this.WindowTitles.Add("Spreadsheet - garbage.sprd*");
+            #endregion
+        }
+        
+        #region Properties
+        public UIMenuStrip1MenuBar2 UIMenuStrip1MenuBar
+        {
+            get
+            {
+                if ((this.mUIMenuStrip1MenuBar == null))
+                {
+                    this.mUIMenuStrip1MenuBar = new UIMenuStrip1MenuBar2(this);
+                }
+                return this.mUIMenuStrip1MenuBar;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private UIMenuStrip1MenuBar2 mUIMenuStrip1MenuBar;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UIMenuStrip1MenuBar2 : WinMenuBar
+    {
+        
+        public UIMenuStrip1MenuBar2(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinMenu.PropertyNames.Name] = "menuStrip1";
+            this.WindowTitles.Add("Spreadsheet - garbage.sprd*");
+            #endregion
+        }
+        
+        #region Properties
+        public UIFileMenuItem2 UIFileMenuItem
+        {
+            get
+            {
+                if ((this.mUIFileMenuItem == null))
+                {
+                    this.mUIFileMenuItem = new UIFileMenuItem2(this);
+                }
+                return this.mUIFileMenuItem;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private UIFileMenuItem2 mUIFileMenuItem;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UIFileMenuItem2 : WinMenuItem
+    {
+        
+        public UIFileMenuItem2(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinMenuItem.PropertyNames.Name] = "File";
+            this.WindowTitles.Add("Spreadsheet - garbage.sprd*");
+            #endregion
+        }
+        
+        #region Properties
+        public WinMenuItem UISaveMenuItem
+        {
+            get
+            {
+                if ((this.mUISaveMenuItem == null))
+                {
+                    this.mUISaveMenuItem = new WinMenuItem(this);
+                    #region Search Criteria
+                    this.mUISaveMenuItem.SearchProperties[WinMenuItem.PropertyNames.Name] = "Save";
+                    this.mUISaveMenuItem.SearchConfigurations.Add(SearchConfiguration.ExpandWhileSearching);
+                    this.mUISaveMenuItem.WindowTitles.Add("Spreadsheet - garbage.sprd*");
+                    #endregion
+                }
+                return this.mUISaveMenuItem;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinMenuItem mUISaveMenuItem;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UICollaborateWindow : WinWindow
+    {
+        
+        public UICollaborateWindow()
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.Name] = "Collaborate";
+            this.SearchProperties.Add(new PropertyExpression(WinWindow.PropertyNames.ClassName, "WindowsForms10.Window", PropertyExpressionOperator.Contains));
+            this.WindowTitles.Add("Collaborate");
+            #endregion
+        }
+        
+        #region Properties
+        public WinClient UICollaborateClient
+        {
+            get
+            {
+                if ((this.mUICollaborateClient == null))
+                {
+                    this.mUICollaborateClient = new WinClient(this);
+                    #region Search Criteria
+                    this.mUICollaborateClient.SearchProperties[WinControl.PropertyNames.Name] = "Collaborate";
+                    this.mUICollaborateClient.WindowTitles.Add("Collaborate");
+                    #endregion
+                }
+                return this.mUICollaborateClient;
+            }
+        }
+        
+        public UIHostCollaborationWindow UIHostCollaborationWindow
+        {
+            get
+            {
+                if ((this.mUIHostCollaborationWindow == null))
+                {
+                    this.mUIHostCollaborationWindow = new UIHostCollaborationWindow(this);
+                }
+                return this.mUIHostCollaborationWindow;
+            }
+        }
+        
+        public UITxtAddressWindow UITxtAddressWindow
+        {
+            get
+            {
+                if ((this.mUITxtAddressWindow == null))
+                {
+                    this.mUITxtAddressWindow = new UITxtAddressWindow(this);
+                }
+                return this.mUITxtAddressWindow;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinClient mUICollaborateClient;
+        
+        private UIHostCollaborationWindow mUIHostCollaborationWindow;
+        
+        private UITxtAddressWindow mUITxtAddressWindow;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UIHostCollaborationWindow : WinWindow
+    {
+        
+        public UIHostCollaborationWindow(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.ControlName] = "button1";
+            this.WindowTitles.Add("Collaborate");
+            #endregion
+        }
+        
+        #region Properties
+        public WinButton UIHostCollaborationButton
+        {
+            get
+            {
+                if ((this.mUIHostCollaborationButton == null))
+                {
+                    this.mUIHostCollaborationButton = new WinButton(this);
+                    #region Search Criteria
+                    this.mUIHostCollaborationButton.SearchProperties[WinButton.PropertyNames.Name] = "Host Collaboration";
+                    this.mUIHostCollaborationButton.WindowTitles.Add("Collaborate");
+                    #endregion
+                }
+                return this.mUIHostCollaborationButton;
+            }
+        }
+        
+        public WinButton UIStopCollaborationButton
+        {
+            get
+            {
+                if ((this.mUIStopCollaborationButton == null))
+                {
+                    this.mUIStopCollaborationButton = new WinButton(this);
+                    #region Search Criteria
+                    this.mUIStopCollaborationButton.SearchProperties[WinButton.PropertyNames.Name] = "Stop Collaboration";
+                    this.mUIStopCollaborationButton.WindowTitles.Add("Collaborate");
+                    #endregion
+                }
+                return this.mUIStopCollaborationButton;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinButton mUIHostCollaborationButton;
+        
+        private WinButton mUIStopCollaborationButton;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UITxtAddressWindow : WinWindow
+    {
+        
+        public UITxtAddressWindow(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.ControlName] = "txtAddress";
+            this.WindowTitles.Add("Collaborate");
+            #endregion
+        }
+        
+        #region Properties
+        public WinEdit UITxtAddressEdit
+        {
+            get
+            {
+                if ((this.mUITxtAddressEdit == null))
+                {
+                    this.mUITxtAddressEdit = new WinEdit(this);
+                    #region Search Criteria
+                    this.mUITxtAddressEdit.SearchProperties[WinEdit.PropertyNames.Name] = "Address";
+                    this.mUITxtAddressEdit.WindowTitles.Add("Collaborate");
+                    #endregion
+                }
+                return this.mUITxtAddressEdit;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinEdit mUITxtAddressEdit;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UISuccessWindow : WinWindow
+    {
+        
+        public UISuccessWindow()
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.Name] = "Success!";
+            this.SearchProperties[WinWindow.PropertyNames.ClassName] = "#32770";
+            this.WindowTitles.Add("Success!");
+            #endregion
+        }
+        
+        #region Properties
+        public UIOKWindow UIOKWindow
+        {
+            get
+            {
+                if ((this.mUIOKWindow == null))
+                {
+                    this.mUIOKWindow = new UIOKWindow(this);
+                }
+                return this.mUIOKWindow;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private UIOKWindow mUIOKWindow;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UIOKWindow : WinWindow
+    {
+        
+        public UIOKWindow(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.ControlId] = "2";
+            this.WindowTitles.Add("Success!");
+            #endregion
+        }
+        
+        #region Properties
+        public WinButton UIOKButton
+        {
+            get
+            {
+                if ((this.mUIOKButton == null))
+                {
+                    this.mUIOKButton = new WinButton(this);
+                    #region Search Criteria
+                    this.mUIOKButton.SearchProperties[WinButton.PropertyNames.Name] = "OK";
+                    this.mUIOKButton.WindowTitles.Add("Success!");
+                    #endregion
+                }
+                return this.mUIOKButton;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinButton mUIOKButton;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UIErrortryingtoconnectWindow : WinWindow
+    {
+        
+        public UIErrortryingtoconnectWindow()
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.Name] = "Error trying to connect to null\n\nNo such host is known";
+            this.SearchProperties[WinWindow.PropertyNames.ClassName] = "Static";
+            this.WindowTitles.Add("Error trying to connect to null\n\nNo such host is known");
+            #endregion
+        }
+        
+        #region Properties
+        public WinText UIErrortryingtoconnectText
+        {
+            get
+            {
+                if ((this.mUIErrortryingtoconnectText == null))
+                {
+                    this.mUIErrortryingtoconnectText = new WinText(this);
+                    #region Search Criteria
+                    this.mUIErrortryingtoconnectText.SearchProperties[WinText.PropertyNames.Name] = "Error trying to connect to nullNo such host is known";
+                    this.mUIErrortryingtoconnectText.WindowTitles.Add("Error trying to connect to null\n\nNo such host is known");
+                    #endregion
+                }
+                return this.mUIErrortryingtoconnectText;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinText mUIErrortryingtoconnectText;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UIAboutWindow : WinWindow
+    {
+        
+        public UIAboutWindow()
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.Name] = "About";
+            this.SearchProperties.Add(new PropertyExpression(WinWindow.PropertyNames.ClassName, "WindowsForms10.Window", PropertyExpressionOperator.Contains));
+            this.WindowTitles.Add("About");
+            #endregion
+        }
+        
+        #region Properties
+        public WinTitleBar UIAboutTitleBar
+        {
+            get
+            {
+                if ((this.mUIAboutTitleBar == null))
+                {
+                    this.mUIAboutTitleBar = new WinTitleBar(this);
+                    #region Search Criteria
+                    this.mUIAboutTitleBar.WindowTitles.Add("About");
+                    #endregion
+                }
+                return this.mUIAboutTitleBar;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinTitleBar mUIAboutTitleBar;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UIHelpWindow : WinWindow
+    {
+        
+        public UIHelpWindow()
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.Name] = "Help";
+            this.SearchProperties.Add(new PropertyExpression(WinWindow.PropertyNames.ClassName, "WindowsForms10.Window", PropertyExpressionOperator.Contains));
+            this.WindowTitles.Add("Help");
+            #endregion
+        }
+        
+        #region Properties
+        public WinTitleBar UIHelpTitleBar
+        {
+            get
+            {
+                if ((this.mUIHelpTitleBar == null))
+                {
+                    this.mUIHelpTitleBar = new WinTitleBar(this);
+                    #region Search Criteria
+                    this.mUIHelpTitleBar.WindowTitles.Add("Help");
+                    #endregion
+                }
+                return this.mUIHelpTitleBar;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinTitleBar mUIHelpTitleBar;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UIUserPromotedNotificaWindow : WinWindow
+    {
+        
+        public UIUserPromotedNotificaWindow()
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.Name] = "User Promoted Notification Area";
+            this.SearchProperties[WinWindow.PropertyNames.ClassName] = "ToolbarWindow32";
+            this.WindowTitles.Add("User Promoted Notification Area");
+            #endregion
+        }
+        
+        #region Properties
+        public UIUserPromotedNotificaToolBar UIUserPromotedNotificaToolBar
+        {
+            get
+            {
+                if ((this.mUIUserPromotedNotificaToolBar == null))
+                {
+                    this.mUIUserPromotedNotificaToolBar = new UIUserPromotedNotificaToolBar(this);
+                }
+                return this.mUIUserPromotedNotificaToolBar;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private UIUserPromotedNotificaToolBar mUIUserPromotedNotificaToolBar;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UIUserPromotedNotificaToolBar : WinToolBar
+    {
+        
+        public UIUserPromotedNotificaToolBar(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinToolBar.PropertyNames.Name] = "User Promoted Notification Area";
+            this.WindowTitles.Add("User Promoted Notification Area");
+            #endregion
+        }
+        
+        #region Properties
+        public WinButton UISpeakersUSB24Button
+        {
+            get
+            {
+                if ((this.mUISpeakersUSB24Button == null))
+                {
+                    this.mUISpeakersUSB24Button = new WinButton(this);
+                    #region Search Criteria
+                    this.mUISpeakersUSB24Button.SearchProperties[WinButton.PropertyNames.Name] = "Speakers (USB): 24%";
+                    this.mUISpeakersUSB24Button.WindowTitles.Add("User Promoted Notification Area");
+                    #endregion
+                }
+                return this.mUISpeakersUSB24Button;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinButton mUISpeakersUSB24Button;
         #endregion
     }
 }

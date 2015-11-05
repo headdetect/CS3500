@@ -43,41 +43,33 @@ namespace SpreadsheetGUI
             {
                 // Not connected, lets connect. //
                 var address = txtAddress.Text;
-
-                IPAddress ipAddress;
-                if (IPAddress.TryParse(address, out ipAddress))
+                
+                DoBackgroundWork(args =>
                 {
-                    DoBackgroundWork(args =>
+                    try
                     {
-                        try
+                        var client = new TcpClient();
+                        client.Connect(address, 45903);
+
+                        Program.Client = new TcpRemoteClient(client);
+                        Program.Client.StartClient();
+
+                        DoForegroundWork(() =>
                         {
-                            var client = new TcpClient();
-                            client.Connect(ipAddress, 45903);
+                            button2.Text = @"Disconnect";
+                            clientConnected = true;
 
-                            Program.Client = new TcpRemoteClient(client);
-                            Program.Client.StartClient();
+                            MessageBox.Show($"Successfully connected to {address}", @"Success!",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                            DoForegroundWork(() =>
-                            {
-                                button2.Text = @"Disconnect";
-                                clientConnected = true;
-
-                                MessageBox.Show($"Successfully connected to {address}", @"Success!",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                                Close(); // Close dialog //
-                            });
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Error trying to connect to {address}\n\n{ex.Message}");
-                        }
-                    });
-                }
-                else
-                {
-                    MessageBox.Show($"{address} is not a valid IP address");
-                }
+                            Close(); // Close dialog //
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error trying to connect to {address}\n\n{ex.Message}");
+                    }
+                });
             }
             else
             {
