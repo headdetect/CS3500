@@ -107,13 +107,21 @@ namespace UITests
 
 
         [TestMethod]
-        public void DoesJoinCollaboration()
+        public void DoesTryJoinCollaboration()
         {
-            this.UIMap.JoinNullCollaboration();
-            this.UIMap.AssertCantJoinCollaboration();
+            this.UIMap.TryJoinNullCollaboration();
+            this.UIMap.AssertFailedConnectCollaboration();
         }
 
-        
+        [TestMethod]
+        [Ignore] // You must run a server along side, pretty easy to fail //
+        public void DoesJoinCollaboration()
+        {
+            this.UIMap.ConnectToLocalHostCollaboration();
+            this.UIMap.AssertConnectedToLocalhostCollaboration();
+        }
+
+
         [TestMethod]
         public void OpensAboutDialog()
         {

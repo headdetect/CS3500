@@ -642,6 +642,76 @@ namespace UITests
             Mouse.Click(uISaveMenuItem, new Point(61, 17));
         }
         
+        /// <summary>
+        /// TryJoinNullCollaboration - Use 'TryJoinNullCollaborationParams' to pass parameters into this method.
+        /// </summary>
+        public void TryJoinNullCollaboration()
+        {
+            #region Variable Declarations
+            WinMenuItem uICollaborateMenuItem = this.UISpreadsheetuntitledWindow2.UIMenuStrip1MenuBar.UICollaborateMenuItem;
+            WinEdit uITxtAddressEdit = this.UICollaborateWindow.UITxtAddressWindow.UITxtAddressEdit;
+            WinButton uIConnectButton = this.UICollaborateWindow.UIConnectWindow.UIConnectButton;
+            #endregion
+
+            // Click 'Collaborate' menu item
+            Mouse.Click(uICollaborateMenuItem, new Point(26, 9));
+
+            // Type 'null' in 'txtAddress' text box
+            uITxtAddressEdit.Text = this.TryJoinNullCollaborationParams.UITxtAddressEditText;
+
+            // Click 'Connect' button
+            Mouse.Click(uIConnectButton, new Point(28, 15));
+        }
+        
+        /// <summary>
+        /// AssertFailedConnectCollaboration - Use 'AssertFailedConnectCollaborationExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertFailedConnectCollaboration()
+        {
+            #region Variable Declarations
+            WinText uIErrortryingtoconnectText = this.UIErrortryingtoconnectWindow1.UIErrortryingtoconnectText;
+            #endregion
+
+            // Verify that the 'DisplayText' property of 'Error trying to connect to null No such host is kn...' label equals 'Error trying to connect to null
+            //
+            //No such host is known'
+            Assert.AreEqual(this.AssertFailedConnectCollaborationExpectedValues.UIErrortryingtoconnectTextDisplayText, uIErrortryingtoconnectText.DisplayText);
+        }
+        
+        /// <summary>
+        /// Can Fail to connect
+        /// </summary>
+        public void ConnectToLocalHostCollaboration()
+        {
+            #region Variable Declarations
+            WinMenuItem uICollaborateMenuItem = this.UISpreadsheetuntitledWindow2.UIMenuStrip1MenuBar.UICollaborateMenuItem;
+            WinEdit uITxtAddressEdit = this.UICollaborateWindow.UITxtAddressWindow.UITxtAddressEdit;
+            WinButton uIConnectButton = this.UICollaborateWindow.UIConnectWindow.UIConnectButton;
+            #endregion
+
+            // Click 'Collaborate' menu item
+            Mouse.Click(uICollaborateMenuItem, new Point(25, 4));
+
+            // Type '127.0.0.1' in 'txtAddress' text box
+            uITxtAddressEdit.Text = this.ConnectToLocalHostCollaborationParams.UITxtAddressEditText;
+
+            // Click 'Connect' button
+            Mouse.Click(uIConnectButton, new Point(53, 10));
+        }
+        
+        /// <summary>
+        /// AssertConnectedToLocalhostCollaboration - Use 'AssertConnectedToLocalhostCollaborationExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void AssertConnectedToLocalhostCollaboration()
+        {
+            #region Variable Declarations
+            WinText uISuccessfullyconnecteText = this.UISuccessWindow.UISuccessfullyconnecteWindow.UISuccessfullyconnecteText;
+            #endregion
+
+            // Verify that the 'DisplayText' property of 'Successfully connected to 127.0.0.1' label equals 'Successfully connected to 127.0.0.1'
+            Assert.AreEqual(this.AssertConnectedToLocalhostCollaborationExpectedValues.UISuccessfullyconnecteTextDisplayText, uISuccessfullyconnecteText.DisplayText);
+        }
+        
         #region Properties
         public virtual AssertAboutDialogOpenExpectedValues AssertAboutDialogOpenExpectedValues
         {
@@ -967,6 +1037,54 @@ namespace UITests
             }
         }
         
+        public virtual TryJoinNullCollaborationParams TryJoinNullCollaborationParams
+        {
+            get
+            {
+                if ((this.mTryJoinNullCollaborationParams == null))
+                {
+                    this.mTryJoinNullCollaborationParams = new TryJoinNullCollaborationParams();
+                }
+                return this.mTryJoinNullCollaborationParams;
+            }
+        }
+        
+        public virtual AssertFailedConnectCollaborationExpectedValues AssertFailedConnectCollaborationExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertFailedConnectCollaborationExpectedValues == null))
+                {
+                    this.mAssertFailedConnectCollaborationExpectedValues = new AssertFailedConnectCollaborationExpectedValues();
+                }
+                return this.mAssertFailedConnectCollaborationExpectedValues;
+            }
+        }
+        
+        public virtual ConnectToLocalHostCollaborationParams ConnectToLocalHostCollaborationParams
+        {
+            get
+            {
+                if ((this.mConnectToLocalHostCollaborationParams == null))
+                {
+                    this.mConnectToLocalHostCollaborationParams = new ConnectToLocalHostCollaborationParams();
+                }
+                return this.mConnectToLocalHostCollaborationParams;
+            }
+        }
+        
+        public virtual AssertConnectedToLocalhostCollaborationExpectedValues AssertConnectedToLocalhostCollaborationExpectedValues
+        {
+            get
+            {
+                if ((this.mAssertConnectedToLocalhostCollaborationExpectedValues == null))
+                {
+                    this.mAssertConnectedToLocalhostCollaborationExpectedValues = new AssertConnectedToLocalhostCollaborationExpectedValues();
+                }
+                return this.mAssertConnectedToLocalhostCollaborationExpectedValues;
+            }
+        }
+        
         public UISpreadsheetuntitledWindow UISpreadsheetuntitledWindow
         {
             get
@@ -1122,6 +1240,30 @@ namespace UITests
                 return this.mUIAboutWindow1;
             }
         }
+        
+        public UISpreadsheetuntitledWindow2 UISpreadsheetuntitledWindow2
+        {
+            get
+            {
+                if ((this.mUISpreadsheetuntitledWindow2 == null))
+                {
+                    this.mUISpreadsheetuntitledWindow2 = new UISpreadsheetuntitledWindow2();
+                }
+                return this.mUISpreadsheetuntitledWindow2;
+            }
+        }
+        
+        public UIErrortryingtoconnectWindow1 UIErrortryingtoconnectWindow1
+        {
+            get
+            {
+                if ((this.mUIErrortryingtoconnectWindow1 == null))
+                {
+                    this.mUIErrortryingtoconnectWindow1 = new UIErrortryingtoconnectWindow1();
+                }
+                return this.mUIErrortryingtoconnectWindow1;
+            }
+        }
         #endregion
         
         #region Fields
@@ -1179,6 +1321,14 @@ namespace UITests
         
         private SaveSpreadsheetParams mSaveSpreadsheetParams;
         
+        private TryJoinNullCollaborationParams mTryJoinNullCollaborationParams;
+        
+        private AssertFailedConnectCollaborationExpectedValues mAssertFailedConnectCollaborationExpectedValues;
+        
+        private ConnectToLocalHostCollaborationParams mConnectToLocalHostCollaborationParams;
+        
+        private AssertConnectedToLocalhostCollaborationExpectedValues mAssertConnectedToLocalhostCollaborationExpectedValues;
+        
         private UISpreadsheetuntitledWindow mUISpreadsheetuntitledWindow;
         
         private UISavethespreadsheetWindow mUISavethespreadsheetWindow;
@@ -1204,6 +1354,10 @@ namespace UITests
         private UIHelpWindow1 mUIHelpWindow1;
         
         private UIAboutWindow1 mUIAboutWindow1;
+        
+        private UISpreadsheetuntitledWindow2 mUISpreadsheetuntitledWindow2;
+        
+        private UIErrortryingtoconnectWindow1 mUIErrortryingtoconnectWindow1;
         #endregion
     }
     
@@ -1742,6 +1896,68 @@ namespace UITests
         /// Select 'garbage.sprd' in 'File name:' combo box
         /// </summary>
         public string UIFilenameComboBoxEditableItem = "garbage.sprd";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'TryJoinNullCollaboration'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class TryJoinNullCollaborationParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type 'null' in 'txtAddress' text box
+        /// </summary>
+        public string UITxtAddressEditText = "null";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertFailedConnectCollaboration'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertFailedConnectCollaborationExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'DisplayText' property of 'Error trying to connect to null No such host is kn...' label equals 'Error trying to connect to null
+        ///
+        ///No such host is known'
+        /// </summary>
+        public string UIErrortryingtoconnectTextDisplayText = "Error trying to connect to null\n\nNo such host is known";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'ConnectToLocalHostCollaboration'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class ConnectToLocalHostCollaborationParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '127.0.0.1' in 'txtAddress' text box
+        /// </summary>
+        public string UITxtAddressEditText = "127.0.0.1";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'AssertConnectedToLocalhostCollaboration'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class AssertConnectedToLocalhostCollaborationExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'DisplayText' property of 'Successfully connected to 127.0.0.1' label equals 'Successfully connected to 127.0.0.1'
+        /// </summary>
+        public string UISuccessfullyconnecteTextDisplayText = "Successfully connected to 127.0.0.1";
         #endregion
     }
     
@@ -2955,6 +3171,18 @@ namespace UITests
                 return this.mUITxtAddressWindow;
             }
         }
+        
+        public UIConnectWindow UIConnectWindow
+        {
+            get
+            {
+                if ((this.mUIConnectWindow == null))
+                {
+                    this.mUIConnectWindow = new UIConnectWindow(this);
+                }
+                return this.mUIConnectWindow;
+            }
+        }
         #endregion
         
         #region Fields
@@ -2963,6 +3191,8 @@ namespace UITests
         private UIHostCollaborationWindow mUIHostCollaborationWindow;
         
         private UITxtAddressWindow mUITxtAddressWindow;
+        
+        private UIConnectWindow mUIConnectWindow;
         #endregion
     }
     
@@ -3057,6 +3287,42 @@ namespace UITests
     }
     
     [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UIConnectWindow : WinWindow
+    {
+        
+        public UIConnectWindow(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.ControlName] = "button2";
+            this.WindowTitles.Add("Collaborate");
+            #endregion
+        }
+        
+        #region Properties
+        public WinButton UIConnectButton
+        {
+            get
+            {
+                if ((this.mUIConnectButton == null))
+                {
+                    this.mUIConnectButton = new WinButton(this);
+                    #region Search Criteria
+                    this.mUIConnectButton.SearchProperties[WinButton.PropertyNames.Name] = "Connect";
+                    this.mUIConnectButton.WindowTitles.Add("Collaborate");
+                    #endregion
+                }
+                return this.mUIConnectButton;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinButton mUIConnectButton;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
     public class UISuccessWindow : WinWindow
     {
         
@@ -3081,10 +3347,24 @@ namespace UITests
                 return this.mUIOKWindow;
             }
         }
+        
+        public UISuccessfullyconnecteWindow UISuccessfullyconnecteWindow
+        {
+            get
+            {
+                if ((this.mUISuccessfullyconnecteWindow == null))
+                {
+                    this.mUISuccessfullyconnecteWindow = new UISuccessfullyconnecteWindow(this);
+                }
+                return this.mUISuccessfullyconnecteWindow;
+            }
+        }
         #endregion
         
         #region Fields
         private UIOKWindow mUIOKWindow;
+        
+        private UISuccessfullyconnecteWindow mUISuccessfullyconnecteWindow;
         #endregion
     }
     
@@ -3121,6 +3401,42 @@ namespace UITests
         
         #region Fields
         private WinButton mUIOKButton;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UISuccessfullyconnecteWindow : WinWindow
+    {
+        
+        public UISuccessfullyconnecteWindow(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.ControlId] = "65535";
+            this.WindowTitles.Add("Success!");
+            #endregion
+        }
+        
+        #region Properties
+        public WinText UISuccessfullyconnecteText
+        {
+            get
+            {
+                if ((this.mUISuccessfullyconnecteText == null))
+                {
+                    this.mUISuccessfullyconnecteText = new WinText(this);
+                    #region Search Criteria
+                    this.mUISuccessfullyconnecteText.SearchProperties[WinText.PropertyNames.Name] = "Successfully connected to 127.0.0.1";
+                    this.mUISuccessfullyconnecteText.WindowTitles.Add("Success!");
+                    #endregion
+                }
+                return this.mUISuccessfullyconnecteText;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinText mUISuccessfullyconnecteText;
         #endregion
     }
     
@@ -3365,6 +3681,110 @@ namespace UITests
         
         #region Fields
         private WinTitleBar mUIAboutTitleBar;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UISpreadsheetuntitledWindow2 : WinWindow
+    {
+        
+        public UISpreadsheetuntitledWindow2()
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.Name] = "Spreadsheet - untitled*";
+            this.SearchProperties.Add(new PropertyExpression(WinWindow.PropertyNames.ClassName, "WindowsForms10.Window", PropertyExpressionOperator.Contains));
+            this.WindowTitles.Add("Spreadsheet - untitled*");
+            #endregion
+        }
+        
+        #region Properties
+        public UIMenuStrip1MenuBar3 UIMenuStrip1MenuBar
+        {
+            get
+            {
+                if ((this.mUIMenuStrip1MenuBar == null))
+                {
+                    this.mUIMenuStrip1MenuBar = new UIMenuStrip1MenuBar3(this);
+                }
+                return this.mUIMenuStrip1MenuBar;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private UIMenuStrip1MenuBar3 mUIMenuStrip1MenuBar;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UIMenuStrip1MenuBar3 : WinMenuBar
+    {
+        
+        public UIMenuStrip1MenuBar3(UITestControl searchLimitContainer) : 
+                base(searchLimitContainer)
+        {
+            #region Search Criteria
+            this.SearchProperties[WinMenu.PropertyNames.Name] = "menuStrip1";
+            this.WindowTitles.Add("Spreadsheet - untitled*");
+            #endregion
+        }
+        
+        #region Properties
+        public WinMenuItem UICollaborateMenuItem
+        {
+            get
+            {
+                if ((this.mUICollaborateMenuItem == null))
+                {
+                    this.mUICollaborateMenuItem = new WinMenuItem(this);
+                    #region Search Criteria
+                    this.mUICollaborateMenuItem.SearchProperties[WinMenuItem.PropertyNames.Name] = "Collaborate";
+                    this.mUICollaborateMenuItem.WindowTitles.Add("Spreadsheet - untitled*");
+                    #endregion
+                }
+                return this.mUICollaborateMenuItem;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinMenuItem mUICollaborateMenuItem;
+        #endregion
+    }
+    
+    [GeneratedCode("Coded UITest Builder", "14.0.23107.0")]
+    public class UIErrortryingtoconnectWindow1 : WinWindow
+    {
+        
+        public UIErrortryingtoconnectWindow1()
+        {
+            #region Search Criteria
+            this.SearchProperties[WinWindow.PropertyNames.Name] = "Error trying to connect to null\n\nNo such host is known";
+            this.SearchProperties[WinWindow.PropertyNames.ClassName] = "Static";
+            this.WindowTitles.Add("Error trying to connect to null\n\nNo such host is known");
+            #endregion
+        }
+        
+        #region Properties
+        public WinText UIErrortryingtoconnectText
+        {
+            get
+            {
+                if ((this.mUIErrortryingtoconnectText == null))
+                {
+                    this.mUIErrortryingtoconnectText = new WinText(this);
+                    #region Search Criteria
+                    this.mUIErrortryingtoconnectText.SearchProperties[WinText.PropertyNames.Name] = "Error trying to connect to nullNo such host is known";
+                    this.mUIErrortryingtoconnectText.WindowTitles.Add("Error trying to connect to null\n\nNo such host is known");
+                    #endregion
+                }
+                return this.mUIErrortryingtoconnectText;
+            }
+        }
+        #endregion
+        
+        #region Fields
+        private WinText mUIErrortryingtoconnectText;
         #endregion
     }
 }
