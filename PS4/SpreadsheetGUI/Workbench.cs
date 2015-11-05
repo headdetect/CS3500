@@ -163,6 +163,7 @@ namespace SpreadsheetGUI
             if (result != DialogResult.OK && result != DialogResult.Yes) return;
 
             //TODO: Ask user if they want to save if changed == true.
+            SaveIfChanged(sender, e);
 
             FileName = openFileDialog.FileName;
             LoadFile();
@@ -375,7 +376,7 @@ namespace SpreadsheetGUI
                             MessageBox.Show("Invalid formula!"); // both messageboxes keep popping up twice
                         });
                     }
-}
+                }
                 
             });
         }
@@ -535,8 +536,25 @@ namespace SpreadsheetGUI
 
         private void Workbench_FormClosing(object sender, FormClosingEventArgs e)
         {
+            SaveIfChanged(sender, e);
+
             Program.Client?.Disconnect();
             Program.StopNetworkTransactions();
         }
+
+        private void SaveIfChanged(object sender, EventArgs e)
+        {
+            if (Changed)
+            {
+                DialogResult result = MessageBox.Show("Do you want to save your spreadsheet?",
+                    "You have made changes to " + FileName, MessageBoxButtons.YesNo);
+
+                if (result == DialogResult.Yes)
+                {
+                    saveToolStripMenuItem_Click(sender, e);
+                }
+            }
+        }
+
     }
 }
