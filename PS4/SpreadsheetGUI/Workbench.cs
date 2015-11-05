@@ -19,6 +19,11 @@ using SS;
 
 namespace SpreadsheetGUI
 {
+
+    /// <summary>
+    /// Program displays a GUI spreadsheet that users can populate with numbers, text, or formulas.
+    /// Allows users to connect to each other over the internet to collaborate on a spreadsheet.
+    /// </summary>
     public partial class Workbench : Form
     {
         /// <summary>
@@ -41,10 +46,15 @@ namespace SpreadsheetGUI
         /// </summary>
         public bool Changed => Spreadsheet != null && Spreadsheet.Changed;
 
+        // normalizes all cell names passed in into uppercase.
         private readonly Func<string, string> _normalizer = s => s.ToUpper();
         private SpreadsheetCoord _previouSpreadsheetCoord = SpreadsheetCoord.Invalid;
         private readonly object _spreadsheetLock = new object();
 
+        /// <summary>
+        /// Program initially loads an empty spreadsheet.
+        /// </summary>
+        /// <param name="fileName"></param>
         public Workbench(string fileName = "")
         {
             InitializeComponent();
@@ -60,8 +70,11 @@ namespace SpreadsheetGUI
             Packet.PacketRecieved += Packet_PacketRecieved;
         }
 
-
-
+        /// <summary>
+        /// Detects when user recieves new information from a collaborator over the internet.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Packet_PacketRecieved(object sender, Packet.PacketEventArgs e)
         {
             if (e.Packet is PacketCellUpdate)
@@ -101,6 +114,11 @@ namespace SpreadsheetGUI
             }
         }
 
+        /// <summary>
+        /// Detects when a remote client has left the online session.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void RemoteClient_ClientLeft(object sender, ClientConnectionEventArgs e)
         {
             DoForegroundWork(() =>
@@ -109,6 +127,10 @@ namespace SpreadsheetGUI
             });
         }
 
+        /// <summary>
+        /// Handles when a different cell has been selected.
+        /// </summary>
+        /// <param name="sender"></param>
         private void spreadsheetPanel_SelectionChanged(SS.SpreadsheetPanel sender)
         {
             var selected = sender.GetSelection();
@@ -149,14 +171,27 @@ namespace SpreadsheetGUI
             SetTitle();
         }
 
+        /// <summary>
+        /// Handles when the user decides to create a new spreadsheet.
+        /// Will ask user if they wish to save current changes.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //TODO: Ask user if they want to save if Changes == true
+            //Ask user if they want to save if Changes == true
+            SaveIfChanged(e);
 
             FileName = string.Empty;
             LoadFile();
         }
 
+        /// <summary>
+        /// Handles when a user decides to open an existing .sprd file.
+        /// Will ask user if they wish to save current changes.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var openFileDialog = new OpenFileDialog();
@@ -165,14 +200,17 @@ namespace SpreadsheetGUI
 
             if (result != DialogResult.OK && result != DialogResult.Yes) return;
 
-            //TODO: Ask user if they want to save if changed == true.
+            //Ask user if they want to save if changed == true.
             SaveIfChanged(e);
 
             FileName = openFileDialog.FileName;
             LoadFile();
         }
 
-
+        /// <summary>
+        /// This method is used to populate cells in the spreadsheet from an existing .sprd file
+        /// on the users file system.
+        /// </summary>
         private void LoadFile()
         {
             DoBackgroundWork(handler =>
@@ -222,6 +260,10 @@ namespace SpreadsheetGUI
             });
         }
 
+        /// <summary>
+        /// Used to do operations on the underlying business logic thread.
+        /// </summary>
+        /// <param name="work"></param>
         private void DoBackgroundWork(Action<DoWorkEventArgs> work)
         {
             var b = new BackgroundWorker();
@@ -231,6 +273,10 @@ namespace SpreadsheetGUI
 
         private static readonly object ForegroundLock = new object();
 
+        /// <summary>
+        /// Used to do operations on the GUI thread.
+        /// </summary>
+        /// <param name="work"></param>
         private void DoForegroundWork(Action work)
         {
             try
@@ -270,6 +316,11 @@ namespace SpreadsheetGUI
             });
         }
 
+        /// <summary>
+        /// Handles when a user decides to save their current spreadsheet to an .sprd file.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (IsUntitled)
@@ -283,6 +334,11 @@ namespace SpreadsheetGUI
             SetTitle();
         }
 
+        /// <summary>
+        /// Handles when a user decides to save their spreadsheet to a new .sprd file.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var saveDialog = new SaveFileDialog
@@ -302,11 +358,22 @@ namespace SpreadsheetGUI
             SetTitle();
         }
 
+        /// <summary>
+        /// Handles when a user clicks exit on the file menu.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
         }
 
+        /// <summary>
+        /// Handles when the user clicks the update button after passing in numbers,
+        /// text, or a formula into the textbox.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void updateButton_Click(object sender, EventArgs e)
         {
             //TODO formulas
@@ -322,6 +389,11 @@ namespace SpreadsheetGUI
             catch { }
         }
 
+        /// <summary>
+        /// Used to send new cell contents to other user online.
+        /// </summary>
+        /// <param name="selectedCoord"></param>
+        /// <param name="text"></param>
         private void SendCellUpdate(SpreadsheetCoord selectedCoord, string text)
         {
             // Do networking stuff //
@@ -331,6 +403,11 @@ namespace SpreadsheetGUI
             Program.Server?.Clients.ForEach(client => client.PacketWriter.EnqueuePacket(packet)); // Will send to all clients (should just be 1) if there's clients //
         }
 
+        /// <summary>
+        /// Provides functionality to update the content and value of a cell after text has been passed in.
+        /// </summary>
+        /// <param name="coord"></param>
+        /// <param name="text"></param>
         private void InvokeCellUpdate(SpreadsheetCoord coord, string text)
         {
             DoBackgroundWork(arg =>
@@ -402,6 +479,11 @@ namespace SpreadsheetGUI
             });
         }
 
+        /// <summary>
+        /// Handles when user pushes the arrow keys, enter, esc, or tab.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void cellContentTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             var arrows = new[] { Keys.Left, Keys.Right, Keys.Up, Keys.Down };
@@ -474,11 +556,21 @@ namespace SpreadsheetGUI
 
         }
 
+        /// <summary>
+        /// Reverts changes to a cell's contents.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void cancelButton_Click(object sender, EventArgs e)
         {
             cellContentTextBox.Clear();
         }
 
+        /// <summary>
+        /// When text is changed, set selected cell with new text.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void cellContentTextBox_TextChanged(object sender, EventArgs e)
         {
             spreadsheetPanel.SetSelectedValue(cellContentTextBox.Text);
@@ -500,6 +592,10 @@ namespace SpreadsheetGUI
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
+        /// <summary>
+        /// Handles when keys pressed are the arrow keys.
+        /// </summary>
+        /// <param name="keyData"></param>
         private void HandleKeyPress(Keys keyData)
         {
             var oldCoord = spreadsheetPanel.GetSelection();
@@ -522,16 +618,31 @@ namespace SpreadsheetGUI
             spreadsheetPanel_SelectionChanged(spreadsheetPanel); // Not sure why this isn't called //
         }
 
+        /// <summary>
+        /// Gives user information about the creation of this program.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show(Resources.AboutUs, @"About", MessageBoxButtons.OK);
         }
 
+        /// <summary>
+        /// Provides basic instructions on how to use the spreadsheet.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void helpToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show(Resources.Help, @"Help", MessageBoxButtons.OK, MessageBoxIcon.Question);
         }
 
+        /// <summary>
+        /// Functionality for when user wishes to connect with another user over the internet.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void connectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var wasNull = Program.Client == null;
@@ -554,6 +665,11 @@ namespace SpreadsheetGUI
 
         }
 
+        /// <summary>
+        /// Handles when the program is being closed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Workbench_FormClosing(object sender, FormClosingEventArgs e)
         {
             SaveIfChanged(e);
@@ -562,6 +678,12 @@ namespace SpreadsheetGUI
             Program.StopNetworkTransactions();
         }
 
+
+        /// <summary>
+        /// Prompts user if they wish to save their changes when they try to close program or load
+        /// a new or different spreadsheet.
+        /// </summary>
+        /// <param name="e"></param>
         private void SaveIfChanged(EventArgs e)
         {
             if (!Changed) return;
