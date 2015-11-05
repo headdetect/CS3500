@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using RemoteLib.Net;
 using SpreadsheetGUI.Networking.Packets;
+using SpreadsheetGUI.Properties;
 using SpreadsheetUtilities;
 using SS;
 
@@ -59,7 +60,7 @@ namespace SpreadsheetGUI
             Packet.PacketRecieved += Packet_PacketRecieved;
         }
 
-        
+
 
         private void Packet_PacketRecieved(object sender, Packet.PacketEventArgs e)
         {
@@ -107,7 +108,7 @@ namespace SpreadsheetGUI
                 spreadsheetPanel.SetOtherSelection(-1, -1); // Hide it from the spreadsheet //
             });
         }
-        
+
         private void spreadsheetPanel_SelectionChanged(SS.SpreadsheetPanel sender)
         {
             var selected = sender.GetSelection();
@@ -165,7 +166,7 @@ namespace SpreadsheetGUI
             if (result != DialogResult.OK && result != DialogResult.Yes) return;
 
             //TODO: Ask user if they want to save if changed == true.
-            SaveIfChanged(sender, e);
+            SaveIfChanged(e);
 
             FileName = openFileDialog.FileName;
             LoadFile();
@@ -315,8 +316,8 @@ namespace SpreadsheetGUI
                 var selectedCoord = spreadsheetPanel.GetSelection();
                 InvokeCellUpdate(selectedCoord, cellContentTextBox.Text);
                 SendCellUpdate(selectedCoord, cellContentTextBox.Text);
-                
-                
+
+
             }
             catch { }
         }
@@ -337,12 +338,14 @@ namespace SpreadsheetGUI
                 var cell = coord.CellName;
                 var value = Spreadsheet.GetCellValue(cell);
 
+                if (text == (string) value) return; // Cell never changed // 
+
                 // Spreadsheet isn't threadsafe by design //
                 lock (_spreadsheetLock)
                 {
                     try
                     {
-                        Spreadsheet.SetContentsOfCell(cell, text);
+                        var toUpdate = Spreadsheet.SetContentsOfCell(cell, text);
                         var newValue = Spreadsheet.GetCellValue(cell);
 
                         // Check for invalid formulas
@@ -359,8 +362,21 @@ namespace SpreadsheetGUI
 
                             return;
                         }
-
+                        
                         DoForegroundWork(() => spreadsheetPanel.SetValue(coord.Column, coord.Row, newValue.ToString()));
+
+                        foreach (var cellToUpdate in toUpdate.Where(mCell => mCell != cell))
+                        {
+                            var cellContent = Spreadsheet.GetCellContents(cellToUpdate);
+
+                            if (cellContent is string || cellContent is double)
+                                cellContent = cellContent.ToString();
+
+                            if (cellContent is Formula)
+                                cellContent = $"={cellContent}";
+                            
+                            InvokeCellUpdate(SpreadsheetPanelHelpers.GetCoordFromCellName(cellToUpdate), cellContent.ToString());
+                        }
                     }
                     catch (CircularException)
                     {
@@ -508,27 +524,12 @@ namespace SpreadsheetGUI
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //(new About()).ShowDialog();
-            MessageBox.Show(
-                "This spreadsheet application was created by Brayden Lopez and Eric Miramontes " +
-                "in November, 2015"
-                , "About", MessageBoxButtons.OK);
+            MessageBox.Show(Resources.AboutUs, @"About", MessageBoxButtons.OK);
         }
 
         private void helpToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //(new Help()).ShowDialog();
-            MessageBox.Show(
-                "This spreadsheet application lets users enter information into a grid of cells.  \n" +
-                "You can use the mouse, arrow keys, or the tab key to navigate between cells.  \n" +
-                "To enter in words or numbers into cells, type it into the textbox at the top of " +
-                "the grid.  \n" + 
-                "To enter a formula, type \"=\" and then your formula, and then either " +
-                "hit enter or click the checkmarked box. To cancel, click the button with the \"x\".  \n" +
-                "You may use cells that have numeric values in your formulas.  \n" + 
-                "In the file menu, you can create a new spreadsheet, open an existing one, or save " + 
-                "your current spreadsheet to your file system.  "
-                , "Help", MessageBoxButtons.OK);
+            MessageBox.Show(Resources.Help, @"Help", MessageBoxButtons.OK, MessageBoxIcon.Question);
         }
 
         private void connectToolStripMenuItem_Click(object sender, EventArgs e)
@@ -543,7 +544,6 @@ namespace SpreadsheetGUI
                 FileName = string.Empty;
                 LoadFile();
 
-
                 // Do networking stuff //
                 var packet = new PacketSpreadsheetReady();
 
@@ -556,24 +556,24 @@ namespace SpreadsheetGUI
 
         private void Workbench_FormClosing(object sender, FormClosingEventArgs e)
         {
-            SaveIfChanged(sender, e);
+            SaveIfChanged(e);
 
             Program.Client?.Disconnect();
             Program.StopNetworkTransactions();
         }
 
-        private void SaveIfChanged(object sender, EventArgs e)
+        private void SaveIfChanged(EventArgs e)
         {
-            if (Changed)
-            {
-                DialogResult result = MessageBox.Show("Do you want to save your spreadsheet?",
-                    "You have made changes to " + FileName, MessageBoxButtons.YesNo);
+            if (!Changed) return;
 
-                if (result == DialogResult.Yes)
-                {
-                    saveToolStripMenuItem_Click(sender, e);
-                }
-            }
+            var result = MessageBox.Show(@"Do you want to save your spreadsheet?", $"You have made changes to {FileName}", MessageBoxButtons.YesNoCancel);
+
+            if (result == DialogResult.Yes)
+                saveToolStripMenuItem_Click(this, e);
+
+
+            if (result == DialogResult.Cancel && e is CancelEventArgs)
+                ((CancelEventArgs)e).Cancel = true;
         }
 
     }

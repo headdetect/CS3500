@@ -61,6 +61,39 @@ namespace SpreadsheetGUI.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 
+        ///      This spreadsheet application was created by 
+        ///      
+        ///      Brayden Lopez 
+        ///      Eric Miramontes 
+        ///      
+        ///      November 2015 - CS3500 - University of Utah.
+        /// </summary>
+        internal static string AboutUs {
+            get {
+                return ResourceManager.GetString("AboutUs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 
+        ///This spreadsheet application lets users enter information into a grid of cells. These cells can be related to each other.
+        ///
+        ///You can use the mouse, arrow keys, or the tab key to navigate between cells. 
+        ///
+        ///To enter in words or numbers into cells, type it into the textbox at the top of the grid after selecting a cell.
+        ///
+        ///To enter a formula, type &quot;=&quot; and then your formula, and then either hit enter or click the checkmarked box. To cancel, click the button with the &quot;x&quot;.  
+        ///
+        ///You may use cells that have numer [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string Help {
+            get {
+                return ResourceManager.GetString("Help", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Spreadsheet - untitled*.
         /// </summary>
         internal static string Workbench_Workbench_Load_Spreadsheet___untitled_ {

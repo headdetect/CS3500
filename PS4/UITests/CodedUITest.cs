@@ -189,7 +189,7 @@ namespace UITests
         [TestCleanup()]
         public void MyTestCleanup()
         {
-            //proc?.Close();
+            proc?.Close();
         }
 
         #endregion
