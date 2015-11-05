@@ -503,12 +503,27 @@ namespace SpreadsheetGUI
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            (new About()).ShowDialog();
+            //(new About()).ShowDialog();
+            MessageBox.Show(
+                "This spreadsheet application was created by Brayden Lopez and Eric Miramontes " +
+                "in November, 2015"
+                , "About", MessageBoxButtons.OK);
         }
 
         private void helpToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            (new Help()).ShowDialog();
+            //(new Help()).ShowDialog();
+            MessageBox.Show(
+                "This spreadsheet application lets users enter information into a grid of cells.  \n" +
+                "You can use the mouse, arrow keys, or the tab key to navigate between cells.  \n" +
+                "To enter in words or numbers into cells, type it into the textbox at the top of " +
+                "the grid.  \n" + 
+                "To enter a formula, type \"=\" and then your formula, and then either " +
+                "hit enter or click the checkmarked box. To cancel, click the button with the \"x\".  \n" +
+                "You may use cells that have numeric values in your formulas.  \n" + 
+                "In the file menu, you can create a new spreadsheet, open an existing one, or save " + 
+                "your current spreadsheet to your file system.  "
+                , "Help", MessageBoxButtons.OK);
         }
 
         private void connectToolStripMenuItem_Click(object sender, EventArgs e)
