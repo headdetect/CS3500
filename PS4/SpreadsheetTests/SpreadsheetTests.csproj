@@ -35,6 +35,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Formula, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Resources\Libraries\Formula.dll</HintPath>
+    </Reference>
+    <Reference Include="Spreadsheet, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Resources\Libraries\Spreadsheet.dll</HintPath>
+    </Reference>
+    <Reference Include="SpreadsheetUtilities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Resources\Libraries\SpreadsheetUtilities.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -54,20 +66,6 @@
     <Compile Include="GradingTests.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\PS2\SpreadsheetUtilities\DependencyGraph.csproj">
-      <Project>{88acc46c-aaf9-4924-829e-2cf118c1f924}</Project>
-      <Name>DependencyGraph</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\PS3\Formula\Formula.csproj">
-      <Project>{1c0c48e7-d176-4e91-8e07-030157238d98}</Project>
-      <Name>Formula</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Spreadsheet\Spreadsheet.csproj">
-      <Project>{56eb475d-a2de-41a1-8206-095089aa8b1b}</Project>
-      <Name>Spreadsheet</Name>
-    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
