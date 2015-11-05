@@ -352,8 +352,15 @@ namespace SpreadsheetGUI
             var fileName = saveDialog.FileName;
             if (string.IsNullOrWhiteSpace(fileName)) return;
 
-            //TODO: Handle SpreadsheetReadWriteExceptions
-            Spreadsheet?.Save(fileName);
+            try
+            {
+                Spreadsheet?.Save(fileName);
+            }
+            catch (SpreadsheetReadWriteException ex)
+            {
+                MessageBox.Show(ex.Message, $"Error saving {fileName}", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
             FileName = fileName;
             SetTitle();
         }
@@ -415,7 +422,7 @@ namespace SpreadsheetGUI
                 var cell = coord.CellName;
                 var value = Spreadsheet.GetCellValue(cell);
 
-                if (text == (string) value) return; // Cell never changed // 
+                if (text == value.ToString()) return; // Cell never changed // 
 
                 // Spreadsheet isn't threadsafe by design //
                 lock (_spreadsheetLock)
@@ -692,8 +699,7 @@ namespace SpreadsheetGUI
 
             if (result == DialogResult.Yes)
                 saveToolStripMenuItem_Click(this, e);
-
-
+            
             if (result == DialogResult.Cancel && e is CancelEventArgs)
                 ((CancelEventArgs)e).Cancel = true;
         }
