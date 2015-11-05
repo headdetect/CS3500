@@ -67,7 +67,11 @@ namespace SpreadsheetGUI.Properties {
         ///      Brayden Lopez 
         ///      Eric Miramontes 
         ///      
-        ///      November 2015 - CS3500 - University of Utah.
+        ///      November 2015 - CS3500 - University of Utah
+        ///    
+        ///      Libraries Used:
+        ///      https://www.nuget.org/packages/RemoteLib/
+        ///    .
         /// </summary>
         internal static string AboutUs {
             get {
