@@ -441,6 +441,9 @@ namespace SS
             _cells[name].Content = text;
             _cells[name].Value = text;
 
+            // Remove dependees if any //
+            _depenencyManager.ReplaceDependents(name, Enumerable.Empty<string>());
+
             return new HashSet<string>(GetCellsToRecalculate(name));
         }
 
@@ -461,7 +464,10 @@ namespace SS
 
             _cells[name].Content = number;
             _cells[name].Value = number;
-            
+
+            // Remove dependees if any //
+            _depenencyManager.ReplaceDependents(name, Enumerable.Empty<string>());
+
             return new HashSet<string>(GetCellsToRecalculate(name));
         }
 

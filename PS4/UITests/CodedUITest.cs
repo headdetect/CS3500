@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
 using System.Windows.Forms;
@@ -81,7 +82,11 @@ namespace UITests
         {
             this.UIMap.FillSpreadsheet();
             this.UIMap.SaveSpreadsheet();
-            this.UIMap.AssertIsSaved();
+
+            this.UIMap.FillSpreadsheet();
+            this.UIMap.SimpleSaveSpreadsheet();
+
+            this.UIMap.AssertFileSaved();
 
         }
 
@@ -92,22 +97,100 @@ namespace UITests
             this.UIMap.SaveSpreadsheet();
         }
 
+        [TestMethod]
+        public void DoesStartCollaboration()
+        {
+            this.UIMap.HostCollaboration();
+            this.UIMap.OpenCollaborationToolBox();
+            this.UIMap.AssertHostingCollaborationStarted();
+        }
+
+
+        [TestMethod]
+        public void DoesJoinCollaboration()
+        {
+            this.UIMap.JoinNullCollaboration();
+            this.UIMap.AssertCantJoinCollaboration();
+        }
+
+
+
+        [TestMethod]
+        public void OpensAboutDialog()
+        {
+            this.UIMap.OpenAboutDialog();
+            this.UIMap.AssertAboutDialogOpen();
+        }
+
+        [TestMethod]
+        public void OpensHelpDialog()
+        {
+            this.UIMap.OpenHelpDialog();
+            this.UIMap.AssertHelpDialogOpen();
+        }
+
+        [TestMethod]
+        public void OpensHelpDialogFromF1()
+        {
+            this.UIMap.OpenHelpDialogF1();
+            this.UIMap.AssertHelpDialogOpen();
+        }
+
+        [TestMethod]
+        public void PressEscClearsForm()
+        {
+            this.UIMap.FillTextbox();
+            this.UIMap.PressEscOnTextbox();
+            this.UIMap.MoveToA1();
+            this.UIMap.AssertCellValueEmpty();
+            this.UIMap.AssertTextboxEmpty();
+        }
+
+        [TestMethod]
+        public void PressEnterOnTextbox()
+        {
+            this.UIMap.FillTextbox();
+            this.UIMap.PressEnterInTextbox();
+            this.UIMap.MoveToA1();
+            this.UIMap.AssertCellValueHello();
+        }
+
+        [TestMethod]
+        public void PressEx()
+        {
+            this.UIMap.FillTextbox();
+            this.UIMap.ClickXButton();
+            this.UIMap.MoveToA1();
+            this.UIMap.AssertCellValueEmpty();
+            this.UIMap.AssertTextboxEmpty();
+        }
+
+        [TestMethod]
+        public void PressCheck()
+        {
+            this.UIMap.FillTextbox();
+            this.UIMap.ClickCheckmark();
+            this.UIMap.MoveToA1();
+            this.UIMap.AssertCellValueHello();
+        }
 
         #region Additional test attributes
 
         // You can use the following additional attributes as you write your tests:
-        
+
+        private Process proc;
+
         [TestInitialize]
         public void PreTest()
         {
-            //TODO: Open executable here //
+            proc = Process.Start(Path.GetFullPath("../../../SpreadsheetGUI/bin/Debug/SpreadsheetGUI.exe"));
         }
 
         //Use TestCleanup to run code after each test has run
         [TestCleanup()]
         public void MyTestCleanup()
         {
-            //TODO: Close executable here //
+            proc?.Close();
         }
 
         #endregion

@@ -144,6 +144,8 @@ namespace SpreadsheetGUI
                 Program.Client?.PacketWriter.EnqueuePacket(packet); // Will send to server if client //
                 Program.Server?.Clients.ForEach(client => client.PacketWriter.EnqueuePacket(packet)); // Will send to all clients (should just be 1) if there's clients //
             });
+
+            SetTitle();
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -179,6 +181,8 @@ namespace SpreadsheetGUI
                     Spreadsheet = !string.IsNullOrWhiteSpace(FileName)
                         ? new Spreadsheet(FileName, s => Regex.IsMatch(s, @"[A-Z][0-9]{1,2}"), _normalizer)
                         : new Spreadsheet(s => Regex.IsMatch(s, @"[A-Z][0-9]{1,2}"), _normalizer);
+
+                    if (IsUntitled) Spreadsheet.SetContentsOfCell("A1", string.Empty); // Cause it to say that it's been changed //
                 }
                 catch (SpreadsheetReadWriteException)
                 {
@@ -311,6 +315,8 @@ namespace SpreadsheetGUI
                 var selectedCoord = spreadsheetPanel.GetSelection();
                 InvokeCellUpdate(selectedCoord, cellContentTextBox.Text);
                 SendCellUpdate(selectedCoord, cellContentTextBox.Text);
+                
+                
             }
             catch { }
         }
@@ -329,6 +335,7 @@ namespace SpreadsheetGUI
             DoBackgroundWork(arg =>
             {
                 var cell = coord.CellName;
+                var value = Spreadsheet.GetCellValue(cell);
 
                 // Spreadsheet isn't threadsafe by design //
                 lock (_spreadsheetLock)
@@ -336,32 +343,32 @@ namespace SpreadsheetGUI
                     try
                     {
                         Spreadsheet.SetContentsOfCell(cell, text);
-                        var value = Spreadsheet.GetCellValue(cell);
+                        var newValue = Spreadsheet.GetCellValue(cell);
 
                         // Check for invalid formulas
-                        if (value is FormulaError)
+                        if (newValue is FormulaError)
                         {
                             Spreadsheet.SetContentsOfCell(cell, "Invalid formula.");
-                            DoForegroundWork(() => 
+                            DoForegroundWork(() =>
                             {
-                                spreadsheetPanel.SetSelection(coord.Column, coord.Row);
-                                selCellLabel.Text = "Cell: " + coord.CellName;
-                                cellContentTextBox.Text = "Invalid formula!";
+                                selCellLabel.Text = $"Cell: {coord.CellName}";
+                                cellContentTextBox.Text = @"Invalid formula!";
                                 spreadsheetPanel.SetValue(coord.Column, coord.Row, "Invalid formula!");
                                 MessageBox.Show("Invalid formula!");
                             });
+
+                            return;
                         }
 
-                        DoForegroundWork(() => spreadsheetPanel.SetValue(coord.Column, coord.Row, value.ToString()));
+                        DoForegroundWork(() => spreadsheetPanel.SetValue(coord.Column, coord.Row, newValue.ToString()));
                     }
                     catch (CircularException)
                     {
                         DoForegroundWork(() =>
                         {
-                            spreadsheetPanel.SetSelection(coord.Column, coord.Row);
-                            selCellLabel.Text = "Cell: " + coord.CellName;
-                            Spreadsheet.SetContentsOfCell(cell, "=0"); //no clear way of removing this cell
-                            spreadsheetPanel.SetValue(coord.Column, coord.Row, "=0");
+                            selCellLabel.Text = $"Cell: {coord.CellName}";
+                            Spreadsheet.SetContentsOfCell(cell, value.ToString()); // Reset back //
+                            spreadsheetPanel.SetValue(coord.Column, coord.Row, value.ToString());
                             MessageBox.Show("You cannot have circular dependencies!");
                         });
                     }
@@ -369,15 +376,13 @@ namespace SpreadsheetGUI
                     {
                         DoForegroundWork(() =>
                         {
-                            spreadsheetPanel.SetSelection(coord.Column, coord.Row);
-                            selCellLabel.Text = "Cell: " + coord.CellName;
-                            cellContentTextBox.Text = "Invalid formula!";
+                            selCellLabel.Text = $"Cell: {coord.CellName}";
+                            cellContentTextBox.Text = @"Invalid formula!";
                             spreadsheetPanel.SetValue(coord.Column, coord.Row, "Invalid formula!");
-                            MessageBox.Show("Invalid formula!"); // both messageboxes keep popping up twice
+                            MessageBox.Show("Invalid formula!");
                         });
                     }
                 }
-                
             });
         }
 
