@@ -1,14 +1,16 @@
 # Spreadsheet
-### By Brayden Lopez and Team: "You buildin a little team there?"
+### By Brayden Lopez and Eric Miramontes - Team: "You buildin a little team there?"
 
 ## Designs
 At first I was going to go with a simple, implement the dependency graph, implement the formulas.
 Which is what I ended up going with, and it works.  
-The project (PS5) is set up as so:
+The project (PS6) is set up as so:
+- Spreadsheet Panel: Is a modified version that the Professor/TA's gave us. Has some neat features for the "_cool thing_" we've implemented
 - Spreadsheet Project: This is the project that connects all the pieces together.
 - Formula: This is the PS3 project that implements PS1 in a nice solid package.
 - DependencyGraph: This is the PS4 project that is used to show which cells depend on which cells.
 - Spreadhseet Tests: These are all the tests for the unified spreadsheet project.
+- UITests: A compiliation of Coded UI Tests.
 
 ## Notes:
 Make sure when compiling this project, you compile against VS2015. There's a bug (or a non-implemented feature. Probably just not implemented.) in the older versions:
@@ -31,7 +33,7 @@ internal OperationToken(char token) : this() {
 } 
 ```
 
-In addition. I've added default values for properties. So the following will only compile on VS 2015+
+In addition. I've added default values for properties. So, in addition (x2), the following will only compile on VS 2015+
 
 ```
 public static bool Changed {get; protected set;} = false
@@ -39,4 +41,7 @@ public static bool Changed {get; protected set;} = false
 
 On different version of VS, you need to assign the value in the constructor.
 
-In addition (x2). Every exception is a `SpreadsheetReadWriteException`. It's strange, but w/e.
+In addition (x3). Every spreadsheet IO based exception is a `SpreadsheetReadWriteException`. It's strange, but w/e.
+
+## Modules/Dependencies
+We used [RemoteSharp](https://www.nuget.org/packages/RemoteLib/) for our "_cool feature_"
