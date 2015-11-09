@@ -9,17 +9,19 @@ namespace Model
 {
     public class Cube
     {
-        public long uid { get; set; }
-        public Point coord { get; set; }
-        public Color color { get; set; }
-        public string name { get; set; }
-        public double mass { get; set; }
-        public bool isFood { get; set; }
+        public int Uid { get; set; }
+        public Point Coord { get; set; }
+        public Color Color { get; set; }
+        public string Name { get; set; }
+        public double Mass { get; set; }
+        public bool IsFood { get; set; }
 
-        public int Width => Math.Max(1, (int) (mass / 9));
-        public int Top => coord.Y;
-        public int Left => coord.X;
-        public int Right => coord.X + Width;
-        public int Bottom => coord.Y + Width;
+        public int Width => Math.Max(1, (int) (Mass / 9));
+        public int Height => Width;
+
+        public int Top => Coord.Y;
+        public int Left => Coord.X;
+        public int Right => Coord.X + Width;
+        public int Bottom => Coord.Y + Width;
     }
 }

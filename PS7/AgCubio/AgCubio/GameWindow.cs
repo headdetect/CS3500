@@ -8,32 +8,40 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Model;
+using Network_Controller;
 
 namespace AgCubio
 {
     public partial class GameWindow : Form
     {
-        private World world;
+        private readonly World _world;
+
+        private readonly NetworkManager _networkManager;
+
         public GameWindow()
         {
             InitializeComponent();
-            world = new World();
-            world.Cubes.Add(0, new Cube()
+            _world = new World();
+            _world.AddCube(new Cube
             {
-                color = Color.Aqua, coord = new Point(34, 67), mass = 90,
-                isFood = false, name = "hi", uid = 0
+                Color = Color.Aqua,
+                Coord = new Point(34, 67),
+                Mass = 90,
+                IsFood = false,
+                Name = "hi",
+                Uid = 0
             });
+
+            _networkManager = NetworkManager.Create();
         }
 
         private void GameWindow_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
             
-            foreach (KeyValuePair<int, Cube> cube in world.Cubes)
+            foreach (KeyValuePair<int, Cube> cube in _world.Cubes)
             {
-                Brush b = new SolidBrush(cube.Value.color);
-                g.FillRectangle(b, cube.Value.Left, cube.Value.Top, 
-                    cube.Value.Width, cube.Value.Width);
+                DrawCube(g, cube.Value);
             }
         }
 
@@ -41,5 +49,22 @@ namespace AgCubio
         {
 
         }
+
+
+        #region Drawing
+
+        /// <summary>
+        /// Draws the specified cube
+        /// </summary>
+        /// <param name="g">Graphics to draw the cube on</param>
+        /// <param name="cube">The cube to draw</param>
+        private void DrawCube(Graphics g, Cube cube)
+        {
+            Brush b = new SolidBrush(cube.Color);
+            g.FillRectangle(b, cube.Left, cube.Top,
+                cube.Width, cube.Width);
+        }
+
+        #endregion
     }
 }
