@@ -34,7 +34,7 @@ namespace AgCubio
 
             _networkManager = NetworkManager.Create();
         }
-
+        
         private void GameWindow_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
@@ -66,5 +66,73 @@ namespace AgCubio
         }
 
         #endregion
+
+
+        #region Utils
+
+        /// <summary>
+        /// Used to do operations on the underlying business logic thread.
+        /// </summary>
+        /// <param name="work"></param>
+        private void DoBackgroundWork(Action<DoWorkEventArgs> work)
+        {
+            var b = new BackgroundWorker();
+            b.DoWork += (sender, e) => work(e);
+            b.RunWorkerAsync();
+        }
+
+        private static readonly object ForegroundLock = new object();
+
+        /// <summary>
+        /// Used to do operations on the GUI thread.
+        /// </summary>
+        /// <param name="work"></param>
+        private void DoForegroundWork(Action work)
+        {
+            try
+            {
+                if (InvokeRequired)
+                {
+                    BeginInvoke(work);
+                }
+                else
+                {
+                    lock (ForegroundLock)
+                    {
+                        work();
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+        }
+
+        #endregion
+
+        private void GameWindow_Load(object sender, EventArgs e)
+        {
+            (new ConnectForm()).ShowDialog(this);
+
+            CheckConnected();
+        }
+
+        private void CheckConnected()
+        {
+            if (_networkManager.Client.Connected) return;
+
+            var result = MessageBox.Show(@"You must connect to a server to play AgCubio", @"Must connect to server",
+                MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
+
+            if (result == DialogResult.OK)
+            {
+                (new ConnectForm()).ShowDialog(this);
+                CheckConnected();
+            }
+
+            if (result == DialogResult.Cancel)
+                Close();
+        }
     }
 }

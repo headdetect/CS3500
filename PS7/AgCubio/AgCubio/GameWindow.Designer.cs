@@ -32,11 +32,13 @@
             // 
             // GameWindow
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(825, 575);
+            this.ClientSize = new System.Drawing.Size(619, 467);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "GameWindow";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.GameWindow_Load);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.GameWindow_Paint);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.GameWindow_MouseMove);
             this.ResumeLayout(false);
