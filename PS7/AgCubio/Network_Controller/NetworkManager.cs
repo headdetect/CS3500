@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Network_Controller
 {
     public class NetworkManager
     {
+        public Action<string> PacketListener;  
+
         private static NetworkManager _instanceNetworkManager;
 
         /// <summary>
@@ -31,15 +36,7 @@ namespace Network_Controller
         {
             Client = new TcpClient();
         }
-
-        /// <summary>
-        /// Creates a network instance.
-        /// </summary>
-        /// <returns>the initialized instance</returns>
-        public static NetworkManager Create()
-        {
-            return _instanceNetworkManager ?? (_instanceNetworkManager = new NetworkManager());
-        }
+        
 
         /// <summary>
         /// Gets the initialized instance.
@@ -55,16 +52,52 @@ namespace Network_Controller
         /// <summary>
         /// Connect to the specified server. <br />
         /// </summary>
+        /// <param name="name">Whacha name bruh?</param>
         /// <param name="address">Address to connect to</param>
         /// <param name="port">The port to bind on</param>
-        public static void Connect(string address, int port = 11000)
+        public static void Connect(string name, string address, int port = 11000)
         {
-            var manager = Get();
+            _instanceNetworkManager = new NetworkManager();
 
-            if (manager.Client.Connected)
-                manager.Client.Close();
+            var client = _instanceNetworkManager.Client;
 
-            manager.Client.Connect(address, port);
+            if (client.Connected)
+                client.Close();
+
+
+            client.Connect(address, port);
+
+            var bgWorker = new BackgroundWorker();
+            bgWorker.DoWork += BeginRead;
+            bgWorker.RunWorkerAsync();
+
+            var nameBytes = Encoding.UTF8.GetBytes(name);
+            client.GetStream().Write(nameBytes, 0, nameBytes.Length);
+        }
+
+        private static void BeginRead(object sender, DoWorkEventArgs doWorkEventArgs)
+        {
+            // If we're not connected, stop reading //
+            if (!_instanceNetworkManager.Socket.Connected) return;
+
+            var streamReader = _instanceNetworkManager.Client.GetStream();
+            var bytes = new List<byte>();
+            while (streamReader.CanRead)
+            {
+                var byteo = (byte) streamReader.ReadByte();
+                bytes.Add(byteo);
+
+                if (byteo == '\n')
+                {
+                    // Do something else //
+                    var result = Encoding.UTF8.GetString(bytes.ToArray());
+                    bytes.Clear();
+
+                    _instanceNetworkManager.PacketListener?.Invoke(result);
+                }
+
+                
+            }
         }
 
         /// <summary>

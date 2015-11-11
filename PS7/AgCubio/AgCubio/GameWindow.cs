@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -16,31 +17,20 @@ namespace AgCubio
     {
         private readonly World _world;
 
-        private readonly NetworkManager _networkManager;
+        private NetworkManager _networkManager;
 
         public GameWindow()
         {
             InitializeComponent();
             _world = new World();
-            _world.AddCube(new Cube
-            {
-                Color = Color.Aqua,
-                Coord = new Point(34, 67),
-                Mass = 90,
-                IsFood = false,
-                Name = "hi",
-                Uid = 0
-            });
-
-            _networkManager = NetworkManager.Create();
         }
-        
+
         private void GameWindow_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
             
-            foreach (KeyValuePair<int, Cube> cube in _world.Cubes)
-            {
+            lock(_world)
+            foreach (KeyValuePair<int, Cube> cube in _world.Cubes) { 
                 DrawCube(g, cube.Value);
             }
         }
@@ -115,7 +105,20 @@ namespace AgCubio
         {
             (new ConnectForm()).ShowDialog(this);
 
+            _networkManager = NetworkManager.Get();
             CheckConnected();
+
+            _networkManager.PacketListener = (stringy) =>
+            {
+                Cube bCube = Cube.FromJson(stringy);
+
+                Debug.WriteLine(stringy);
+
+                lock (_world)
+                    _world.UpdateCube(bCube);
+
+                DoForegroundWork(Invalidate);
+            };
         }
 
         private void CheckConnected()

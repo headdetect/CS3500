@@ -52,6 +52,16 @@ namespace Model
             Cubes?.Add(b.Uid, b);
         }
 
+        /// <summary>
+        /// Adds a cube to the world.
+        /// </summary>
+        /// <param name="b">The cube.</param>
+        public void UpdateCube(Cube b)
+        {
+            if (!Cubes.ContainsKey(b.Uid))
+                AddCube(b);
+            Cubes[b.Uid] = b;
+        }
 
     }
 }

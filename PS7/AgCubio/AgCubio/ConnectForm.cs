@@ -28,6 +28,12 @@ namespace AgCubio
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(txtName.Text))
+            {
+                MessageBox.Show("Please fill out the name field");
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(txtPort.Text) && !Regex.IsMatch(txtPort.Text, @"^\d$"))
             {
                 MessageBox.Show("Please enter a valid port");
@@ -36,6 +42,7 @@ namespace AgCubio
 
             var address = txtAddress.Text;
             var port = int.Parse(txtPort.Text);
+            var name = txtName.Text;
 
             lblStatus.Text = @"Connecting...";
             txtAddress.Enabled = false;
@@ -45,7 +52,7 @@ namespace AgCubio
             {
                 try
                 {
-                    NetworkManager.Connect(address, port);
+                    NetworkManager.Connect(name, address, port);
 
                     MessageBox.Show(@"Successfully connected!", @"Success", MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
