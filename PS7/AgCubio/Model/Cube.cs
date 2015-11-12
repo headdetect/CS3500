@@ -19,8 +19,8 @@ namespace Model
         /// <value>
         /// The parent uid.
         /// </value>
-        [JsonProperty("parentuid")]
-        public int ParentUid { get; set; }
+        [JsonProperty("team_id")]
+        public int TeamId { get; set; }
 
         /// <summary>
         /// Gets or sets the uid.

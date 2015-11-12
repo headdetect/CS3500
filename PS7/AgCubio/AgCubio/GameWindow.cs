@@ -19,6 +19,8 @@ namespace AgCubio
 
         private NetworkManager _networkManager;
 
+        public int myTeamId { get; set; }
+
         public GameWindow()
         {
             InitializeComponent();
@@ -137,5 +139,26 @@ namespace AgCubio
             if (result == DialogResult.Cancel)
                 Close();
         }
+
+        private void GameWindow_KeyDown(object sender, KeyEventArgs e)
+        {
+            //TODO: handle teamid
+            if (e.KeyCode == Keys.Space)
+            {
+                _world.SplitMyCubes(0); 
+            }
+
+            if (e.KeyCode == Keys.W)
+            {
+                _world.EjectMassFromMyCubes(0); 
+            }
+        }
+
+        private void GameWindow_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            
+        }
+
+        
     }
 }

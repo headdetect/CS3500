@@ -35,11 +35,13 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(619, 467);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "GameWindow";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.GameWindow_Load);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.GameWindow_Paint);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.GameWindow_KeyDown);
+            this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.GameWindow_KeyPress);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.GameWindow_MouseMove);
             this.ResumeLayout(false);
 

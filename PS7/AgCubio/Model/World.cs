@@ -67,18 +67,18 @@ namespace Model
         /// Adds a live cube with half the mass of the original to the world.
         /// </summary>
         /// <param name="cube"></param>
-        public void SplitMyCubes(int parentuid)
+        public void SplitMyCubes(int teamId)
         {
             foreach (Cube cube in Cubes.Values) //Iterate through cubes
             {
-                if (cube.ParentUid == parentuid) // If cube belongs to player
+                if (cube.TeamId == teamId) // If cube belongs to player
                 {
                     Cube newCube = new Cube();
                     cube.Mass /= 2; // Halve the cube's mass
 
                     newCube.Mass = cube.Mass; //Create a new, similar cube
                     newCube.IsFood = false;
-                    newCube.ParentUid = cube.ParentUid;
+                    newCube.TeamId = cube.TeamId;
                     newCube.Color = cube.Color;
                     UpdateCube(newCube);
                 }
@@ -89,9 +89,9 @@ namespace Model
         /// Ejects a food cube with one tenth the mass of the original
         /// </summary>
         /// <param name="cube"></param>
-        public void EjectMassFromMyCubes(int parentuid)
+        public void EjectMassFromMyCubes(int teamId)
         {
-            Cube cube = Cubes[parentuid]; // Original cube (equal uid and parent uid)
+            Cube cube = Cubes[teamId]; // Original cube (equal uid and team uid)
 
             Cube newCube = new Cube();
 
