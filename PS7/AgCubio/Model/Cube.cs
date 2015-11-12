@@ -55,9 +55,10 @@ namespace Model
         /// <value>
         /// The color.
         /// </value>
-        public Color Color {
+        public Color Color
+        {
             get { return Color.FromArgb(_color); }
-            set { _color = value.ToArgb();  }
+            set { _color = value.ToArgb(); }
         }
 
         /// <summary>
@@ -97,7 +98,7 @@ namespace Model
         /// <summary>
         /// Gets the width of the cube.
         /// </summary>
-        public int Width => Math.Max(1, (int)(Mass / 100));
+        public int Width => Math.Max(1, (int)(Mass / 250));
 
         /// <summary>
         /// Gets the height of the cube.
@@ -108,23 +109,25 @@ namespace Model
         /// <summary>
         /// Gets the top of the cube.
         /// </summary>
-        public int Top => (int) Y;
+        public int Top => (int)Y;
 
         /// <summary>
         /// Gets the left of the cube.
         /// </summary>
-        public int Left => (int) X;
+        public int Left => (int)X;
 
         /// <summary>
         /// Gets the right of the cube.
         /// </summary>
-        public int Right => (int) X + Width;
+        public int Right => (int)X + Width;
 
         /// <summary>
         /// Gets the bottom of the cube.
         /// </summary>
-        public int Bottom => (int) Y + Width;
-        
+        public int Bottom => (int)Y + Width;
+
+        public int CenterX => Width / 2 + Left;
+        public int CenterY => Height / 2 + Top;
 
         /// <summary>
         /// Gets a cube from json

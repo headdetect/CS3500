@@ -95,6 +95,8 @@ namespace Network_Controller
 
                 var packet = Encoding.UTF8.GetString(bytes).Substring(0, length);
 
+                Debug.WriteLine(packet);
+
                 chunky += packet;
                 
                 while (chunky.Contains("\n"))
@@ -106,7 +108,6 @@ namespace Network_Controller
                     chunky = chunky.Remove(0, newlineLocation + 1); // Remove trailing \n as well //
 
                     PacketListener?.Invoke(cubeChunk);
-
                 }
                 
             }

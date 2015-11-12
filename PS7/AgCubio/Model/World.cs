@@ -19,12 +19,12 @@ namespace Model
         /// <summary>
         /// The width of this world
         /// </summary>
-        public const int Width = 100;
+        public const int Width = 1000;
 
         /// <summary>
         /// The height world
         /// </summary>
-        public const int Height = 75;
+        public const int Height = 1000;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="World"/> class.

@@ -21,6 +21,11 @@ namespace AgCubio
         
         public Cube MyCube { get; set; }
 
+        /// <summary>
+        /// Gets the cursor position relative to the window
+        /// </summary>
+        public Point CursorPosition { get; private set; }
+
         public GameWindow()
         {
             InitializeComponent();
@@ -38,7 +43,7 @@ namespace AgCubio
         {
             Brush b = new SolidBrush(cube.Color);
             g.FillRectangle(b, cube.Left, cube.Top,
-                cube.Width, cube.Height);
+                cube.Width * 4, cube.Height * 4);
 
             g.DrawString(cube.Name, Font, Brushes.Aqua, cube.X, cube.Y);
         }
@@ -93,6 +98,9 @@ namespace AgCubio
         {
             DoubleBuffered = true;
 
+            Width = World.Width;
+            Height = World.Height;
+
             (new ConnectForm()).ShowDialog(this);
             
             CheckConnected();
@@ -106,9 +114,12 @@ namespace AgCubio
 
         private void T_Tick(object sender, EventArgs e)
         {
-            lblCursorCoords.Text = $"({Cursor.Position.X}, {Cursor.Position.Y})";
+            var relative = PointToClient(Cursor.Position);
+            CursorPosition = new Point(Math.Max(0, relative.X), Math.Max(0, relative.Y));
 
-            NetworkManager.SendCommand("move", Cursor.Position.X, Cursor.Position.Y);
+            lblCursorCoords.Text = $"({CursorPosition.X}, {CursorPosition.Y})";
+
+            NetworkManager.SendCommand("move", CursorPosition.X, CursorPosition.Y);
             Invalidate();
         }
 
@@ -118,9 +129,12 @@ namespace AgCubio
 
             if (MyCube == null)
                 MyCube = bCube;
-            
-            _world.UpdateCube(bCube);
-         }
+
+            lock (_world)
+            {
+                _world.UpdateCube(bCube);
+            }
+        }
 
         private void CheckConnected()
         {
@@ -165,11 +179,12 @@ namespace AgCubio
 
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
 
-            var cubes = _world.Cubes.ToArray();
-
-            foreach (var cube in cubes)
+            lock (_world)
             {
-                DrawCube(g, cube);
+                foreach (var cube in _world.Cubes.Where(cube => cube != null))
+                {
+                    DrawCube(g, cube);
+                }
             }
 
             base.OnPaint(e);
