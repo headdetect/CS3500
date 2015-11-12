@@ -69,7 +69,7 @@
             this.txtAddress.Name = "txtAddress";
             this.txtAddress.Size = new System.Drawing.Size(211, 22);
             this.txtAddress.TabIndex = 2;
-            this.txtAddress.Text = "155.99.155.254";
+            this.txtAddress.Text = "localhost";
             this.txtAddress.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtbox_keyDown);
             // 
             // txtPort

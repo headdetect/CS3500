@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Model;
@@ -27,16 +28,6 @@ namespace AgCubio
             _world = new World();
         }
 
-        private void GameWindow_Paint(object sender, PaintEventArgs e)
-        {
-            Graphics g = e.Graphics;
-            
-            lock(_world)
-            foreach (KeyValuePair<int, Cube> cube in _world.Cubes) { 
-                DrawCube(g, cube.Value);
-            }
-        }
-
         private void GameWindow_MouseMove(object sender, MouseEventArgs e)
         {
 
@@ -54,7 +45,9 @@ namespace AgCubio
         {
             Brush b = new SolidBrush(cube.Color);
             g.FillRectangle(b, cube.Left, cube.Top,
-                cube.Width, cube.Width);
+                cube.Width * 10, cube.Height * 10);
+
+            g.DrawString(cube.Name, Font, b, cube.X, cube.Y);
         }
 
         #endregion
@@ -118,9 +111,9 @@ namespace AgCubio
 
                 lock (_world)
                     _world.UpdateCube(bCube);
-
-                DoForegroundWork(Invalidate);
             };
+
+            DoBackgroundWork(args => InvokeDrawer());
         }
 
         private void CheckConnected()
@@ -139,7 +132,7 @@ namespace AgCubio
             if (result == DialogResult.Cancel)
                 Close();
         }
-
+        
         private void GameWindow_KeyDown(object sender, KeyEventArgs e)
         {
             //TODO: handle teamid
@@ -159,6 +152,32 @@ namespace AgCubio
             
         }
 
-        
+       
+        private void InvokeDrawer()
+        {
+            if (Disposing) return;
+
+            Thread.Sleep(50);
+            
+            DoForegroundWork(Refresh);
+
+            InvokeDrawer();
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            Graphics g = e.Graphics;
+
+            var cubes = _world.Cubes.ToArray();
+
+            foreach (KeyValuePair<int, Cube> t in cubes)
+            {
+                var cube = t.Value;
+
+                DrawCube(g, cube);
+            }
+
+            base.OnPaint(e);
+        }
     }
 }
