@@ -63,5 +63,44 @@ namespace Model
             Cubes[b.Uid] = b;
         }
 
+        /// <summary>
+        /// Adds a live cube with half the mass of the original to the world.
+        /// </summary>
+        /// <param name="cube"></param>
+        public void SplitMyCubes(int parentuid)
+        {
+            foreach (Cube cube in Cubes.Values) //Iterate through cubes
+            {
+                if (cube.ParentUid == parentuid) // If cube belongs to player
+                {
+                    Cube newCube = new Cube();
+                    cube.Mass /= 2; // Halve the cube's mass
+
+                    newCube.Mass = cube.Mass; //Create a new, similar cube
+                    newCube.IsFood = false;
+                    newCube.ParentUid = cube.ParentUid;
+                    newCube.Color = cube.Color;
+                    UpdateCube(newCube);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Ejects a food cube with one tenth the mass of the original
+        /// </summary>
+        /// <param name="cube"></param>
+        public void EjectMassFromMyCubes(int parentuid)
+        {
+            Cube cube = Cubes[parentuid]; // Original cube (equal uid and parent uid)
+
+            Cube newCube = new Cube();
+
+            newCube.Mass = cube.Mass * .1;
+            cube.Mass *= .9;
+
+            newCube.IsFood = true;
+            newCube.Color = cube.Color;
+            UpdateCube(newCube);
+        }
     }
 }

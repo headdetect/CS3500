@@ -14,6 +14,15 @@ namespace Model
     public class Cube
     {
         /// <summary>
+        /// Gets or sets the parent uid.
+        /// </summary>
+        /// <value>
+        /// The parent uid.
+        /// </value>
+        [JsonProperty("parentuid")]
+        public int ParentUid { get; set; }
+
+        /// <summary>
         /// Gets or sets the uid.
         /// </summary>
         /// <value>
@@ -126,6 +135,5 @@ namespace Model
         {
             return JsonConvert.DeserializeObject<Cube>(json);
         }
-
     }
 }
