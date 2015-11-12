@@ -97,7 +97,7 @@ namespace Model
         /// <summary>
         /// Gets the width of the cube.
         /// </summary>
-        public int Width => Math.Max(1, (int)(Mass / 50));
+        public int Width => Math.Max(1, (int)(Mass / 100));
 
         /// <summary>
         /// Gets the height of the cube.

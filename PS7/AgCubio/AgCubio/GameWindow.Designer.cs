@@ -41,7 +41,6 @@
             this.Load += new System.EventHandler(this.GameWindow_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.GameWindow_KeyDown);
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.GameWindow_KeyPress);
-            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.GameWindow_MouseMove);
             this.ResumeLayout(false);
 
         }

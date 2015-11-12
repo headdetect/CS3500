@@ -14,7 +14,7 @@ namespace Model
         /// <value>
         /// The cubes.
         /// </value>
-        public Dictionary<int, Cube> Cubes { get; set; }
+        public List<Cube> Cubes { get; set; }
 
         /// <summary>
         /// The width of this world
@@ -31,14 +31,14 @@ namespace Model
         /// </summary>
         public World()
         {
-            Cubes = new Dictionary<int, Cube>();
+            Cubes = new List<Cube>();
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="World"/> class.
         /// </summary>
         /// <param name="cubes">The cubes of this world.</param>
-        public World(Dictionary<int, Cube> cubes)
+        public World(List<Cube> cubes )
         {
             Cubes = cubes;
         }
@@ -49,7 +49,7 @@ namespace Model
         /// <param name="b">The cube.</param>
         public void AddCube(Cube b)
         {
-            Cubes?.Add(b.Uid, b);
+            Cubes?.Add(b);
         }
 
         /// <summary>
@@ -58,9 +58,15 @@ namespace Model
         /// <param name="b">The cube.</param>
         public void UpdateCube(Cube b)
         {
-            if (!Cubes.ContainsKey(b.Uid))
+            var findCube = GetCubeIndex(b.Uid);
+
+            if (findCube == -1)
+            {
                 AddCube(b);
-            Cubes[b.Uid] = b;
+                return;
+            }
+
+            Cubes[findCube] = b;
         }
 
         /// <summary>
@@ -69,7 +75,7 @@ namespace Model
         /// <param name="cube"></param>
         public void SplitMyCubes(int teamId)
         {
-            foreach (Cube cube in Cubes.Values) //Iterate through cubes
+            foreach (Cube cube in Cubes) //Iterate through cubes
             {
                 if (cube.TeamId == teamId) // If cube belongs to player
                 {
@@ -101,6 +107,27 @@ namespace Model
             newCube.IsFood = true;
             newCube.Color = cube.Color;
             UpdateCube(newCube);
+        }
+
+        /// <summary>
+        /// Finds a cube with that UID
+        /// </summary>
+        /// <param name="uid">the cube to find</param>
+        /// <returns>A cube with that UID if exists; otherwise, returns null.</returns>
+        public int GetCubeIndex(int uid)
+        {
+            return Cubes?.FindIndex(cube => cube.Uid == uid) ?? -1;
+        }
+        
+        /// <summary>
+        /// Finds a cube with that UID
+        /// </summary>
+        /// <param name="uid">the cube to find</param>
+        /// <returns>A cube with that UID if exists; otherwise, returns null.</returns>
+        public Cube GetCube(int uid)
+        {
+            var index = GetCubeIndex(uid);
+            return index == -1 ? null : Cubes[index];
         }
     }
 }

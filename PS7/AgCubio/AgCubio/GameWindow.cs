@@ -11,28 +11,21 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Model;
 using Network_Controller;
+using Timer = System.Windows.Forms.Timer;
 
 namespace AgCubio
 {
     public partial class GameWindow : Form
     {
         private readonly World _world;
-
-        private NetworkManager _networkManager;
-
-        public int myTeamId { get; set; }
+        
+        public int MyTeamId { get; set; }
 
         public GameWindow()
         {
             InitializeComponent();
             _world = new World();
         }
-
-        private void GameWindow_MouseMove(object sender, MouseEventArgs e)
-        {
-
-        }
-
 
         #region Drawing
 
@@ -45,9 +38,9 @@ namespace AgCubio
         {
             Brush b = new SolidBrush(cube.Color);
             g.FillRectangle(b, cube.Left, cube.Top,
-                cube.Width * 10, cube.Height * 10);
+                cube.Width *  6, cube.Height *  6);
 
-            g.DrawString(cube.Name, Font, b, cube.X, cube.Y);
+            g.DrawString(cube.Name, Font, Brushes.Aqua, cube.X, cube.Y);
         }
 
         #endregion
@@ -98,27 +91,34 @@ namespace AgCubio
 
         private void GameWindow_Load(object sender, EventArgs e)
         {
-            (new ConnectForm()).ShowDialog(this);
+            DoubleBuffered = true;
 
-            _networkManager = NetworkManager.Get();
+            (new ConnectForm()).ShowDialog(this);
+            
             CheckConnected();
 
-            _networkManager.PacketListener = (stringy) =>
-            {
-                Cube bCube = Cube.FromJson(stringy);
+            NetworkManager.PacketListener += NetworkManager_PacketListener;
 
-                Debug.WriteLine(stringy);
-
-                lock (_world)
-                    _world.UpdateCube(bCube);
-            };
-
-            DoBackgroundWork(args => InvokeDrawer());
+            var t = new Timer { Interval = 60 };
+            t.Tick += T_Tick;
         }
+
+        private void T_Tick(object sender, EventArgs e)
+        {
+            NetworkManager.SendCommand("move", Cursor.Position.X, Cursor.Position.Y);
+            Invalidate();
+        }
+
+        private void NetworkManager_PacketListener(string stringy)
+        {
+            var bCube = Cube.FromJson(stringy);
+            
+            _world.UpdateCube(bCube);
+         }
 
         private void CheckConnected()
         {
-            if (_networkManager.Client.Connected) return;
+            if (NetworkManager.Connected) return;
 
             var result = MessageBox.Show(@"You must connect to a server to play AgCubio", @"Must connect to server",
                 MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
@@ -151,29 +151,18 @@ namespace AgCubio
         {
             
         }
-
-       
-        private void InvokeDrawer()
-        {
-            if (Disposing) return;
-
-            Thread.Sleep(50);
-            
-            DoForegroundWork(Refresh);
-
-            InvokeDrawer();
-        }
+        
 
         protected override void OnPaint(PaintEventArgs e)
         {
             Graphics g = e.Graphics;
 
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
+
             var cubes = _world.Cubes.ToArray();
 
-            foreach (KeyValuePair<int, Cube> t in cubes)
+            foreach (var cube in cubes)
             {
-                var cube = t.Value;
-
                 DrawCube(g, cube);
             }
 

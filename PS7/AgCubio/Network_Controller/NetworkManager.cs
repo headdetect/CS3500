@@ -12,7 +12,7 @@ namespace Network_Controller
 {
     public class NetworkManager
     {
-        public Action<string> PacketListener;  
+        public static event Action<string> PacketListener;  
 
         private static NetworkManager _instanceNetworkManager;
 
@@ -22,15 +22,20 @@ namespace Network_Controller
         /// <value>
         /// The socket.
         /// </value>
-        public Socket Socket => Client?.Client;
+        private Socket Socket => Client?.Client;
 
         /// <summary>
         /// Gets the client.
         /// </summary>
         /// <value>
         /// The client.
-        /// </value>
-        public TcpClient Client { get; }
+        /// </value>t
+        private TcpClient Client { get; }
+
+        /// <summary>
+        /// Gets if the client is connected.
+        /// </summary>
+        public static bool Connected => _instanceNetworkManager?.Client?.Connected ?? false;
 
         private NetworkManager()
         {
@@ -71,8 +76,7 @@ namespace Network_Controller
             bgWorker.DoWork += BeginRead;
             bgWorker.RunWorkerAsync();
 
-            var nameBytes = Encoding.UTF8.GetBytes(name);
-            client.GetStream().Write(nameBytes, 0, nameBytes.Length);
+            SendName(name);
         }
 
         private static void BeginRead(object sender, DoWorkEventArgs doWorkEventArgs)
@@ -81,21 +85,29 @@ namespace Network_Controller
             if (!_instanceNetworkManager.Socket.Connected) return;
 
             var streamReader = _instanceNetworkManager.Client.GetStream();
-            var bytes = new List<byte>();
+            var chunky = string.Empty;
+
             while (streamReader.CanRead)
             {
-                var byteo = (byte) streamReader.ReadByte();
-                bytes.Add(byteo);
+                var bytes = new byte[short.MaxValue];
 
-                if (byteo == '\n')
+                var length = streamReader.Read(bytes, 0, short.MaxValue);
+
+                var packet = Encoding.UTF8.GetString(bytes).Substring(0, length);
+
+                chunky += packet;
+                
+                while (chunky.Contains("\n"))
                 {
-                    // Do something else //
-                    var result = Encoding.UTF8.GetString(bytes.ToArray());
-                    bytes.Clear();
+                    // We found a new line //
 
-                    _instanceNetworkManager.PacketListener?.Invoke(result);
+                    var newlineLocation = chunky.IndexOf("\n", StringComparison.Ordinal);
+                    var cubeChunk = chunky.Substring(0, newlineLocation);
+                    chunky = chunky.Remove(0, newlineLocation + 1); // Remove trailing \n as well //
+
+                    PacketListener?.Invoke(cubeChunk);
+
                 }
-
                 
             }
         }
@@ -108,6 +120,35 @@ namespace Network_Controller
             var manager = Get();
 
             manager.Client?.Close();
+        }
+
+        /// <summary>
+        /// Sends a command to the server
+        /// </summary>
+        /// <param name="command">The command to send</param>
+        /// <param name="x">The x coord</param>
+        /// <param name="y">The y coord</param>
+        public static void SendCommand(string command, int x, int y)
+        {
+            var manager = Get();
+
+            var stream = manager.Client.GetStream();
+            var commandQuery = $"({command}, {x}, {y})";
+
+            var commandBytes = Encoding.UTF8.GetBytes(commandQuery);
+            stream.BeginWrite(commandBytes, 0, commandBytes.Length, null, null); // We don't care if it didn't finish //
+        }
+
+        /// <summary>
+        /// Sends the name to the server
+        /// </summary>
+        /// <param name="name">The name to send</param>
+        public static void SendName(string name)
+        {
+            var manager = Get();
+
+            var nameBytes = Encoding.UTF8.GetBytes(name);
+            manager.Client.GetStream().BeginWrite(nameBytes, 0, nameBytes.Length, null, null); // We don't care if it didn't finish //
         }
     }
 }
