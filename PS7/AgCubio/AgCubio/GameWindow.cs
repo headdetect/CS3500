@@ -19,7 +19,7 @@ namespace AgCubio
     {
         private readonly World _world;
         
-        public int MyTeamId { get; set; }
+        public Cube MyCube { get; set; }
 
         public GameWindow()
         {
@@ -38,7 +38,7 @@ namespace AgCubio
         {
             Brush b = new SolidBrush(cube.Color);
             g.FillRectangle(b, cube.Left, cube.Top,
-                cube.Width *  6, cube.Height *  6);
+                cube.Width, cube.Height);
 
             g.DrawString(cube.Name, Font, Brushes.Aqua, cube.X, cube.Y);
         }
@@ -101,10 +101,13 @@ namespace AgCubio
 
             var t = new Timer { Interval = 60 };
             t.Tick += T_Tick;
+            t.Start();
         }
 
         private void T_Tick(object sender, EventArgs e)
         {
+            lblCursorCoords.Text = $"({Cursor.Position.X}, {Cursor.Position.Y})";
+
             NetworkManager.SendCommand("move", Cursor.Position.X, Cursor.Position.Y);
             Invalidate();
         }
@@ -112,6 +115,9 @@ namespace AgCubio
         private void NetworkManager_PacketListener(string stringy)
         {
             var bCube = Cube.FromJson(stringy);
+
+            if (MyCube == null)
+                MyCube = bCube;
             
             _world.UpdateCube(bCube);
          }
@@ -138,7 +144,7 @@ namespace AgCubio
             //TODO: handle teamid
             if (e.KeyCode == Keys.Space)
             {
-                _world.SplitMyCubes(0); 
+                NetworkManager.SendCommand("split", Cursor.Position.X, Cursor.Position.Y);
             }
 
             if (e.KeyCode == Keys.W)

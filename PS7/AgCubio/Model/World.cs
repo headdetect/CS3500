@@ -66,7 +66,10 @@ namespace Model
                 return;
             }
 
-            Cubes[findCube] = b;
+            if (b.Mass == 0)
+                Cubes.RemoveAt(findCube);
+            else
+                Cubes[findCube] = b;
         }
 
         /// <summary>
@@ -75,20 +78,7 @@ namespace Model
         /// <param name="cube"></param>
         public void SplitMyCubes(int teamId)
         {
-            foreach (Cube cube in Cubes) //Iterate through cubes
-            {
-                if (cube.TeamId == teamId) // If cube belongs to player
-                {
-                    Cube newCube = new Cube();
-                    cube.Mass /= 2; // Halve the cube's mass
-
-                    newCube.Mass = cube.Mass; //Create a new, similar cube
-                    newCube.IsFood = false;
-                    newCube.TeamId = cube.TeamId;
-                    newCube.Color = cube.Color;
-                    UpdateCube(newCube);
-                }
-            }
+            
         }
 
         /// <summary>
