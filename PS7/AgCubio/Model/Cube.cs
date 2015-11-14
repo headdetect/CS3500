@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,8 @@ namespace Model
     /// </summary>
     public class Cube
     {
+        public static float Stuff = 1;
+
         /// <summary>
         /// Gets or sets the parent uid.
         /// </summary>
@@ -98,36 +101,33 @@ namespace Model
         /// <summary>
         /// Gets the width of the cube.
         /// </summary>
-        public int Width => Math.Max(1, (int)(Mass / 250));
+        public float Width => (int) Math.Pow(Mass, 0.65);
 
         /// <summary>
         /// Gets the height of the cube.
         /// </summary>
-        public int Height => Width;
+        public float Height => Width;
 
 
         /// <summary>
         /// Gets the top of the cube.
         /// </summary>
-        public int Top => (int)Y;
+        public float Top => Y - (Height / 2f);
 
         /// <summary>
-        /// Gets the left of the cube.
+        /// Gets the left of the cube. Based from the center
         /// </summary>
-        public int Left => (int)X;
+        public float Left => X - (Width / 2f);
 
         /// <summary>
-        /// Gets the right of the cube.
+        /// Gets the right of the cube. Based from the center
         /// </summary>
-        public int Right => (int)X + Width;
+        public float Right => X + (Width / 2f);
 
         /// <summary>
-        /// Gets the bottom of the cube.
+        /// Gets the bottom of the cube. Based from the center
         /// </summary>
-        public int Bottom => (int)Y + Width;
-
-        public int CenterX => Width / 2 + Left;
-        public int CenterY => Height / 2 + Top;
+        public float Bottom => Y + (Height / 2f);
 
         /// <summary>
         /// Gets a cube from json

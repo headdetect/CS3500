@@ -12,7 +12,7 @@ namespace Network_Controller
 {
     public class NetworkManager
     {
-        public static event Action<string> PacketListener;  
+        public static event Action<string[]> PacketListener;  
 
         private static NetworkManager _instanceNetworkManager;
 
@@ -42,7 +42,6 @@ namespace Network_Controller
             Client = new TcpClient();
         }
         
-
         /// <summary>
         /// Gets the initialized instance.
         /// </summary>
@@ -89,27 +88,21 @@ namespace Network_Controller
 
             while (streamReader.CanRead)
             {
-                var bytes = new byte[short.MaxValue];
+                var bytes = new byte[short.MaxValue * 2];
 
-                var length = streamReader.Read(bytes, 0, short.MaxValue);
+                var length = streamReader.Read(bytes, 0, short.MaxValue * 2);
 
                 var packet = Encoding.UTF8.GetString(bytes).Substring(0, length);
-
-                Debug.WriteLine(packet);
-
+                
                 chunky += packet;
-                
-                while (chunky.Contains("\n"))
-                {
-                    // We found a new line //
 
-                    var newlineLocation = chunky.IndexOf("\n", StringComparison.Ordinal);
-                    var cubeChunk = chunky.Substring(0, newlineLocation);
-                    chunky = chunky.Remove(0, newlineLocation + 1); // Remove trailing \n as well //
+                var chunks = chunky.Split(new [] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
-                    PacketListener?.Invoke(cubeChunk);
-                }
-                
+                var last = chunks.Last();
+
+                chunky = last.EndsWith("}") ? string.Empty : last; // Keep last if not valid json (assuming we haven't recieved the rest) //
+
+                PacketListener?.Invoke(chunks);
             }
         }
 

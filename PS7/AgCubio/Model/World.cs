@@ -9,12 +9,20 @@ namespace Model
     public class World
     {
         /// <summary>
-        /// Gets or sets the cubes.
+        /// Gets or sets the food cubes.
         /// </summary>
         /// <value>
         /// The cubes.
         /// </value>
-        public List<Cube> Cubes { get; set; }
+        public List<Cube> Food { get; set; }
+
+        /// <summary>
+        /// Gets or sets the players cubes.
+        /// </summary>
+        /// <value>
+        /// The cubes.
+        /// </value>
+        public List<Cube> Players { get; set; }
 
         /// <summary>
         /// The width of this world
@@ -31,72 +39,57 @@ namespace Model
         /// </summary>
         public World()
         {
-            Cubes = new List<Cube>();
+            Players = new List<Cube>();
+            Food = new List<Cube>();
         }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="World"/> class.
-        /// </summary>
-        /// <param name="cubes">The cubes of this world.</param>
-        public World(List<Cube> cubes )
-        {
-            Cubes = cubes;
-        }
-
+        
         /// <summary>
         /// Adds a cube to the world.
         /// </summary>
         /// <param name="b">The cube.</param>
         public void AddCube(Cube b)
         {
-            Cubes?.Add(b);
+            (b.IsFood ? Food : Players).Add(b);
         }
 
         /// <summary>
         /// Adds a cube to the world.
         /// </summary>
         /// <param name="b">The cube.</param>
-        public void UpdateCube(Cube b)
+        public void UpdateFoodCube(Cube b)
         {
-            var findCube = GetCubeIndex(b.Uid);
+            var findCube = GetFoodCubeIndex(b.Uid);
 
             if (findCube == -1)
             {
-                AddCube(b);
+                if (b.Mass != 0)
+                    AddCube(b);
+
+                return;
+            }
+            
+            Food.RemoveAt(findCube); // A food cube is never updated, only removed //
+        }
+
+        /// <summary>
+        /// Adds a cube to the world.
+        /// </summary>
+        /// <param name="b">The cube.</param>
+        public void UpdatePlayerCube(Cube b)
+        {
+            var findCube = GetPlayerCubeIndex(b.Uid);
+
+            if (findCube == -1)
+            {
+                if (b.Mass != 0)
+                    AddCube(b);
                 return;
             }
 
             if (b.Mass == 0)
-                Cubes.RemoveAt(findCube);
+                Players.RemoveAt(findCube);
             else
-                Cubes[findCube] = b;
-        }
-
-        /// <summary>
-        /// Adds a live cube with half the mass of the original to the world.
-        /// </summary>
-        /// <param name="cube"></param>
-        public void SplitMyCubes(int teamId)
-        {
-            
-        }
-
-        /// <summary>
-        /// Ejects a food cube with one tenth the mass of the original
-        /// </summary>
-        /// <param name="cube"></param>
-        public void EjectMassFromMyCubes(int teamId)
-        {
-            Cube cube = Cubes[teamId]; // Original cube (equal uid and team uid)
-
-            Cube newCube = new Cube();
-
-            newCube.Mass = cube.Mass * .1;
-            cube.Mass *= .9;
-
-            newCube.IsFood = true;
-            newCube.Color = cube.Color;
-            UpdateCube(newCube);
+                Players[findCube] = b;
         }
 
         /// <summary>
@@ -104,20 +97,41 @@ namespace Model
         /// </summary>
         /// <param name="uid">the cube to find</param>
         /// <returns>A cube with that UID if exists; otherwise, returns null.</returns>
-        public int GetCubeIndex(int uid)
+        public int GetFoodCubeIndex(int uid)
         {
-            return Cubes?.FindIndex(cube => cube.Uid == uid) ?? -1;
+            return Food?.FindIndex(cube => cube.Uid == uid) ?? -1;
         }
-        
+
         /// <summary>
         /// Finds a cube with that UID
         /// </summary>
         /// <param name="uid">the cube to find</param>
         /// <returns>A cube with that UID if exists; otherwise, returns null.</returns>
-        public Cube GetCube(int uid)
+        public int GetPlayerCubeIndex(int uid)
         {
-            var index = GetCubeIndex(uid);
-            return index == -1 ? null : Cubes[index];
+            return Players?.FindIndex(cube => cube.Uid == uid) ?? -1;
+        }
+
+        /// <summary>
+        /// Finds a cube with that UID
+        /// </summary>
+        /// <param name="uid">the cube to find</param>
+        /// <returns>A cube with that UID if exists; otherwise, returns null.</returns>
+        public Cube GetFoodCube(int uid)
+        {
+            var index = GetFoodCubeIndex(uid);
+            return index == -1 ? null : Food[index];
+        }
+
+        /// <summary>
+        /// Finds a cube with that UID
+        /// </summary>
+        /// <param name="uid">the cube to find</param>
+        /// <returns>A cube with that UID if exists; otherwise, returns null.</returns>
+        public Cube GetPlayerCube(int uid)
+        {
+            var index = GetPlayerCubeIndex(uid);
+            return index == -1 ? null : Players[index];
         }
     }
 }
