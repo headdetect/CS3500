@@ -39,6 +39,7 @@ namespace AgCubio
         private readonly Stopwatch _watch;
         private int _frameCount;
         private float _fps;
+        private int numberOfCubesOnTeam = 1;
 
         /// <summary>
         /// Gets the cursor position relative to the window
@@ -102,15 +103,45 @@ namespace AgCubio
 
                 if (MyCube == null)
                     MyCube = bCube;
-                
+
+
                 lock (_world)
                 {
                     if (bCube.IsFood) _world.UpdateFoodCube(bCube); // If a food cube packet is sent again, it means remove it //
                     else _world.UpdatePlayerCube(bCube);
                 }
+
+                if (!bCube.IsFood && bCube.TeamId == MyCube.TeamId) numberOfCubesOnTeam++;
+
+                if (numberOfCubesOnTeam != 1)
+                    CheckIfMyCubeDied();
+
+                numberOfCubesOnTeam = 1;
             }
         }
-        
+
+        /// <summary>
+        /// Checks if player's cube's mass went down to 0.  If it has, then the cube has died
+        /// and the player will be asked if they wish to play again.
+        /// </summary>
+        private void CheckIfMyCubeDied()
+        {
+            if (MyCube.Mass == 0)
+            {
+                var result = MessageBox.Show(@"You have died! Do you want to play again?",
+                    @"You died!", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
+
+                if (result == DialogResult.OK)
+                {
+                    (new ConnectForm()).ShowDialog(this);
+                    CheckConnected();
+                }
+
+                if (result == DialogResult.Cancel)
+                    Close();
+            }
+        }
+
         private void GameWindow_KeyDown(object sender, KeyEventArgs e)
         {
             
