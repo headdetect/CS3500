@@ -113,7 +113,7 @@ namespace AgCubio
 
                 if (!bCube.IsFood && bCube.TeamId == MyCube.TeamId) numberOfCubesOnTeam++;
 
-                if (numberOfCubesOnTeam != 1)
+                if (numberOfCubesOnTeam == 1)
                     CheckIfMyCubeDied();
 
                 numberOfCubesOnTeam = 1;
