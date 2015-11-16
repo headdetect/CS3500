@@ -39,7 +39,7 @@ namespace AgCubio
         private readonly Stopwatch _watch;
         private int _frameCount;
         private float _fps;
-        private int numberOfCubesOnTeam = 1;
+        private int numberOfCubesOnTeam;
 
         /// <summary>
         /// Gets the cursor position relative to the window
@@ -101,9 +101,11 @@ namespace AgCubio
             {
                 _numberOfPacketsReceived++;
 
-                if (MyCube == null)
+
+                if (MyCube == null || numberOfCubesOnTeam == 0)
                     MyCube = bCube;
 
+                if (bCube.TeamId == MyCube.TeamId) numberOfCubesOnTeam++;
 
                 lock (_world)
                 {
@@ -111,22 +113,21 @@ namespace AgCubio
                     else _world.UpdatePlayerCube(bCube);
                 }
 
-                if (!bCube.IsFood && bCube.TeamId == MyCube.TeamId) numberOfCubesOnTeam++;
-
-                if (numberOfCubesOnTeam == 1)
-                    CheckIfMyCubeDied();
-
-                numberOfCubesOnTeam = 1;
             }
+
+            if (numberOfCubesOnTeam == 0)
+                MyCubeDied();
+
+            numberOfCubesOnTeam = 0;
         }
 
         /// <summary>
         /// Checks if player's cube's mass went down to 0.  If it has, then the cube has died
         /// and the player will be asked if they wish to play again.
         /// </summary>
-        private void CheckIfMyCubeDied()
+        private void MyCubeDied()
         {
-            if (MyCube.Mass == 0)
+            if (MyCube.Mass == 0d)
             {
                 var result = MessageBox.Show(@"You have died! Do you want to play again?",
                     @"You died!", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
