@@ -13,6 +13,7 @@ namespace Network_Controller
     public class NetworkManager
     {
         public static event Action<string[]> PacketListener;  
+        public static event Action<Exception> ServerException;  
 
         private static NetworkManager _instanceNetworkManager;
 
@@ -80,29 +81,46 @@ namespace Network_Controller
 
         private static void BeginRead(object sender, DoWorkEventArgs doWorkEventArgs)
         {
-            // If we're not connected, stop reading //
-            if (!_instanceNetworkManager.Socket.Connected) return;
-
-            var streamReader = _instanceNetworkManager.Client.GetStream();
-            var chunky = string.Empty;
-
-            while (streamReader.CanRead)
+            try
             {
-                var bytes = new byte[short.MaxValue * 2];
+                // If we're not connected, stop reading //
+                if (!_instanceNetworkManager.Socket.Connected) return;
 
-                var length = streamReader.Read(bytes, 0, short.MaxValue * 2);
+                var streamReader = _instanceNetworkManager.Client.GetStream();
+                var chunky = string.Empty;
 
-                var packet = Encoding.UTF8.GetString(bytes).Substring(0, length);
-                
-                chunky += packet;
+                while (streamReader.CanRead)
+                {
+                    var bytes = new byte[short.MaxValue*2];
 
-                var chunks = chunky.Split(new [] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                    var length = streamReader.Read(bytes, 0, short.MaxValue*2);
 
-                var last = chunks.Last();
+                    var packet = Encoding.UTF8.GetString(bytes).Substring(0, length);
 
-                chunky = last.EndsWith("}") ? string.Empty : last; // Keep last if not valid json (assuming we haven't recieved the rest) //
+                    chunky += packet;
 
-                PacketListener?.Invoke(chunks);
+                    var chunks = chunky.Split(new[] {'\n'}, StringSplitOptions.RemoveEmptyEntries);
+
+                    var last = chunks.Last();
+
+                    if (!last.EndsWith("}"))
+                    {
+                        // If it's not a valid json, we assuming its not finished //
+                        chunky = last;
+                        chunks = chunks.Take(chunks.Length - 1).ToArray();
+                    }
+                    else
+                    {
+                        chunky = string.Empty;
+                    }
+
+                    PacketListener?.Invoke(chunks);
+                }
+            }
+            catch (Exception e)
+            {
+                Disconnect();
+                ServerException?.Invoke(e);
             }
         }
 
@@ -125,6 +143,8 @@ namespace Network_Controller
         public static void SendCommand(string command, int x, int y)
         {
             var manager = Get();
+
+            if (!manager.Client.Connected) return;
 
             var stream = manager.Client.GetStream();
             var commandQuery = $"({command}, {x}, {y})";
