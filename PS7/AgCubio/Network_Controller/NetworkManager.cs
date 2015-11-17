@@ -172,15 +172,23 @@ namespace Network_Controller
         /// <param name="y">The y coord</param>
         public static void SendCommand(string command, int x, int y)
         {
-            var manager = Get();
+            try
+            {
+                var manager = Get();
 
-            if (!manager.Client.Connected) return;
+                if (!manager.Client.Connected) return;
 
-            var stream = manager.Client.GetStream();
-            var commandQuery = $"({command}, {x}, {y})";
+                var stream = manager.Client.GetStream();
+                var commandQuery = $"({command}, {x}, {y})";
 
-            var commandBytes = Encoding.UTF8.GetBytes(commandQuery);
-            stream.BeginWrite(commandBytes, 0, commandBytes.Length, null, null); // We don't care if it didn't finish //
+                var commandBytes = Encoding.UTF8.GetBytes(commandQuery);
+                stream.BeginWrite(commandBytes, 0, commandBytes.Length, null, null);
+                // We don't care if it didn't finish //
+            }
+            catch
+            {
+                // Ignore
+            }
         }
 
         /// <summary>

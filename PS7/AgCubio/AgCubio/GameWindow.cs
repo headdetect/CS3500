@@ -96,7 +96,8 @@ namespace AgCubio
 
             MessageBox.Show(@"Disconnected from server");
 
-            //TODO: Do something with this
+            KeepPlaying = true;
+            DoForegroundWork(Close);
         }
 
         private TimeSpan _prevTime = TimeSpan.Zero;
@@ -387,20 +388,8 @@ namespace AgCubio
         {
             if (NetworkManager.Connected) return;
 
-            var result = MessageBox.Show(@"You must connect to a server to play AgCubio", @"Must connect to server",
-                MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
-
-            if (result == DialogResult.OK)
-            {
-                (new ConnectForm()).ShowDialog(this);
-                CheckConnected();
-            }
-
-            if (result == DialogResult.Cancel)
-            {
-                NetworkManager.Quit();
-                DoForegroundWork(Close);
-            }
+            NetworkManager.Quit();
+            DoForegroundWork(Close);
         }
 
 
