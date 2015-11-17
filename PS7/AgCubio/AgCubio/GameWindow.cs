@@ -347,7 +347,7 @@ namespace AgCubio
             var viewWidth = rightMost - leftMost;
             var viewHeight = bottomMost - topMost;
 
-            var scale = Math.Min(1.5f, 1.5f);
+            var scale = 1.5f;
 
             var theMatrixReloaded = new Matrix();
 
