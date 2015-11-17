@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -12,8 +13,8 @@ namespace Network_Controller
 {
     public class NetworkManager
     {
-        public static event Action<string[]> PacketListener;  
-        public static event Action<Exception> ServerException;  
+        public static event Action<string[]> PacketListener;
+        public static event Action<Exception> ServerException;
 
         private static NetworkManager _instanceNetworkManager;
 
@@ -42,7 +43,7 @@ namespace Network_Controller
         {
             Client = new TcpClient();
         }
-        
+
         /// <summary>
         /// Gets the initialized instance.
         /// </summary>
@@ -57,10 +58,9 @@ namespace Network_Controller
         /// <summary>
         /// Connect to the specified server. <br />
         /// </summary>
-        /// <param name="name">Whacha name bruh?</param>
         /// <param name="address">Address to connect to</param>
         /// <param name="port">The port to bind on</param>
-        public static void Connect(string name, string address, int port = 11000)
+        public static void Connect(string address, int port = 11000)
         {
             _instanceNetworkManager = new NetworkManager();
 
@@ -71,12 +71,18 @@ namespace Network_Controller
 
 
             client.Connect(address, port);
+        }
+
+        public static void Start()
+        {
+            var client = _instanceNetworkManager.Client;
+
+            if (!client.Connected)
+                throw new IOException("You must connect the client before starting it.");
 
             var bgWorker = new BackgroundWorker();
             bgWorker.DoWork += BeginRead;
             bgWorker.RunWorkerAsync();
-
-            SendName(name);
         }
 
         private static void BeginRead(object sender, DoWorkEventArgs doWorkEventArgs)
@@ -91,15 +97,15 @@ namespace Network_Controller
 
                 while (streamReader.CanRead)
                 {
-                    var bytes = new byte[short.MaxValue*2];
+                    var bytes = new byte[short.MaxValue * 2];
 
-                    var length = streamReader.Read(bytes, 0, short.MaxValue*2);
+                    var length = streamReader.Read(bytes, 0, short.MaxValue * 2);
 
                     var packet = Encoding.UTF8.GetString(bytes).Substring(0, length);
 
                     chunky += packet;
 
-                    var chunks = chunky.Split(new[] {'\n'}, StringSplitOptions.RemoveEmptyEntries);
+                    var chunks = chunky.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
                     var last = chunks.Last();
 
@@ -114,13 +120,28 @@ namespace Network_Controller
                         chunky = string.Empty;
                     }
 
-                    PacketListener?.Invoke(chunks);
+                    try
+                    {
+                        PacketListener?.Invoke(chunks);
+                    }
+                    catch (Exception e)
+                    {
+                        // Ignore 
+                    }
                 }
             }
             catch (Exception e)
             {
                 Disconnect();
-                ServerException?.Invoke(e);
+
+                try
+                {
+                    ServerException?.Invoke(e);
+                }
+                catch
+                {
+                    // Ignore 
+                }
             }
         }
 
@@ -154,15 +175,47 @@ namespace Network_Controller
         }
 
         /// <summary>
+        /// Sends a "QUIT" command to the server as well as disconnects from the socket
+        /// </summary>
+        public static void Quit()
+        {
+            try
+            {
+                var manager = Get();
+
+                if (!manager.Client.Connected) return;
+
+                var stream = manager.Client.GetStream();
+
+                var commandBytes = Encoding.UTF8.GetBytes("QUIT");
+                stream.Write(commandBytes, 0, commandBytes.Length);
+
+                Disconnect();
+            }
+            catch
+            {
+                // Ignore
+            }
+        }
+
+        /// <summary>
         /// Sends the name to the server
         /// </summary>
         /// <param name="name">The name to send</param>
-        public static void SendName(string name)
+        /// <returns>The json response from the server</returns>
+        public static string SendName(string name)
         {
             var manager = Get();
 
             var nameBytes = Encoding.UTF8.GetBytes(name);
-            manager.Client.GetStream().BeginWrite(nameBytes, 0, nameBytes.Length, null, null); // We don't care if it didn't finish //
+            var stream = manager.Client.GetStream();
+
+            stream.Write(nameBytes, 0, nameBytes.Length); // We don't care if it didn't finish //
+
+            var bytes = new byte[1024];
+            stream.Read(bytes, 0, bytes.Length);
+
+            return Encoding.UTF8.GetString(bytes).Trim('\0');
         }
     }
 }

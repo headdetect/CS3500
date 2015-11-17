@@ -130,6 +130,14 @@ namespace Model
         public float Bottom => Y + (Height / 2f);
 
         /// <summary>
+        /// Gets or sets a value indicating whether this instance is dead.
+        /// </summary>
+        /// <value>
+        /// If is dead <c>true</c> if this instance is dead; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsDead => Mass == 0d;
+
+        /// <summary>
         /// Gets a cube from json
         /// </summary>
         /// <param name="json">the json</param>

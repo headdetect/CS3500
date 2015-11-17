@@ -14,6 +14,14 @@ namespace AgCubio
 {
     public partial class ConnectForm : Form
     {
+        /// <summary>
+        /// Gets or sets the name of the game cube.
+        /// </summary>
+        /// <value>
+        /// The name of the game cube.
+        /// </value>
+        public string MyCubeJson { get; set; }
+
         public ConnectForm()
         {
             InitializeComponent();
@@ -52,10 +60,14 @@ namespace AgCubio
             {
                 try
                 {
-                    NetworkManager.Connect(name, address, port);
+                    NetworkManager.Connect(address, port);
 
                     MessageBox.Show(@"Successfully connected!", @"Success", MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
+
+                    MyCubeJson = NetworkManager.SendName(name);
+
+                    NetworkManager.Start();
 
                     DoForegroundWork(Close);
                 }

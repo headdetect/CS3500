@@ -38,9 +38,9 @@
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "GameWindow";
             this.Text = "Form1";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.GameWindow_FormClosing);
             this.Load += new System.EventHandler(this.GameWindow_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.GameWindow_KeyDown);
-            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.GameWindow_MouseMove);
             this.ResumeLayout(false);
 
         }

@@ -19,43 +19,35 @@ namespace AgCubio
 {
     public partial class GameWindow : Form
     {
-        /// <summary>
-        /// Gets or sets my cube.
-        /// </summary>
-        /// <value>
-        /// My cube.
-        /// </value>
-        public Cube MyCube { get; set; }
 
 
         /// <summary>
-        /// Gets or sets a value indicating whether developer stats is enabled or disabled.
+        /// Gets or sets the level of developer stats to display.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if developer stats enabled; otherwise, <c>false</c>.
+        /// 0 - disabled
+        /// 1 - borders, grids
+        /// 2 - borders, grids, networking
+        /// 3 - borders, grids, networking, index info
         /// </value>
-        public bool DeveloperStats { get; set; }
+        public int DeveloperStats { get; set; }
 
         private int _numberOfPacketsReceived, _numberOfPacketsSent;
         private readonly World _world;
         private readonly Stopwatch _watch;
         private int _frameCount;
         private float _fps;
-        private int _numberOfCubesOnTeam;
-        private float _scale = 1;
-
-        /// <summary>
-        /// Gets the cursor position relative to the window
-        /// </summary>
-        public int CursorPositionX { get; private set; }
-        public int CursorPositionY { get; private set; }
+        private Cube _myCube;
+        private readonly List<Cube> _teamCubes;
+        private readonly Timer _timer;
 
         public GameWindow()
         {
             InitializeComponent();
             _world = new World();
             _watch = new Stopwatch();
-
+            _teamCubes = new List<Cube>();
+            _timer = new Timer { Interval = 1 };
         }
 
 
@@ -66,45 +58,58 @@ namespace AgCubio
             Width = World.Width + 200; // 200 for the stats //
             Height = World.Height;
 
-            (new ConnectForm()).ShowDialog(this);
+            NetworkManager.Quit();
+
+            var connectForm = new ConnectForm();
+            connectForm.ShowDialog(this);
 
             CheckConnected();
+
+            if (Disposing || IsDisposed) return;
+
+            
+
+            // Reset any that may already pre-exist //
+            NetworkManager.PacketListener -= NetworkManager_PacketListener;
+            NetworkManager.ServerException -= NetworkManager_ServerException;
 
             NetworkManager.PacketListener += NetworkManager_PacketListener;
             NetworkManager.ServerException += NetworkManager_ServerException;
 
-            var t = new Timer { Interval = 1 };
-            t.Tick += T_Tick;
-            t.Start();
+            _myCube = Cube.FromJson(connectForm.MyCubeJson);
+            
+            _timer.Tick += T_Tick;
+            _timer.Start();
 
             _watch.Start();
         }
 
         private void NetworkManager_ServerException(Exception obj)
         {
+            if (IsDisposed || Disposing) return; // Just ignore //
+
             MessageBox.Show(@"Disconnected from server");
 
             //TODO: Do something with this
         }
 
+        private TimeSpan _prevTime = TimeSpan.Zero;
+
         private void T_Tick(object sender, EventArgs e)
         {
-
-            _fps = (float)Math.Round(_frameCount / (float)_watch.Elapsed.Seconds, 2);
+            if ((_watch.Elapsed - _prevTime).TotalSeconds >= 1d)
+            {
+                _fps = (float)Math.Round(_frameCount / (float)_watch.Elapsed.Seconds, 2);
+                _frameCount = 0; // Reset frame count, so its not, but relative to this current second. //
+                _watch.Restart();
+                _prevTime = _watch.Elapsed;
+            }
 
             Invalidate();
 
-            NetworkManager.SendCommand("move", CursorPositionX, CursorPositionY);
+            NetworkManager.SendCommand("move", Cursor.Position.X, Cursor.Position.Y);
             _numberOfPacketsSent++;
         }
-
-        private void GameWindow_MouseMove(object sender, MouseEventArgs e)
-        {
-            var relative = PointToClient(Cursor.Position);
-            CursorPositionX = Math.Max(0, relative.X);
-            CursorPositionY = Math.Max(0, relative.Y);
-        }
-
 
         private void NetworkManager_PacketListener(string[] chunks)
         {
@@ -112,11 +117,37 @@ namespace AgCubio
             {
                 _numberOfPacketsReceived++;
 
+                if (_myCube.Uid == bCube.Uid)
+                {
+                    _myCube = bCube;
+                }
 
-                if (MyCube == null)
-                    MyCube = bCube;
+                lock (_teamCubes)
+                {
+                    if (_myCube.TeamId == bCube.TeamId && bCube.TeamId != 0)
+                    {
+                        var index = _teamCubes.FindIndex(cube => cube.Uid == bCube.Uid);
 
-                if (bCube.TeamId == MyCube.TeamId) _numberOfCubesOnTeam++;
+                        if (!bCube.IsDead)
+                        {
+                            if (index == -1)
+                            {
+                                _teamCubes.Add(bCube);
+                            }
+                            else
+                            {
+                                _teamCubes[index] = bCube;
+                            }
+                        }
+                        else
+                        {
+                            if (index != -1)
+                            {
+                                _teamCubes.RemoveAll(cube => cube.Uid == bCube.Uid);
+                            }
+                        }
+                    }
+                }
 
                 lock (_world)
                 {
@@ -126,10 +157,8 @@ namespace AgCubio
 
             }
 
-            if (_numberOfCubesOnTeam == 0)
+            if (_myCube.IsDead)
                 MyCubeDied();
-
-            _numberOfCubesOnTeam = 0;
         }
 
         /// <summary>
@@ -138,20 +167,28 @@ namespace AgCubio
         /// </summary>
         private void MyCubeDied()
         {
-            if (MyCube?.Mass == 0d)
+            if (_myCube?.Mass != 0d) return;
+
+            _myCube = null;
+            _timer.Stop();
+
+            DoForegroundWork(() =>
             {
                 var result = MessageBox.Show(@"You have died! Do you want to play again?",
-                    @"You died!", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
+                    @"You died!", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
 
-                if (result == DialogResult.OK)
+                if (result == DialogResult.Yes)
                 {
-                    (new ConnectForm()).ShowDialog(this);
-                    CheckConnected();
+                    GameWindow_Load(null, null);
                 }
 
-                if (result == DialogResult.Cancel)
+                if (result == DialogResult.No)
+                {
+                    NetworkManager.Quit();
                     Close();
-            }
+                }
+
+            });
         }
 
         private void GameWindow_KeyDown(object sender, KeyEventArgs e)
@@ -159,33 +196,13 @@ namespace AgCubio
 
             if (e.KeyCode == Keys.Space)
             {
-                NetworkManager.SendCommand("split", CursorPositionX, CursorPositionY);
+                NetworkManager.SendCommand("split", Cursor.Position.X, Cursor.Position.Y);
                 _numberOfPacketsSent++;
             }
 
             if (e.KeyCode == Keys.G)
             {
-                DeveloperStats = !DeveloperStats;
-            }
-
-            if (e.KeyCode == Keys.Up)
-            {
-                CursorPositionY--;
-            }
-
-            if (e.KeyCode == Keys.Down)
-            {
-                CursorPositionY++;
-            }
-
-            if (e.KeyCode == Keys.Left)
-            {
-                CursorPositionX--;
-            }
-
-            if (e.KeyCode == Keys.Right)
-            {
-                CursorPositionX++;
+                DeveloperStats = (DeveloperStats + 1) % 4;
             }
         }
 
@@ -195,6 +212,8 @@ namespace AgCubio
 
             g.Clear(BackColor);
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
+
+            Transform(g);
 
             lock (_world)
             {
@@ -209,13 +228,12 @@ namespace AgCubio
                 }
             }
 
-            DrawStats(g);
-
             _frameCount++;
 
-            //if (MyCube != null)
-            //    g.TranslateTransform(MyCube.X, MyCube.Y);
-            //g.ScaleTransform(2, 2);
+            if (DeveloperStats >= 1)
+                g.DrawRectangle(Pens.Black, 0, 0, World.Width, World.Height); // World Boundries //
+
+            DrawStats(g);
 
             base.OnPaint(e);
         }
@@ -237,7 +255,7 @@ namespace AgCubio
 
             var nameSize = g.MeasureString(cube.Name, Font);
 
-            if (DeveloperStats)
+            if (DeveloperStats >= 1)
             {
                 g.DrawLine(Pens.Red, cube.Left, cube.Y, cube.Right, cube.Y);
                 g.DrawLine(Pens.Red, cube.X, cube.Top, cube.X, cube.Bottom);
@@ -261,7 +279,7 @@ namespace AgCubio
             Brush b = new SolidBrush(cube.Color);
             g.FillRectangle(b, cube.X, cube.Y, cube.Width * 10, cube.Height * 10);
 
-            if (DeveloperStats)
+            if (DeveloperStats >= 3)
             {
                 var text = _world.GetFoodCubeIndex(cube.Uid).ToString();
                 var nameSize = g.MeasureString(text, Font);
@@ -273,30 +291,94 @@ namespace AgCubio
 
         private void DrawStats(Graphics g)
         {
+            // Reset transformation //
+            g.Transform = new Matrix();
+
             var left = World.Width + 15; // 15px for padding //
+
+            g.FillRectangle(new SolidBrush(Color.FromArgb(0xAA, 0xFF, 0xFF, 0xFF)), World.Width, 0, 200, 210);
 
             // Calculate FPS //
 
             g.DrawString($"FPS: {_fps}", Font, Brushes.Black, left, 15);
 
-            if (MyCube != null)
+            if (_myCube != null)
             {
-                g.DrawString($"Mass: {MyCube.Mass}", Font, Brushes.Black, left, 40);
-                g.DrawString($"Size: {MyCube.Width}", Font, Brushes.Black, left, 60);
+                g.DrawString($"Mass: {_myCube.Mass}", Font, Brushes.Black, left, 40);
+                g.DrawString($"Size: {_myCube.Width}", Font, Brushes.Black, left, 60);
             }
 
             g.DrawString($"Foods: {_world.Food.Count}", Font, Brushes.Black, left, 85);
             g.DrawString($"Players: {_world.Players.Count}", Font, Brushes.Black, left, 105);
 
-
-            if (DeveloperStats)
+            if (DeveloperStats > 0)
             {
-                g.DrawString($"Packets Sent: {_numberOfPacketsSent}", Font, Brushes.Black, left, 135);
-                g.DrawString($"Packets Got: {_numberOfPacketsReceived}", Font, Brushes.Black, left, 155);
+                g.DrawString($"Developer Mode: {DeveloperStats}", Font, Brushes.Black, left, 135);
+            }
+
+            if (DeveloperStats >= 2)
+            {
+                g.DrawString($"Packets Sent: {_numberOfPacketsSent}", Font, Brushes.Black, left, 160);
+                g.DrawString($"Packets Got: {_numberOfPacketsReceived}", Font, Brushes.Black, left, 180);
             }
         }
 
+        private void Transform(Graphics g)
+        {
+            if (_myCube == null) return;
+
+            float leftMost = _myCube.Left;
+            float rightMost = _myCube.Right;
+            float topMost = _myCube.Top;
+            float bottomMost = _myCube.Bottom;
+
+            lock (_teamCubes)
+            {
+                foreach (var cube in _teamCubes)
+                {
+                    leftMost = Math.Min(leftMost, cube.Left);
+                    topMost = Math.Min(topMost, cube.Top);
+
+                    rightMost = Math.Max(rightMost, cube.Right);
+                    bottomMost = Math.Max(bottomMost, cube.Bottom);
+                }
+            }
+
+            var viewWidth = rightMost - leftMost;
+            var viewHeight = bottomMost - topMost;
+
+            var scale = Math.Min(1.5f, 1.5f);
+
+            var theMatrixReloaded = new Matrix();
+
+            var dx = MathUtils.Clamp(-(leftMost - (World.Width / 2f) + viewWidth), -World.Width + (World.Width * scale) / 2, 0);
+            var dy = MathUtils.Clamp(-(topMost - (World.Height / 2f) + viewHeight), -World.Height + (World.Height * scale) / 2, 0);
+
+
+            theMatrixReloaded.Scale(scale, scale);
+            theMatrixReloaded.Translate(dx, dy);
+
+            g.Transform = theMatrixReloaded;
+
+            if (DeveloperStats >= 1)
+                g.DrawRectangle(Pens.Orange, leftMost, topMost, viewWidth, viewHeight);
+
+        }
+
         #endregion
+
+        private void GameWindow_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            try
+            {
+                if (NetworkManager.Connected)
+                    NetworkManager.Quit();
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
 
         private void CheckConnected()
         {
@@ -312,8 +394,41 @@ namespace AgCubio
             }
 
             if (result == DialogResult.Cancel)
-                Close();
+            {
+                NetworkManager.Quit();
+                DoForegroundWork(Close);
+            }
+        }
+
+
+        private static readonly object ForegroundLock = new object();
+
+        /// <summary>
+        /// Used to do operations on the GUI thread.
+        /// </summary>
+        /// <param name="work"></param>
+        private void DoForegroundWork(Action work)
+        {
+            try
+            {
+                if (InvokeRequired)
+                {
+                    BeginInvoke(work);
+                }
+                else
+                {
+                    lock (ForegroundLock)
+                    {
+                        work();
+                    }
+                }
+            }
+            catch
+            {
+            }
+
         }
 
     }
+
 }
