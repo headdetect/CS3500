@@ -16,7 +16,17 @@ namespace AgCubio
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new GameWindow());
+
+            GameWindow window;
+
+            do
+            {
+                window = new GameWindow();
+                Application.Run(window);
+                Application.Exit();
+
+            } while (window.KeepPlaying);
+
         }
     }
 }

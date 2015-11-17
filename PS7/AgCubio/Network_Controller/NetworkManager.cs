@@ -150,9 +150,18 @@ namespace Network_Controller
         /// </summary>
         public static void Disconnect()
         {
-            var manager = Get();
+            try
+            {
+                var manager = Get();
 
-            manager.Client?.Close();
+                manager.Client?.Close();
+
+                _instanceNetworkManager = null;
+            }
+            catch
+            {
+                // Ignore
+            }
         }
 
         /// <summary>

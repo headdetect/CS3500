@@ -32,6 +32,14 @@ namespace AgCubio
         /// </value>
         public int DeveloperStats { get; set; }
 
+        /// <summary>
+        /// Gets a value indicating whether we want to keep playing.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if keep playing; otherwise, <c>false</c>.
+        /// </value>
+        internal bool KeepPlaying { get; private set; }
+
         private int _numberOfPacketsReceived, _numberOfPacketsSent;
         private readonly World _world;
         private readonly Stopwatch _watch;
@@ -67,9 +75,7 @@ namespace AgCubio
 
             if (Disposing || IsDisposed) return;
 
-            
-
-            // Reset any that may already pre-exist //
+            // Remove any pre-existing listeners //
             NetworkManager.PacketListener -= NetworkManager_PacketListener;
             NetworkManager.ServerException -= NetworkManager_ServerException;
 
@@ -117,6 +123,14 @@ namespace AgCubio
             {
                 _numberOfPacketsReceived++;
 
+                lock (_world)
+                {
+                    if (bCube.IsFood) _world.UpdateFoodCube(bCube); // If a food cube packet is sent again, it means remove it //
+                    else _world.UpdatePlayerCube(bCube);
+                }
+
+                if (_myCube == null) continue;
+
                 if (_myCube.Uid == bCube.Uid)
                 {
                     _myCube = bCube;
@@ -124,40 +138,32 @@ namespace AgCubio
 
                 lock (_teamCubes)
                 {
-                    if (_myCube.TeamId == bCube.TeamId && bCube.TeamId != 0)
-                    {
-                        var index = _teamCubes.FindIndex(cube => cube.Uid == bCube.Uid);
+                    if (_myCube.TeamId != bCube.TeamId || bCube.TeamId == 0) continue;
 
-                        if (!bCube.IsDead)
+                    var index = _teamCubes.FindIndex(cube => cube.Uid == bCube.Uid);
+
+                    if (!bCube.IsDead)
+                    {
+                        if (index == -1)
                         {
-                            if (index == -1)
-                            {
-                                _teamCubes.Add(bCube);
-                            }
-                            else
-                            {
-                                _teamCubes[index] = bCube;
-                            }
+                            _teamCubes.Add(bCube);
                         }
                         else
                         {
-                            if (index != -1)
-                            {
-                                _teamCubes.RemoveAll(cube => cube.Uid == bCube.Uid);
-                            }
+                            _teamCubes[index] = bCube;
+                        }
+                    }
+                    else
+                    {
+                        if (index != -1)
+                        {
+                            _teamCubes.RemoveAll(cube => cube.Uid == bCube.Uid);
                         }
                     }
                 }
-
-                lock (_world)
-                {
-                    if (bCube.IsFood) _world.UpdateFoodCube(bCube); // If a food cube packet is sent again, it means remove it //
-                    else _world.UpdatePlayerCube(bCube);
-                }
-
             }
 
-            if (_myCube.IsDead)
+            if (_myCube?.IsDead ?? false)
                 MyCubeDied();
         }
 
@@ -179,14 +185,11 @@ namespace AgCubio
 
                 if (result == DialogResult.Yes)
                 {
-                    GameWindow_Load(null, null);
+                    KeepPlaying = true;
                 }
 
-                if (result == DialogResult.No)
-                {
-                    NetworkManager.Quit();
-                    Close();
-                }
+                NetworkManager.Quit();
+                Close();
 
             });
         }
