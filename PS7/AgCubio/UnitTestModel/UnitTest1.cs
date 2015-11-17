@@ -120,6 +120,74 @@ namespace UnitTestModel
             Assert.AreEqual(1, myWorld.GetPlayerCubeIndex(54));
         }
 
+        [TestMethod]
+        public void WorldGetFoodCubeTest1()
+        {
+            World myWorld = new World();
+            Cube[] cubes = new Cube[3];
 
+            for (int i = 0; i < 3; i++)
+            {
+                cubes[i] = Cube.FromJson("{\"food\":true, \"uid\":" + i + "}");
+                myWorld.AddCube(cubes[i]);
+            }
+
+            Assert.AreEqual(null, myWorld.GetFoodCube(5));
+            Assert.AreEqual(cubes[0], myWorld.GetFoodCube(0));
+            Assert.AreEqual(cubes[1], myWorld.GetFoodCube(1));
+            Assert.AreEqual(cubes[2], myWorld.GetFoodCube(2));
+        }
+
+        [TestMethod]
+        public void WorldGetPlayerCubeTest1()
+        {
+            World myWorld = new World();
+            Cube[] cubes = new Cube[3];
+
+            for (int i = 0; i < 3; i++)
+            {
+                cubes[i] = Cube.FromJson("{\"food\":false, \"uid\":" + i + "}");
+                myWorld.AddCube(cubes[i]);
+            }
+
+            Assert.AreEqual(null, myWorld.GetPlayerCube(5));
+            Assert.AreEqual(cubes[0], myWorld.GetPlayerCube(0));
+            Assert.AreEqual(cubes[1], myWorld.GetPlayerCube(1));
+            Assert.AreEqual(cubes[2], myWorld.GetPlayerCube(2));
+        }
+
+        [TestMethod]
+        public void WorldUpdateFoodCubeTest1()
+        {
+            World myWorld = new World();
+            Cube cube = Cube.FromJson("{\"food\":true, \"mass\":20, \"uid\":0}");
+
+            myWorld.AddCube(cube);
+            myWorld.UpdateFoodCube(cube);
+            Assert.AreEqual(null, myWorld.GetFoodCube(0));
+
+            myWorld.UpdateFoodCube(cube);
+            Assert.AreEqual(cube, myWorld.GetFoodCube(0));
+        }
+
+        [TestMethod]
+        public void WorldUpdatePlayerCubeTest1()
+        {
+            World myWorld = new World();
+            Cube cube = Cube.FromJson("{\"food\":false, \"mass\":0, \"uid\":0}");
+            Cube cube2 = Cube.FromJson("{\"food\":false, \"mass\":100, \"uid\":1}");
+
+            myWorld.AddCube(cube);
+            myWorld.UpdatePlayerCube(cube);
+            Assert.AreEqual(null, myWorld.GetPlayerCube(0));
+
+            myWorld.UpdatePlayerCube(cube2);
+            Assert.AreEqual(cube2, myWorld.GetPlayerCube(1));
+
+            cube2 = Cube.FromJson("{\"food\":false, \"mass\":1000, \"uid\":1}");
+            myWorld.UpdatePlayerCube(cube2);
+            Assert.AreEqual(cube2, myWorld.GetPlayerCube(1));
+            Assert.AreEqual(1000, myWorld.GetPlayerCube(1).Mass);
+        }
     }
 }
