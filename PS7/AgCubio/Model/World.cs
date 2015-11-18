@@ -99,7 +99,7 @@ namespace Model
         /// <returns>A cube with that UID if exists; otherwise, returns null.</returns>
         public int GetFoodCubeIndex(int uid)
         {
-            return Food?.FindIndex(cube => cube.Uid == uid) ?? -1;
+            return Food.FindIndex(cube => cube.Uid == uid);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace Model
         /// <returns>A cube with that UID if exists; otherwise, returns null.</returns>
         public int GetPlayerCubeIndex(int uid)
         {
-            return Players?.FindIndex(cube => cube.Uid == uid) ?? -1;
+            return Players.FindIndex(cube => cube.Uid == uid);
         }
 
         /// <summary>

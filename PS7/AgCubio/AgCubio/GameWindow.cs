@@ -42,7 +42,7 @@ namespace AgCubio
 
         private int _numberOfPacketsReceived, _numberOfPacketsSent;
         private readonly World _world;
-        private readonly Stopwatch _watch;
+        private readonly Stopwatch _watch, _totalWatch;
         private int _frameCount;
         private float _fps;
         private Cube _myCube;
@@ -54,6 +54,7 @@ namespace AgCubio
             InitializeComponent();
             _world = new World();
             _watch = new Stopwatch();
+            _totalWatch = new Stopwatch();
             _teamCubes = new List<Cube>();
             _timer = new Timer { Interval = 1 };
         }
@@ -88,6 +89,7 @@ namespace AgCubio
             _timer.Start();
 
             _watch.Start();
+            _totalWatch.Start();
         }
 
         private void NetworkManager_ServerException(Exception obj)
@@ -181,7 +183,7 @@ namespace AgCubio
 
             DoForegroundWork(() =>
             {
-                var result = MessageBox.Show(@"You have died! Do you want to play again?",
+                var result = MessageBox.Show($"You have died\nYou lasted: {_totalWatch.Elapsed.TotalSeconds} seconds.\n  Do you want to play again?",
                     @"You died!", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
 
                 if (result == DialogResult.Yes)
