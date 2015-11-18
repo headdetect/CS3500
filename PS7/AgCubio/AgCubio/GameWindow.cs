@@ -19,8 +19,7 @@ namespace AgCubio
 {
     public partial class GameWindow : Form
     {
-
-
+        
         /// <summary>
         /// Gets or sets the level of developer stats to display.
         /// </summary>
@@ -295,6 +294,10 @@ namespace AgCubio
         }
 
 
+        /// <summary>
+        /// Draws the stats.
+        /// </summary>
+        /// <param name="g">The graphics.</param>
         private void DrawStats(Graphics g)
         {
             // Reset transformation //
@@ -329,6 +332,11 @@ namespace AgCubio
             }
         }
 
+        /// <summary>
+        /// Transforms the specified graphics.
+        /// Will zoom in and orientate based on the Player Cube
+        /// </summary>
+        /// <param name="g">The graphics.</param>
         private void Transform(Graphics g)
         {
             if (_myCube == null) return;
@@ -386,6 +394,9 @@ namespace AgCubio
             }
         }
 
+        /// <summary>
+        /// Checks the connection.
+        /// </summary>
         private void CheckConnected()
         {
             if (NetworkManager.Connected) return;
@@ -395,6 +406,9 @@ namespace AgCubio
         }
 
 
+        /// <summary>
+        /// The foreground lock
+        /// </summary>
         private static readonly object ForegroundLock = new object();
 
         /// <summary>

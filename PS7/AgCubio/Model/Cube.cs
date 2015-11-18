@@ -14,8 +14,6 @@ namespace Model
     /// </summary>
     public class Cube
     {
-        public static float Stuff = 1;
-
         /// <summary>
         /// Gets or sets the parent uid.
         /// </summary>
