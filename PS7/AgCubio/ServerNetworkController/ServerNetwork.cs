@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ServerNetworkController
@@ -18,6 +19,12 @@ namespace ServerNetworkController
         /// Event called when a client joins the server
         /// </summary>
         public static event Action<int, TcpClient> ClientJoined;
+
+        
+        /// <summary>
+        /// Event called when a string packet is received
+        /// </summary>
+        public static event Action<int, string> PacketReceived;
 
 
         /// <summary>
@@ -43,6 +50,15 @@ namespace ServerNetworkController
         /// </summary>
         public bool Listening { get; private set; }
 
+        /// <summary>
+        /// The next in line for a UID.
+        /// </summary>
+        private int _globalUid = 1;
+
+
+        /// <summary>
+        /// Creates a new server network
+        /// </summary>
         public ServerNetwork()
         {
             Clients = new Dictionary<int, TcpClient>();
@@ -61,7 +77,33 @@ namespace ServerNetworkController
             while (Listening)
             {
                 var client = TcpListener.AcceptTcpClient(); // Accepts a new TcpClient from the listener //
-                ClientJoined?.Invoke(client); // Send an event that we've received a client.
+
+                var uid = _globalUid++;
+
+                ClientJoined?.Invoke(uid, client); // Send an event that we've received a client.
+
+                new Thread(() => BeginClientListen(uid, client)).Start();
+            }
+        }
+
+        /// <summary>
+        /// Will listen for client commands being sent to the server from the client
+        /// </summary>
+        /// <param name="uid">The uid of the client</param>
+        /// <param name="client">the client</param>
+        private void BeginClientListen(int uid, TcpClient client)
+        {
+            var stream = client.GetStream();
+
+            while (stream.CanRead && Listening)
+            {
+                var chunk = new byte[1024]; // Assuming the name isn't over 1024 bytes... //
+
+                var size = stream.Read(chunk, 0, chunk.Length);
+
+                var packet = Encoding.UTF8.GetString(chunk, 0, size);
+
+                PacketReceived?.Invoke(uid, packet); // Send an event that we've received a packet
             }
         }
 
@@ -131,9 +173,8 @@ namespace ServerNetworkController
 
             var memStream = new MemoryStream();
 
-            foreach (var str in strs)
+            foreach (var bytes in strs.Select(str => Encoding.UTF8.GetBytes(str + "\n")))
             {
-                var bytes = Encoding.UTF8.GetBytes(str + "\n");
                 memStream.Write(bytes, 0, bytes.Length);
             }
 
