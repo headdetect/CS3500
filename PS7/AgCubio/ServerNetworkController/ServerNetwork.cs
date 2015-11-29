@@ -49,13 +49,7 @@ namespace ServerNetworkController
         /// To set to false, close the connection by using <see cref="Stop()"/>
         /// </summary>
         public bool Listening { get; private set; }
-
-        /// <summary>
-        /// The next in line for a UID.
-        /// </summary>
-        private int _globalUid = 1;
-
-
+        
         /// <summary>
         /// Creates a new server network
         /// </summary>
@@ -77,8 +71,15 @@ namespace ServerNetworkController
             while (Listening)
             {
                 var client = TcpListener.AcceptTcpClient(); // Accepts a new TcpClient from the listener //
+                
+                var uid = FindNextUid();
 
-                var uid = _globalUid++;
+                if (uid == -1)
+                {
+                    client.Close();
+                    // We are full. Soz bruh //
+                    continue;
+                }
 
                 ClientJoined?.Invoke(uid, client); // Send an event that we've received a client.
 
@@ -93,17 +94,36 @@ namespace ServerNetworkController
         /// <param name="client">the client</param>
         private void BeginClientListen(int uid, TcpClient client)
         {
-            var stream = client.GetStream();
-
-            while (stream.CanRead && Listening)
+            try
             {
-                var chunk = new byte[1024]; // Assuming the name isn't over 1024 bytes... //
+                var stream = client.GetStream();
 
-                var size = stream.Read(chunk, 0, chunk.Length);
+                while (stream.CanRead && Listening)
+                {
+                    var chunk = new byte[1024]; // Assuming the name isn't over 1024 bytes... //
 
-                var packet = Encoding.UTF8.GetString(chunk, 0, size);
+                    var size = stream.Read(chunk, 0, chunk.Length);
 
-                PacketReceived?.Invoke(uid, packet); // Send an event that we've received a packet
+                    var packet = Encoding.UTF8.GetString(chunk, 0, size);
+
+                    PacketReceived?.Invoke(uid, packet); // Send an event that we've received a packet
+                }
+            }
+            catch (IOException)
+            {
+                if (Clients.ContainsKey(uid))
+                    Clients.Remove(uid);
+
+                try
+                {
+                    client.Close();
+                }
+                catch
+                {
+                    // Ignore //
+                }
+
+                ClientLeft?.Invoke(uid);
             }
         }
 
@@ -180,6 +200,16 @@ namespace ServerNetworkController
 
             var buffer = memStream.GetBuffer();
             stream.Write(buffer, 0, buffer.Length);
+        }
+
+        private int FindNextUid()
+        {
+            for (var i = 0; i < 40; i++)
+            {
+                if (!Clients.ContainsKey(i))
+                    return i;
+            }
+            return -1;
         }
     }
 }
