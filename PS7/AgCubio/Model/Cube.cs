@@ -133,7 +133,7 @@ namespace Model
         /// <value>
         /// If is dead <c>true</c> if this instance is dead; otherwise, <c>false</c>.
         /// </value>
-        public bool IsDead => Mass == 0d;
+        public bool IsDead => Math.Abs(Mass) <= 0;
 
         /// <summary>
         /// Gets a cube from json
@@ -143,6 +143,15 @@ namespace Model
         public static Cube FromJson(string json)
         {
             return JsonConvert.DeserializeObject<Cube>(json);
+        }
+
+        /// <summary>
+        /// Converts and object into string json
+        /// </summary>
+        /// <returns>a string json representation of this object</returns>
+        public string ToJson()
+        {
+            return JsonConvert.SerializeObject(this);
         }
     }
 }
