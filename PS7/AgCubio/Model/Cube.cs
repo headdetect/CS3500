@@ -135,7 +135,7 @@ namespace Model
         public float Bottom => Y + (Height / 2f);
 
         [JsonIgnore]
-        public RectangleF AsRectangle => new RectangleF(Left, Top, Right, Bottom);
+        public RectangleF AsRectangle => new RectangleF(Left, Top, Width, Height);
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is dead.

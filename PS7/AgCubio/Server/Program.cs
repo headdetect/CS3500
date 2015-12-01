@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Net.Sockets;
@@ -37,22 +38,28 @@ namespace Server
         /// <value>
         /// The new cubes.
         /// </value>
-        public static List<Cube> NewCubes { get; private set; } 
+        public static List<Cube> NewCubes { get; private set; }
+
+        /// <summary>
+        /// Keeps track of how many teams there are.
+        /// </summary>
+        public static List<int> Teams { get; private set; } 
 
         public static void Main(string[] args)
         {
             World = new World();
             var random = new Random();
             NewCubes = new List<Cube>();
+            Teams = new List<int>();
 
-            for (var i = 0; i < 6000; i++)
+            for (var i = 0; i < Constants.MaxFood; i++)
             {
                 // Add a bunch of food cubes //
                 World.AddCube(new Cube
                 {
                     Color = Color.FromArgb(i % 255, i / 255, 20),
                     IsFood = true,
-                    Mass = 1, 
+                    Mass = 1,
                     Uid = i + 40, // UID's 0 - 40 belong to players
                     X = random.Next(World.Width),
                     Y = random.Next(World.Height)
@@ -79,7 +86,8 @@ namespace Server
 
         private static void ServerNetwork_PacketReceived(Client client, string packet)
         {
-            try {
+            try
+            {
                 if (!packet.StartsWith("(")) return; // We don't accept anything not () //
 
                 var regex = new Regex(@"\d+.\d+");
@@ -95,65 +103,106 @@ namespace Server
                     if (!World.Players.ContainsKey(client.Uid)) return; // Should never happen //
 
                     //TODO: Interpolate to that location
+                    var player = World.Players[client.Uid];
 
-                    World.Players[client.Uid].X = x;
-                    World.Players[client.Uid].Y = y;
+                    if (player.X == x && player.Y == y) return; // Ignore updating, they are the same //
+
+                    player.X = x;
+                    player.Y = y;
                 }
 
                 if (packet.StartsWith("(split"))
                 {
                     // Is the split command //
+                    if (!World.Players.ContainsKey(client.Uid)) return; // Should never happen //
+
+                    var player = World.Players[client.Uid];
+                    int teamId = player.TeamId;
+
+                    if (teamId == 0 && player.Mass >= Constants.MinSplitMass)
+                    {
+                        player.Mass /= 2;
+
+                        var newCube = new Cube();
+
+                        teamId = GenerateTeamId();
+                        player.TeamId = teamId;
+                        newCube.TeamId = teamId;
+                        
+                        //TODO: calculate new location
+                        
+                                                
+                    }
                 }
 
-                Server.SendString(client.Uid, World.Players[client.Uid].ToJson());
+                Server.SendStringGlobal(World.Players[client.Uid].ToJson());
             }
-            catch
+            catch(Exception e)
             {
                 // Ignore any error packets //
+                Debugger.Break();
             }
+        }
+
+        private static int GenerateTeamId()
+        {
+            for (var i = 0; i < Int32.MaxValue; i++)
+            {
+                if (!Teams.Contains(i))
+                    return i;
+            }
+            return -1;
         }
 
         private static void T_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             // Update the state of the clients //
 
-            NewCubes.Clear();
+            lock (NewCubes)
+            {
+                NewCubes.Clear();
+            }
 
-            //TODO: Add new cubes at random 
-            
-            // O(n^n) im so sorry //
+            if (World.Food.Count < Constants.MaxFood)
+            {
+                //TODO: Add new cubes at random 
+            }
 
-            foreach(var player in World.Players.Select(query => query.Value))
+            // O(n * f + n ^ n), where n = player.length, f = food.length or O(2n^2) //
+
+            foreach (var player in World.Players.Select(query => query.Value))
             {
                 var playerRect = player.AsRectangle;
 
-                foreach(var food in World.Food.Select(query => query.Value))
+                foreach (var food in from food in World.Food.Select(query => query.Value) let foodRect = food.AsRectangle where foodRect.IntersectsWith(playerRect) select food)
                 {
-                    var foodRect = food.AsRectangle;
-                    
+                    player.Mass += food.Mass;
+                    food.Mass = 0;
+
+                    Server.SendStringGlobal(food.ToJson());
                 }
 
-                foreach(var otherPlayer in World.Players.Where(player2 => player2.Key != player.Uid).Select(query => query.Value))
+                foreach (var otherPlayer in World.Players.Where(player2 => player2.Key != player.Uid).Select(query => query.Value).Where(otherPlayer => otherPlayer.AsRectangle.IntersectsWith(playerRect)))
                 {
-                    if (otherPlayer.AsRectangle.IntersectsWith(playerRect))
+                    if (otherPlayer.Mass >= player.Mass * Constants.AbsorbConstant)
                     {
-                        //TODO: Something
+                        // We ded yo //
+                        otherPlayer.Mass += player.Mass;
+                        player.Mass = 0;
                     }
+
+                    if (player.Mass >= otherPlayer.Mass * Constants.AbsorbConstant)
+                    {
+                        // They ded yo //
+                        player.Mass += otherPlayer.Mass;
+                        otherPlayer.Mass = 0;
+                    }
+
+                    Server.SendStringGlobal(player.ToJson());
+                    Server.SendStringGlobal(otherPlayer.ToJson());
                 }
             }
 
-            lock (World)
-            {
-                // Force size to prevent reallocation //
-                var blobs = new List<string>(NewCubes.Count + World.Players.Count);
-
-                blobs.AddRange(NewCubes.Select(food => food.ToJson()));
-                blobs.AddRange(World.Players.Select(player => player.Value.ToJson()));
-
-                // To prevent multiple enumerations, we keep it an array //
-                Server.SendStringsGlobal(blobs.ToArray());
-            }
-            
         }
 
         private static void ServerNetwork_ClientSentName(Client client)
@@ -170,8 +219,11 @@ namespace Server
                 Y = 0
             };
 
-            // Add player cube //
-            World.AddCube(cube);
+            lock (World)
+            {
+                // Add player cube //
+                World.AddCube(cube);
+            }
 
             Server.SendString(client.Uid, cube.ToJson());
 
@@ -200,6 +252,9 @@ namespace Server
         private static void ServerNetwork_ClientLeft(Client client)
         {
             Console.WriteLine($"Client Left ({client.Uid} {client.Name})");
+
+            if (World.Players.ContainsKey(client.Uid))
+                World.Players.Remove(client.Uid);
         }
     }
 }

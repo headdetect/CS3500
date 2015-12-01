@@ -193,11 +193,19 @@ namespace ServerNetworkController
 
             if (!client.Loaded) return;
 
-            var stream = client.TcpClient.GetStream();
+            try
+            {
+                var stream = client.TcpClient.GetStream();
 
-            var bytes = Encoding.UTF8.GetBytes(str + "\n");
+                var bytes = Encoding.UTF8.GetBytes(str + "\n");
 
-            stream.Write(bytes, 0, bytes.Length);
+                stream.Write(bytes, 0, bytes.Length);
+            }
+            catch (IOException)
+            {
+                client.TcpClient.Close();
+                Clients.Remove(uid);
+            }
         }
 
         /// <summary>
@@ -213,11 +221,20 @@ namespace ServerNetworkController
 
             if (!client.Loaded) return;
 
-            var stream = client.TcpClient.GetStream();
-
-            foreach (var bytes in strs.Select(str => Encoding.UTF8.GetBytes(str + "\n")))
+            try
             {
-                stream.Write(bytes, 0, bytes.Length);
+
+                var stream = client.TcpClient.GetStream();
+
+                foreach (var bytes in strs.Select(str => Encoding.UTF8.GetBytes(str + "\n")))
+                {
+                    stream.Write(bytes, 0, bytes.Length);
+                }
+            }
+            catch (IOException)
+            {
+                client.TcpClient.Close();
+                Clients.Remove(uid);
             }
         }
 
