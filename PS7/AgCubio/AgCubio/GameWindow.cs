@@ -222,14 +222,14 @@ namespace AgCubio
 
             lock (_world)
             {
-                foreach (var cube in _world.Players.Where(cube => cube != null))
+                foreach (var cube in _world.Players)
                 {
-                    DrawPlayerCube(g, cube);
+                    DrawPlayerCube(g, cube.Value);
                 }
 
-                foreach (var cube in _world.Food.Where(cube => cube != null))
+                foreach (var cube in _world.Food)
                 {
-                    DrawFoodCube(g, cube);
+                    DrawFoodCube(g, cube.Value);
                 }
             }
 
@@ -286,7 +286,7 @@ namespace AgCubio
 
             if (DeveloperStats >= 3)
             {
-                var text = _world.GetFoodCubeIndex(cube.Uid).ToString();
+                var text = cube.Uid.ToString();
                 var nameSize = g.MeasureString(text, Font);
                 g.DrawString(text, Font, Brushes.Black,
                     cube.X - nameSize.Width / 2, cube.Y - nameSize.Height / 2);

@@ -56,6 +56,7 @@ namespace Model
         /// <value>
         /// The color.
         /// </value>
+        [JsonIgnore]
         public Color Color
         {
             get { return Color.FromArgb(_color); }
@@ -99,32 +100,38 @@ namespace Model
         /// <summary>
         /// Gets the width of the cube.
         /// </summary>
+        [JsonIgnore]
         public float Width => (int) Math.Pow(Mass, 0.65);
 
         /// <summary>
         /// Gets the height of the cube.
         /// </summary>
+        [JsonIgnore]
         public float Height => Width;
 
 
         /// <summary>
         /// Gets the top of the cube.
         /// </summary>
+        [JsonIgnore]
         public float Top => Y - (Height / 2f);
 
         /// <summary>
         /// Gets the left of the cube. Based from the center
         /// </summary>
+        [JsonIgnore]
         public float Left => X - (Width / 2f);
 
         /// <summary>
         /// Gets the right of the cube. Based from the center
         /// </summary>
+        [JsonIgnore]
         public float Right => X + (Width / 2f);
 
         /// <summary>
         /// Gets the bottom of the cube. Based from the center
         /// </summary>
+        [JsonIgnore]
         public float Bottom => Y + (Height / 2f);
 
         /// <summary>
@@ -133,6 +140,7 @@ namespace Model
         /// <value>
         /// If is dead <c>true</c> if this instance is dead; otherwise, <c>false</c>.
         /// </value>
+        [JsonIgnore]
         public bool IsDead => Math.Abs(Mass) <= 0;
 
         /// <summary>

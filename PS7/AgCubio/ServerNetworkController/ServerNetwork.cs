@@ -18,25 +18,30 @@ namespace ServerNetworkController
         /// <summary>
         /// Event called when a client joins the server
         /// </summary>
-        public static event Action<int, TcpClient> ClientJoined;
+        public static event Action<Client> ClientJoined;
 
-        
+
         /// <summary>
         /// Event called when a string packet is received
         /// </summary>
         public static event Action<int, string> PacketReceived;
 
+        /// <summary>
+        /// Occurs when the player first sends their name
+        /// </summary>
+        public static event Action<Client> ClientSentName;
+
 
         /// <summary>
         /// Event called with a client leaves the server
         /// </summary>
-        public static event Action<int> ClientLeft;
+        public static event Action<Client> ClientLeft;
 
 
         /// <summary>
         /// A dicitonary of all the clients connected to the server. Using the UID as the key.
         /// </summary>
-        public Dictionary<int, TcpClient> Clients { get; }
+        public Dictionary<int, Client> Clients { get; }
 
 
         /// <summary>
@@ -49,13 +54,13 @@ namespace ServerNetworkController
         /// To set to false, close the connection by using <see cref="Stop()"/>
         /// </summary>
         public bool Listening { get; private set; }
-        
+
         /// <summary>
         /// Creates a new server network
         /// </summary>
         public ServerNetwork()
         {
-            Clients = new Dictionary<int, TcpClient>();
+            Clients = new Dictionary<int, Client>();
             TcpListener = new TcpListener(IPAddress.Any, 11000); // TODO: Change to use Consts
         }
 
@@ -70,19 +75,21 @@ namespace ServerNetworkController
 
             while (Listening)
             {
-                var client = TcpListener.AcceptTcpClient(); // Accepts a new TcpClient from the listener //
-                
+                var clientSocket = TcpListener.AcceptTcpClient(); // Accepts a new TcpClient from the listener //
+
                 var uid = FindNextUid();
 
                 if (uid == -1)
                 {
-                    client.Close();
+                    clientSocket.Close();
                     // We are full. Soz bruh //
                     continue;
                 }
 
-                ClientJoined?.Invoke(uid, client); // Send an event that we've received a client.
+                var client = new Client(clientSocket);
 
+                ClientJoined?.Invoke(client); // Send an event that we've received a client.
+                Clients.Add(uid, client);
                 new Thread(() => BeginClientListen(uid, client)).Start();
             }
         }
@@ -92,11 +99,11 @@ namespace ServerNetworkController
         /// </summary>
         /// <param name="uid">The uid of the client</param>
         /// <param name="client">the client</param>
-        private void BeginClientListen(int uid, TcpClient client)
+        private void BeginClientListen(int uid, Client client)
         {
             try
             {
-                var stream = client.GetStream();
+                var stream = client.TcpClient.GetStream();
 
                 while (stream.CanRead && Listening)
                 {
@@ -106,24 +113,33 @@ namespace ServerNetworkController
 
                     var packet = Encoding.UTF8.GetString(chunk, 0, size);
 
+                    if (!client.Loaded)
+                    {
+                        client.Name = packet;
+                        client.Loaded = true;
+
+                        ClientSentName?.Invoke(client);
+                    }
+
                     PacketReceived?.Invoke(uid, packet); // Send an event that we've received a packet
                 }
             }
             catch (IOException)
             {
                 if (Clients.ContainsKey(uid))
+                {
+                    ClientLeft?.Invoke(Clients[uid]);
                     Clients.Remove(uid);
+                }
 
                 try
                 {
-                    client.Close();
+                    client.TcpClient.Close();
                 }
                 catch
                 {
                     // Ignore //
                 }
-
-                ClientLeft?.Invoke(uid);
             }
         }
 
@@ -136,8 +152,8 @@ namespace ServerNetworkController
 
             foreach (var client in Clients)
             {
-                ClientLeft?.Invoke(client.Key); // Send an event that this client has disconnected  
-                client.Value.Close(); // Now disconnect the client.
+                ClientLeft?.Invoke(client.Value); // Send an event that this client has disconnected  
+                client.Value.TcpClient.Close(); // Now disconnect the client.
             }
 
             TcpListener.Stop(); // Stop the server.
@@ -173,7 +189,11 @@ namespace ServerNetworkController
         {
             if (!Clients.ContainsKey(uid)) return;
 
-            var stream = Clients[uid].GetStream();
+            var client = Clients[uid];
+
+            if (!client.Loaded) return;
+
+            var stream = client.TcpClient.GetStream();
 
             var bytes = Encoding.UTF8.GetBytes(str + "\n");
 
@@ -189,17 +209,16 @@ namespace ServerNetworkController
         {
             if (!Clients.ContainsKey(uid)) return;
 
-            var stream = Clients[uid].GetStream();
+            var client = Clients[uid];
 
-            var memStream = new MemoryStream();
+            if (!client.Loaded) return;
+
+            var stream = client.TcpClient.GetStream();
 
             foreach (var bytes in strs.Select(str => Encoding.UTF8.GetBytes(str + "\n")))
             {
-                memStream.Write(bytes, 0, bytes.Length);
+                stream.Write(bytes, 0, bytes.Length);
             }
-
-            var buffer = memStream.GetBuffer();
-            stream.Write(buffer, 0, buffer.Length);
         }
 
         private int FindNextUid()
@@ -210,6 +229,53 @@ namespace ServerNetworkController
                     return i;
             }
             return -1;
+        }
+    }
+
+    /// <summary>
+    /// A class wrapping different aspects of a client
+    /// </summary>
+    public class Client
+    {
+        /// <summary>
+        /// Gets or sets the TCP client.
+        /// </summary>
+        /// <value>
+        /// The TCP client.
+        /// </value>
+        public TcpClient TcpClient { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets the uid.
+        /// </summary>
+        /// <value>
+        /// The uid.
+        /// </value>
+        public int Uid { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="Client" /> is loaded.
+        /// </summary>
+        /// <value>
+        /// <c>True</c> if client loaded; otherwise, <c>false</c>.
+        /// </value>
+        public bool Loaded { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Client" /> class.
+        /// </summary>
+        /// <param name="socket">The socket.</param>
+        public Client(TcpClient socket)
+        {
+            TcpClient = socket;
         }
     }
 }
