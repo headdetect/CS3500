@@ -7,8 +7,7 @@ namespace UnitTestModel
     [TestClass]
     public class UnitTest1
     {
-
-
+    
         /// <summary>
         /// All fields of an empty Cube should be their respective defaults.
         /// </summary>
@@ -103,43 +102,8 @@ namespace UnitTestModel
             Assert.AreEqual(2, myWorld.Food.Count);
             Assert.AreEqual(2, myWorld.Players.Count);// both counts should be two
         }
-
-        /// <summary>
-        /// Obtains the index of wherever in the Food list the food cube is when its uid is 
-        /// inputted.  Should return -1 if not found.
-        /// </summary>
-        [TestMethod]
-        public void WorldGetFoodCubeIndexTest1()
-        {
-            World myWorld = new World();
-
-            myWorld.AddCube(Cube.FromJson("{\"food\":true, \"uid\":45}"));
-            myWorld.AddCube(Cube.FromJson("{\"food\":true, \"uid\":54}"));
-
-            // uid 47 doesn't exist, so -1 is returned
-            Assert.AreEqual(-1, myWorld.GetFoodCubeIndex(47));
-            Assert.AreEqual(0, myWorld.GetFoodCubeIndex(45));// index 0
-            Assert.AreEqual(1, myWorld.GetFoodCubeIndex(54));// index 1
-        }
-
-        /// <summary>
-        /// Obtains the index of wherever in the Players list the player cube is when its uid is 
-        /// inputted.  Should return -1 if not found.
-        /// </summary>
-        [TestMethod]
-        public void WorldGetPlayerCubeIndexTest1()
-        {
-            World myWorld = new World();
-
-            myWorld.AddCube(Cube.FromJson("{\"food\":false, \"uid\":45}"));
-            myWorld.AddCube(Cube.FromJson("{\"food\":false, \"uid\":54}"));
-
-            // uid 47 doesn't exist, so -1 is returned
-            Assert.AreEqual(-1, myWorld.GetPlayerCubeIndex(47));
-            Assert.AreEqual(0, myWorld.GetPlayerCubeIndex(45));// index 0
-            Assert.AreEqual(1, myWorld.GetPlayerCubeIndex(54));// index 1
-        }
-
+        
+        
         /// <summary>
         /// Make sure food cube is obtained when its uid is inputted.
         /// </summary>

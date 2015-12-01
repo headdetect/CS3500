@@ -24,7 +24,7 @@ namespace ServerNetworkController
         /// <summary>
         /// Event called when a string packet is received
         /// </summary>
-        public static event Action<int, string> PacketReceived;
+        public static event Action<Client, string> PacketReceived;
 
         /// <summary>
         /// Occurs when the player first sends their name
@@ -121,7 +121,7 @@ namespace ServerNetworkController
                         ClientSentName?.Invoke(client);
                     }
 
-                    PacketReceived?.Invoke(uid, packet); // Send an event that we've received a packet
+                    PacketReceived?.Invoke(client, packet); // Send an event that we've received a packet
                 }
             }
             catch (IOException)

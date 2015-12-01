@@ -124,7 +124,7 @@ namespace Network_Controller
                     {
                         PacketListener?.Invoke(chunks);
                     }
-                    catch (Exception e)
+                    catch
                     {
                         // Ignore 
                     }

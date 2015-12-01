@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Model;
 using ServerNetworkController;
 using Timer = System.Timers.Timer;
+using System.Text.RegularExpressions;
 
 namespace Server
 {
@@ -65,6 +66,7 @@ namespace Server
             ServerNetwork.ClientLeft += ServerNetwork_ClientLeft;
             ServerNetwork.ClientJoined += ServerNetwork_ClientJoined;
             ServerNetwork.ClientSentName += ServerNetwork_ClientSentName;
+            ServerNetwork.PacketReceived += ServerNetwork_PacketReceived;
 
             var t = new Timer(1000d / Constants.HeartbeatsPerSecond);
             t.Elapsed += T_Elapsed;
@@ -75,6 +77,42 @@ namespace Server
             Server.Listen();
         }
 
+        private static void ServerNetwork_PacketReceived(Client client, string packet)
+        {
+            try {
+                if (!packet.StartsWith("(")) return; // We don't accept anything not () //
+
+                var regex = new Regex(@"\d+.\d+");
+                var stringX = regex.Matches(packet)[0].Value;
+                var stringY = regex.Matches(packet)[1].Value;
+
+                var x = int.Parse(stringX);
+                var y = int.Parse(stringY);
+
+                if (packet.StartsWith("(move"))
+                {
+                    // Is the move command //
+                    if (!World.Players.ContainsKey(client.Uid)) return; // Should never happen //
+
+                    //TODO: Interpolate to that location
+
+                    World.Players[client.Uid].X = x;
+                    World.Players[client.Uid].Y = y;
+                }
+
+                if (packet.StartsWith("(split"))
+                {
+                    // Is the split command //
+                }
+
+                Server.SendString(client.Uid, World.Players[client.Uid].ToJson());
+            }
+            catch
+            {
+                // Ignore any error packets //
+            }
+        }
+
         private static void T_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             // Update the state of the clients //
@@ -82,6 +120,27 @@ namespace Server
             NewCubes.Clear();
 
             //TODO: Add new cubes at random 
+            
+            // O(n^n) im so sorry //
+
+            foreach(var player in World.Players.Select(query => query.Value))
+            {
+                var playerRect = player.AsRectangle;
+
+                foreach(var food in World.Food.Select(query => query.Value))
+                {
+                    var foodRect = food.AsRectangle;
+                    
+                }
+
+                foreach(var otherPlayer in World.Players.Where(player2 => player2.Key != player.Uid).Select(query => query.Value))
+                {
+                    if (otherPlayer.AsRectangle.IntersectsWith(playerRect))
+                    {
+                        //TODO: Something
+                    }
+                }
+            }
 
             lock (World)
             {
