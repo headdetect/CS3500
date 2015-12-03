@@ -47,7 +47,7 @@ namespace Network_Controller
         /// <summary>
         /// Occurs when the server is requesting a UID.
         /// </summary>
-        public static event Func<int> RequestUID; 
+        public static event Func<int> RequestUid; 
 
 
         /// <summary>
@@ -92,9 +92,9 @@ namespace Network_Controller
             {
                 var clientSocket = TcpListener.AcceptTcpClient(); // Accepts a new TcpClient from the listener //
 
-                if (RequestUID == null) throw new InvalidOperationException("RequestUID event must be supplied.");
+                if (RequestUid == null) throw new InvalidOperationException("RequestUID event must be supplied.");
 
-                var uid = RequestUID.Invoke();
+                var uid = RequestUid.Invoke();
 
                 if (uid == -1)
                 {

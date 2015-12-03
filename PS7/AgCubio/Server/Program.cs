@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -85,7 +86,7 @@ namespace Server
             ServerNetworkManager.ClientJoined += ServerNetwork_ClientJoined;
             ServerNetworkManager.ClientSentName += ServerNetwork_ClientSentName;
             ServerNetworkManager.PacketReceived += ServerNetwork_PacketReceived;
-            ServerNetworkManager.RequestUID += GetNextPlayerUid;
+            ServerNetworkManager.RequestUid += GetNextPlayerUid;
 
             var t = new Timer(1000d / Constants.HeartbeatsPerSecond);
             t.Elapsed += T_Elapsed;
@@ -161,12 +162,10 @@ namespace Server
                         newCube.TeamId = teamId;
 
                         World.AddPlayerCube(newCube);
-
-                        //TODO: calculate new location
-
-                        DelayFunction(10 * 1000, () =>
+                    
+                        DelayFunction(7 * 1000, () =>
                         {
-                            // Restore everything after 10 seconds //
+                            // Restore everything after 7 seconds //
                             player.Mass += newCube.Mass;
                             newCube.Mass = 0; // Remove cube
 
@@ -190,16 +189,19 @@ namespace Server
                             newCube.Uid = GetNextPlayerUid();
 
                             World.AddPlayerCube(newCube);
-
-                            //TODO: calculate new location
-
-                            DelayFunction(10 * 1000, () =>
+                        
+                            DelayFunction(7 * 1000, () =>
                             {
-                                // Restore everything after 10 seconds //
-                                member.Mass += newCube.Mass;
-                                newCube.Mass = 0; // Remove cube
+                                var source = member;
 
-                                member.TeamId = 0;
+                                // Restore everything after 10 seconds //
+                                if (member.IsDead)
+                                    source = player;
+
+                                source.Mass += newCube.Mass;
+
+                                newCube.Mass = 0; // Remove cube
+                                newCube.TeamId = 0;
                                 
                                 World.RemovePlayerCube(newCube.Uid);
                             });
@@ -316,26 +318,28 @@ namespace Server
         
                     // Handle collisions here //
 
-                    // They are left of center //
-                    if (otherPlayer.Left < player.Right)
-                        otherPlayer.X = player.Left + 5; // 5 units of padding //
+                    // The are coming in from the left, push them back left //
+                    if (otherPlayer.Right > player.Left && otherPlayer.Right <= player.Right)
+                        otherPlayer.X -= (otherPlayer.Right - player.Left) - 5; // 5 units of padding //
 
-                    // The are right of center
-                    //if (otherPlayer.Right > player.Left)
-                    //    otherPlayer.TargetX -= otherPlayer.Right - player.Left;
+                    // The are coming in from the right, push them back right //
+                    if (otherPlayer.Left < player.Right && otherPlayer.Left <= player.Left)
+                        otherPlayer.X += (player.Right - otherPlayer.Left) + 5; // 5 units of padding //
 
-                    if (otherPlayer.Top < player.Bottom)
-                        otherPlayer.TargetY += player.Bottom - otherPlayer.Top;
-                    //if (otherPlayer.Bottom > player.Top)
-                    //    otherPlayer.TargetY -= otherPlayer.Bottom - player.Top;
+                    // The are coming in from the top, push them back up //
+                    if (otherPlayer.Bottom > player.Top && otherPlayer.Bottom <= player.Bottom)
+                        otherPlayer.Y -= (otherPlayer.Bottom - player.Top) - 5; // 5 units of padding //
 
-
+                    // The are coming in from the right, push them back right //
+                    if (otherPlayer.Top < player.Bottom && otherPlayer.Top <= player.Top)
+                        otherPlayer.Y += (player.Bottom - otherPlayer.Top) + 5; // 5 units of padding //
+                    
                     // We'll send the other player's data if they die //
                     Server.SendStringGlobal(otherPlayer.ToJson());
                 }
-
-                Server.SendStringGlobal(player.ToJson());
             }
+
+            Server.SendStringsGlobal(World.GetPlayerCubes().Select(cube => cube.ToJson()).ToArray());
         }
 
         private static void ServerNetwork_ClientSentName(Client client)
@@ -351,7 +355,7 @@ namespace Server
                 Name = client.Name,
                 TeamId = 0,
                 Uid = client.Uid,
-                X = Random.Next(1001 - width) + ( width / 2),
+                X = Random.Next(1001 - width) + (width / 2),
                 Y = Random.Next(1001 - width) + (width / 2)
             };
             
