@@ -66,7 +66,7 @@ namespace AgCubio
             Width = World.Width + 200; // 200 for the stats //
             Height = World.Height;
 
-            NetworkManager.Quit();
+            ClientNetworkManager.Quit();
 
             var connectForm = new ConnectForm();
             connectForm.ShowDialog(this);
@@ -76,11 +76,11 @@ namespace AgCubio
             if (Disposing || IsDisposed) return;
 
             // Remove any pre-existing listeners //
-            NetworkManager.PacketListener -= NetworkManager_PacketListener;
-            NetworkManager.ServerException -= NetworkManager_ServerException;
+            ClientNetworkManager.PacketListener -= NetworkManager_PacketListener;
+            ClientNetworkManager.ServerException -= NetworkManager_ServerException;
 
-            NetworkManager.PacketListener += NetworkManager_PacketListener;
-            NetworkManager.ServerException += NetworkManager_ServerException;
+            ClientNetworkManager.PacketListener += NetworkManager_PacketListener;
+            ClientNetworkManager.ServerException += NetworkManager_ServerException;
 
             _myCube = Cube.FromJson(connectForm.MyCubeJson);
             
@@ -115,7 +115,9 @@ namespace AgCubio
 
             Invalidate();
 
-            NetworkManager.SendCommand("move", Cursor.Position.X, Cursor.Position.Y);
+            var pos = PointToClient(Cursor.Position);
+
+            ClientNetworkManager.SendCommand("move", pos.X, pos.Y);
             _numberOfPacketsSent++;
         }
 
@@ -190,7 +192,7 @@ namespace AgCubio
                     KeepPlaying = true;
                 }
 
-                NetworkManager.Quit();
+                ClientNetworkManager.Quit();
                 Close();
 
             });
@@ -201,7 +203,7 @@ namespace AgCubio
 
             if (e.KeyCode == Keys.Space)
             {
-                NetworkManager.SendCommand("split", Cursor.Position.X, Cursor.Position.Y);
+                ClientNetworkManager.SendCommand("split", Cursor.Position.X, Cursor.Position.Y);
                 _numberOfPacketsSent++;
             }
 
@@ -222,14 +224,14 @@ namespace AgCubio
 
             lock (_world)
             {
-                foreach (var cube in _world.Players)
+                foreach (var cube in _world.GetPlayerCubes())
                 {
-                    DrawPlayerCube(g, cube.Value);
+                    DrawPlayerCube(g, cube);
                 }
 
-                foreach (var cube in _world.Food)
+                foreach (var cube in _world.GetFoodCubes())
                 {
-                    DrawFoodCube(g, cube.Value);
+                    DrawFoodCube(g, cube);
                 }
             }
 
@@ -317,8 +319,8 @@ namespace AgCubio
                 g.DrawString($"Size: {_myCube.Width}", Font, Brushes.Black, left, 60);
             }
 
-            g.DrawString($"Foods: {_world.Food.Count}", Font, Brushes.Black, left, 85);
-            g.DrawString($"Players: {_world.Players.Count}", Font, Brushes.Black, left, 105);
+            g.DrawString($"Foods: {_world.FoodCount}", Font, Brushes.Black, left, 85);
+            g.DrawString($"Players: {_world.PlayersCount}", Font, Brushes.Black, left, 105);
 
             if (DeveloperStats > 0)
             {
@@ -385,8 +387,8 @@ namespace AgCubio
         {
             try
             {
-                if (NetworkManager.Connected)
-                    NetworkManager.Quit();
+                if (ClientNetworkManager.Connected)
+                    ClientNetworkManager.Quit();
             }
             catch (Exception)
             {
@@ -399,9 +401,9 @@ namespace AgCubio
         /// </summary>
         private void CheckConnected()
         {
-            if (NetworkManager.Connected) return;
+            if (ClientNetworkManager.Connected) return;
 
-            NetworkManager.Quit();
+            ClientNetworkManager.Quit();
             DoForegroundWork(Close);
         }
 

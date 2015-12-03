@@ -14,7 +14,7 @@ namespace Model
         /// <value>
         /// The cubes.
         /// </value>
-        public Dictionary<int, Cube> Food { get; set; }
+        internal Dictionary<int, Cube> Food { get; set; }
 
         /// <summary>
         /// Gets or sets the players cubes.
@@ -22,7 +22,7 @@ namespace Model
         /// <value>
         /// The cubes.
         /// </value>
-        public Dictionary<int, Cube> Players { get; set; }
+        internal Dictionary<int, Cube> Players { get; set; }
 
         /// <summary>
         /// The width of this world
@@ -44,12 +44,131 @@ namespace Model
         }
         
         /// <summary>
-        /// Adds a cube to the world.
+        /// Adds a player cube to the world.
         /// </summary>
         /// <param name="b">The cube.</param>
-        public void AddCube(Cube b)
+        public void AddPlayerCube(Cube b)
         {
-            (b.IsFood ? Food : Players).Add(b.Uid, b);
+            lock (Players)
+            {
+                Players.Add(b.Uid, b);
+            }
+        }
+
+        /// <summary>
+        /// Adds a player cube to the world.
+        /// </summary>
+        /// <param name="b">The cube.</param>
+        public void AddFoodCube(Cube b)
+        {
+            lock (Food)
+            {
+                Food.Add(b.Uid, b);
+            }
+        }
+
+        /// <summary>
+        /// Adds a player cube to the world.
+        /// </summary>
+        /// <param name="b">The cube.</param>
+        public void RemovePlayerCube(Cube b)
+        {
+            lock (Players)
+            {
+                Players.Remove(b.Uid);
+            }
+        }
+
+        /// <summary>
+        /// Adds a player cube to the world.
+        /// </summary>
+        /// <param name="b">The cube.</param>
+        public void RemoveFoodCube(Cube b)
+        {
+            lock (Food)
+            {
+                Food.Remove(b.Uid);
+            }
+        }
+
+
+        /// <summary>
+        /// Adds a player cube to the world.
+        /// </summary>
+        /// <param name="uid">The cube's uid.</param>
+        public void RemovePlayerCube(int uid)
+        {
+            lock (Players)
+            {
+                Players.Remove(uid);
+            }
+        }
+
+        /// <summary>
+        /// Adds a player cube to the world.
+        /// </summary>
+        /// <param name="uid">The cube's uid.</param>
+        public void RemoveFoodCube(int uid)
+        {
+            lock (Food)
+            {
+                Food.Remove(uid);
+            }
+        }
+
+
+        /// <summary>
+        /// If the player the cube exists based on the uid.
+        /// </summary>
+        /// <param name="uid">The uid.</param>
+        /// <returns></returns>
+        public bool PlayerCubeExists(int uid)
+        {
+            return Players.ContainsKey(uid);
+        }
+
+        /// <summary>
+        /// If the food the cube exists based on the uid.
+        /// </summary>
+        /// <param name="uid">The uid.</param>
+        /// <returns></returns>
+        public bool FoodCubeExists(int uid)
+        {
+            return Food.ContainsKey(uid);
+        }
+
+        /// <summary>
+        /// Gets the number of players
+        /// </summary>
+        public int PlayersCount => Players.Count;
+
+        /// <summary>
+        /// Gets the number of foods
+        /// </summary>
+        public int FoodCount => Food.Count;
+
+        /// <summary>
+        /// Gets the player cubes.
+        /// </summary>
+        /// <returns>The player cubes</returns>
+        public IEnumerable<Cube> GetPlayerCubes()
+        {
+            lock (Players)
+            {
+                return Players.Values.AsEnumerable();
+            }
+        }
+
+        /// <summary>
+        /// Gets the player cubes.
+        /// </summary>
+        /// <returns>The player cubes</returns>
+        public IEnumerable<Cube> GetFoodCubes()
+        {
+            lock (Food)
+            {
+                return Food.Values.AsEnumerable();
+            }
         }
 
         /// <summary>
@@ -58,15 +177,19 @@ namespace Model
         /// <param name="b">The cube.</param>
         public void UpdateFoodCube(Cube b)
         {
+
             if (!Food.ContainsKey(b.Uid))
             {
                 if (b.Mass != 0)
-                    AddCube(b);
+                    AddFoodCube(b);
 
                 return;
             }
-            
-            Food.Remove(b.Uid); // A food cube is never updated, only removed //
+
+            lock (Food)
+            {
+                Food.Remove(b.Uid); // A food cube is never updated, only removed //
+            }
         }
 
         /// <summary>
@@ -78,14 +201,17 @@ namespace Model
             if (!Players.ContainsKey(b.Uid))
             {
                 if (b.Mass != 0)
-                    AddCube(b);
+                    AddPlayerCube(b);
                 return;
             }
 
-            if (b.Mass == 0)
-                Players.Remove(b.Uid);
-            else
-                Players[b.Uid] = b;
+            lock (Players)
+            {
+                if (b.Mass == 0)
+                    Players.Remove(b.Uid);
+                else
+                    Players[b.Uid] = b;
+            }
         }
 
         /// <summary>

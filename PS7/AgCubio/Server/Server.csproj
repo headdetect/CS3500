@@ -56,9 +56,9 @@
       <Project>{7AF25E03-75B9-4D17-A60E-09DC03B23057}</Project>
       <Name>Model</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ServerNetworkController\ServerNetworkController.csproj">
-      <Project>{12425ddf-521f-478f-9a95-84d5cb00148d}</Project>
-      <Name>ServerNetworkController</Name>
+    <ProjectReference Include="..\Network_Controller\Network_Controller.csproj">
+      <Project>{174F78CF-E4EC-4BAF-99BE-9FEC87A2134A}</Project>
+      <Name>Network_Controller</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

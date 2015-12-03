@@ -11,13 +11,14 @@ namespace Server
     /// </summary>
     public static class Constants
     {
+        public const int Port = 11000;
         public const int Height = 1000, Width = Height;
         public const int HeartbeatsPerSecond = 30;
         public const int TopSpeed = 500;
         public const int LowSpeed = 10;
         public const int AttritionRate = 200;
         public const int FoodValue = 1;
-        public const float PlayerStartMass = 10;
+        public const float PlayerStartMass = 1000;
         public const int MaxSplitDistance = 150;
         public const int MaxFood = 5000;
         public const float MinSplitMass = 100;

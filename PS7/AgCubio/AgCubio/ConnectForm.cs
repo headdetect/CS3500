@@ -60,14 +60,14 @@ namespace AgCubio
             {
                 try
                 {
-                    NetworkManager.Connect(address, port);
+                    ClientNetworkManager.Connect(address, port);
 
                     MessageBox.Show(@"Successfully connected!", @"Success", MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
 
-                    MyCubeJson = NetworkManager.SendName(name);
+                    MyCubeJson = ClientNetworkManager.SendName(name);
 
-                    NetworkManager.Start();
+                    ClientNetworkManager.Start();
 
                     DoForegroundWork(Close);
                 }

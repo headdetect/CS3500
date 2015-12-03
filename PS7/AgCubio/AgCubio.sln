@@ -14,11 +14,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestModel", "UnitTestModel\UnitTestModel.csproj", "{490D0D5E-38D5-4235-836C-F1A9F4D16173}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{504C122B-385D-4E25-A286-AFFC4D45444A}"
-	ProjectSection(ProjectDependencies) = postProject
-		{12425DDF-521F-478F-9A95-84D5CB00148D} = {12425DDF-521F-478F-9A95-84D5CB00148D}
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerNetworkController", "ServerNetworkController\ServerNetworkController.csproj", "{12425DDF-521F-478F-9A95-84D5CB00148D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,10 +45,6 @@ Global
 		{504C122B-385D-4E25-A286-AFFC4D45444A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{504C122B-385D-4E25-A286-AFFC4D45444A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{504C122B-385D-4E25-A286-AFFC4D45444A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{12425DDF-521F-478F-9A95-84D5CB00148D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{12425DDF-521F-478F-9A95-84D5CB00148D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{12425DDF-521F-478F-9A95-84D5CB00148D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{12425DDF-521F-478F-9A95-84D5CB00148D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

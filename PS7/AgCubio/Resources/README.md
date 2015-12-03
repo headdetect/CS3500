@@ -18,16 +18,14 @@ The project (PS7) is set up with the following classes:
 - Program.cs
   - Will keep opening GameWindow.cs, unless specified. 
 
-### Dealing with the server
+### Defining a protocol
 
-There were so many problems dealing with the implementation of the server.  
-When closing the connection (sending `QUIT` as well as closing the socket),  
-the server will sometimes have issues closing the socket and be stuck in a loop  
-where it can't accept anymore connections.  
-  
-Sometimes, we would get disconnected upon connection.
+We currently have defined the following protocol for specifying cube UIDs:
+- 0 to 9 (10 slots) is for viruses.
+- 10 to Food.Max - 1 (Food.Max slots) is for food cubes.
+- Food.Max to int.Max (virtually unlimited) is for player cubes.
 
-Blah blah blah.
+This route was chosen because it's best for choosing an ID and easy to identify the cube from the ID (from a debug standpoint)
 
 ## Notes:
 Contains unit tests for the two classes in the Model: Cube and World.

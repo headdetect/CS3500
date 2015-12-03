@@ -81,8 +81,8 @@ namespace UnitTestModel
         {
             World myWorld = new World();
 
-            Assert.AreEqual(0, myWorld.Food.Count);
-            Assert.AreEqual(0, myWorld.Players.Count);
+            Assert.AreEqual(0, myWorld.FoodCount);
+            Assert.AreEqual(0, myWorld.PlayersCount);
         }
 
         /// <summary>
@@ -94,13 +94,13 @@ namespace UnitTestModel
         {
             World myWorld = new World();
 
-            myWorld.AddCube(Cube.FromJson("{\"food\":true}"));
-            myWorld.AddCube(Cube.FromJson("{\"food\":true}"));//adding two food cubes
-            myWorld.AddCube(Cube.FromJson("{\"food\":false}"));
-            myWorld.AddCube(Cube.FromJson("{\"food\":false}"));//adding two players
+            myWorld.AddFoodCube(Cube.FromJson("{\"food\":true, \"uid\": 1}"));
+            myWorld.AddFoodCube(Cube.FromJson("{\"food\":true, \"uid\": 2}")); //adding two food cubes
+            myWorld.AddPlayerCube(Cube.FromJson("{\"food\":false, \"uid\": 3}"));
+            myWorld.AddPlayerCube(Cube.FromJson("{\"food\":false, \"uid\": 4}"));//adding two players
 
-            Assert.AreEqual(2, myWorld.Food.Count);
-            Assert.AreEqual(2, myWorld.Players.Count);// both counts should be two
+            Assert.AreEqual(2, myWorld.FoodCount);
+            Assert.AreEqual(2, myWorld.PlayersCount);// both counts should be two
         }
         
         
@@ -116,7 +116,7 @@ namespace UnitTestModel
             for (int i = 0; i < 3; i++)// adds foods with uid's 0, 1, and 2
             {
                 cubes[i] = Cube.FromJson("{\"food\":true, \"uid\":" + i + "}");
-                myWorld.AddCube(cubes[i]);
+                myWorld.AddFoodCube(cubes[i]);
             }
 
             Assert.AreEqual(null, myWorld.GetFoodCube(5));
@@ -137,7 +137,7 @@ namespace UnitTestModel
             for (int i = 0; i < 3; i++)// adds players with uid's 0, 1, and 2
             {
                 cubes[i] = Cube.FromJson("{\"food\":false, \"uid\":" + i + "}");
-                myWorld.AddCube(cubes[i]);
+                myWorld.AddPlayerCube(cubes[i]);
             }
 
             Assert.AreEqual(null, myWorld.GetPlayerCube(5));
@@ -169,7 +169,7 @@ namespace UnitTestModel
             World myWorld = new World();
             Cube cube = Cube.FromJson("{\"food\":true, \"mass\":20, \"uid\":0}");
 
-            myWorld.AddCube(cube);
+            myWorld.AddFoodCube(cube);
             myWorld.UpdateFoodCube(cube);
             Assert.AreEqual(null, myWorld.GetFoodCube(0));
         }
@@ -183,7 +183,7 @@ namespace UnitTestModel
             World myWorld = new World();
             Cube cube = Cube.FromJson("{\"food\":false, \"mass\":0, \"uid\":0}");
 
-            myWorld.AddCube(cube);
+            myWorld.AddPlayerCube(cube);
             myWorld.UpdatePlayerCube(cube);
             Assert.AreEqual(null, myWorld.GetPlayerCube(0));
         }
@@ -218,12 +218,12 @@ namespace UnitTestModel
 
             for (int i = 0; i < 5000; i++)
             {
-                myWorld.AddCube(new Cube());
-                myWorld.AddCube(Cube.FromJson("{\"food\":true}"));
+                myWorld.AddPlayerCube(new Cube {Uid = i});
+                myWorld.AddFoodCube(Cube.FromJson("{\"food\":true,\"uid\":" + (5000 + i) + "}"));
             }
 
-            Assert.AreEqual(5000, myWorld.Food.Count);
-            Assert.AreEqual(5000, myWorld.Players.Count);
+            Assert.AreEqual(5000, myWorld.FoodCount);
+            Assert.AreEqual(5000, myWorld.PlayersCount);
         }
 
         /// <summary>
@@ -240,13 +240,13 @@ namespace UnitTestModel
             {
                 for (int j = 0; j < 100; j++)
                 {
-                    String jsonString = "\"loc_x\":" + i + ",\"loc_y\":" + j + ",\"argb_color\":" +
+                    string jsonString = "\"loc_x\":" + i + ",\"loc_y\":" + j + ",\"argb_color\":" +
                         i * j + ",\"team_id\":" + teamId + ",\"uid\":" + uid +
                         ",\"Name\":\"Stewie\",\"Mass\":" + (i + j + 1) + "}";
 
 
-                    myWorld.AddCube(Cube.FromJson("{\"food\":false," + jsonString));
-                    myWorld.AddCube(Cube.FromJson("{\"food\":true," + jsonString));
+                    myWorld.AddPlayerCube(Cube.FromJson("{\"food\":false," + jsonString));
+                    myWorld.AddFoodCube(Cube.FromJson("{\"food\":true," + jsonString));
                     Cube cube = myWorld.GetFoodCube(uid);
 
                     Assert.AreEqual(i, cube.X);
@@ -273,8 +273,8 @@ namespace UnitTestModel
                 teamId++;
             }
 
-            Assert.AreEqual(10000, myWorld.Food.Count);
-            Assert.AreEqual(10000, myWorld.Players.Count);
+            Assert.AreEqual(10000, myWorld.FoodCount);
+            Assert.AreEqual(10000, myWorld.PlayersCount);
         }
     }
 }
