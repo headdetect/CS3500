@@ -44,6 +44,11 @@ namespace Network_Controller
         /// </summary>
         public static event Action<Client> ClientLeft;
 
+        /// <summary>
+        /// Occurs when the server is requesting a UID.
+        /// </summary>
+        public static event Func<int> RequestUID; 
+
 
         /// <summary>
         /// A dicitonary of all the clients connected to the server. Using the UID as the key.
@@ -87,12 +92,15 @@ namespace Network_Controller
             {
                 var clientSocket = TcpListener.AcceptTcpClient(); // Accepts a new TcpClient from the listener //
 
-                var uid = FindNextUid();
+                if (RequestUID == null) throw new InvalidOperationException("RequestUID event must be supplied.");
+
+                var uid = RequestUID.Invoke();
 
                 if (uid == -1)
                 {
+                    // We were unable to get the UID //
+
                     clientSocket.Close();
-                    // We are full. Soz bruh //
                     continue;
                 }
 
@@ -291,52 +299,8 @@ namespace Network_Controller
             client.Disconnected = true;
             ClientLeft?.Invoke(client);
         }
-
-        /// <summary>
-        /// Finds the next uid.
-        /// </summary>
-        /// <returns>The best match for a new UID</returns>
-        private int FindNextUid()
-        {
-            for (var i = UidStartRange; i < int.MaxValue; i++)
-            {
-                if (!Clients.ContainsKey(i))
-                    return i;
-            }
-            return -1; // Should never hit this //
-        }
-
-        /// <summary>
-        /// Reserves the uid in the clients dictionary. Make sure you unreserve when you are done.
-        /// </summary>
-        /// <returns></returns>
-        public int ReserveUid()
-        {
-            var uid = FindNextUid();
-
-            Clients[uid] = new Reservation(uid);
-
-            return uid;
-        }
-
-        /// <summary>
-        /// Removes the reserved uid in the clients dictionary.
-        /// </summary>
-        /// <returns></returns>
-        public void UnreserveUid(int uid)
-        {
-            if (!Clients.ContainsKey(uid) || !(Clients[uid] is Reservation)) return;
-
-            Clients.Remove(uid);
-        }
     }
-
-    public class Reservation : Client
-    {
-        // Empty struct of type Reservation
-        public Reservation(int uid) : base(null, uid)
-        {}
-    }
+    
 
     /// <summary>
     /// A class wrapping different aspects of a client

@@ -183,5 +183,15 @@ namespace Model
         {
             return MemberwiseClone();
         }
+
+        /// <summary>
+        /// Determines whether the specified cube is on same team.
+        /// </summary>
+        /// <param name="b">The cube.</param>
+        /// <returns></returns>
+        public bool IsOnTeam(Cube b)
+        {
+            return TeamId != 0 && b.TeamId == TeamId;
+        }
     }
 }

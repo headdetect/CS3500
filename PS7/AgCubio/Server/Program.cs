@@ -44,44 +44,36 @@ namespace Server
         /// <summary>
         /// Keeps track of how many teams there are.
         /// </summary>
-        public static List<int> Teams { get; private set; } 
+        public static List<int> Teams { get; private set; }
+
+        /// <summary>
+        /// Gets the random generator.
+        /// </summary>
+        /// <value>
+        /// The random generator.
+        /// </value>
+        public static Random Random { get; private set; }
 
         public static void Main(string[] args)
         {
             World = new World();
-            var random = new Random();
             NewCubes = new List<Cube>();
             Teams = new List<int>();
+            Random = new Random();
 
             // Very local function to generate colors //
-            var makeColor = new Func<int, Color>(index =>
-            {
-                switch (index % 5)
-                {
-                    case 0:
-                        return Color.Maroon;
-                    case 1:
-                        return Color.DarkGray;
-                    case 2:
-                        return Color.DarkBlue;
-                    case 3:
-                        return Color.DarkGoldenrod;
-                    default:
-                        return Color.DarkOliveGreen;
-                }
-            });
             
             for (var i = 0; i < Constants.MaxFood; i++)
             {
                 // Add a bunch of food cubes //
                 World.AddFoodCube(new Cube
                 {
-                    Color = makeColor(i),
+                    Color = MakeColor(i),
                     IsFood = true,
                     Mass = 1,
                     Uid = 10 + i, // Food Cubes get UID's 10 - Constants.MaxFood
-                    X = random.Next(World.Width),
-                    Y = random.Next(World.Height)
+                    X = Random.Next(World.Width),
+                    Y = Random.Next(World.Height)
                 });
 
                 NewCubes.AddRange(World.GetFoodCubes());
@@ -93,6 +85,7 @@ namespace Server
             ServerNetworkManager.ClientJoined += ServerNetwork_ClientJoined;
             ServerNetworkManager.ClientSentName += ServerNetwork_ClientSentName;
             ServerNetworkManager.PacketReceived += ServerNetwork_PacketReceived;
+            ServerNetworkManager.RequestUID += GetNextPlayerUid;
 
             var t = new Timer(1000d / Constants.HeartbeatsPerSecond);
             t.Elapsed += T_Elapsed;
@@ -100,16 +93,23 @@ namespace Server
 
             Console.WriteLine("Listening for connections...");
             Server = new ServerNetworkManager(Constants.Port, Constants.MaxFood);
-            Server.Listen();
+
+            try
+            {
+                Server.Listen();
+            }
+            catch(Exception e)
+            {
+                Console.Error.WriteLine(e);
+                Console.Read();
+            }
         }
 
         private static void ServerNetwork_PacketReceived(Client client, string packet)
         {
-            try
-            {
                 if (!packet.StartsWith("(")) return; // We don't accept anything not "(something, something, something)" //
 
-                var regex = new Regex(@"(\d*[.])?\d+");
+                var regex = new Regex(@"[+-]?(\d*[.])?\d+");
                 var stringX = regex.Matches(packet)[0].Value;
                 var stringY = regex.Matches(packet)[1].Value;
 
@@ -125,11 +125,19 @@ namespace Server
                     
                     if (player.X == x && player.Y == y) return; // Ignore updating, they are the same //
                     
-                    player.TargetX = x;
-                    player.TargetY = y;
+                    player.TargetX = MathUtils.Clamp(x, 0, Constants.Width);
+                    player.TargetY = MathUtils.Clamp(y, 0, Constants.Height);
+
+                    Console.WriteLine($"X => {player.TargetX}\nY => {player.TargetY}\n");
 
                     // Update the other cubes on our team //
+                    var teammates = World.GetPlayerCubes().Where(cube => cube.TeamId != 0 && cube.TeamId == player.TeamId).ToArray();
 
+                    foreach (var member in teammates)
+                    {
+                        member.TargetX = x;
+                        member.TargetY = y;
+                    }
                 }
 
                 if (packet.StartsWith("(split"))
@@ -146,7 +154,7 @@ namespace Server
                         player.Mass /= 2;
 
                         var newCube = (Cube) player.Clone();
-                        newCube.Uid = Server.ReserveUid();
+                        newCube.Uid = GetNextPlayerUid();
 
                         teamId = GenerateTeamId();
                         player.TeamId = teamId;
@@ -156,42 +164,52 @@ namespace Server
 
                         //TODO: calculate new location
 
-                        DelayFunction(10*1000, () =>
+                        DelayFunction(10 * 1000, () =>
                         {
                             // Restore everything after 10 seconds //
                             player.Mass += newCube.Mass;
                             newCube.Mass = 0; // Remove cube
 
                             player.TeamId = 0;
-
-                            Server.UnreserveUid(newCube.Uid);
+                            
                             World.RemovePlayerCube(newCube.Uid);
                         });
                     }
                     else
                     {
                         // We've already split before //
+
+                        // Will get all teammates (including self) //
+                        var teammates = World.GetPlayerCubes().Where(cube => cube.TeamId == player.TeamId).ToArray();
+
+                        foreach (var member in teammates)
+                        {
+                            member.Mass /= 2;
+
+                            var newCube = (Cube)player.Clone();
+                            newCube.Uid = GetNextPlayerUid();
+
+                            World.AddPlayerCube(newCube);
+
+                            //TODO: calculate new location
+
+                            DelayFunction(10 * 1000, () =>
+                            {
+                                // Restore everything after 10 seconds //
+                                member.Mass += newCube.Mass;
+                                newCube.Mass = 0; // Remove cube
+
+                                member.TeamId = 0;
+                                
+                                World.RemovePlayerCube(newCube.Uid);
+                            });
+                        }
                     }
                 }
 
                 Server.SendStringGlobal(player.ToJson());
-            }
-            catch(Exception e)
-            {
-                // Ignore any error packets //
-                Debugger.Break(); //TODO: remove
-            }
         }
-
-        private static int GenerateTeamId()
-        {
-            for (var i = 0; i < int.MaxValue; i++)
-            {
-                if (!Teams.Contains(i))
-                    return i;
-            }
-            return -1; // Should never hit this point //
-        }
+        
 
         private static void T_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
@@ -201,10 +219,21 @@ namespace Server
             {
                 NewCubes.Clear();
             }
-
-            if (World.FoodCount < Constants.MaxFood)
+            
+            // Random 1 in 3 chances to make a food //
+            if (World.FoodCount < Constants.MaxFood && Random.Next(0, 3) % 3 == 0)
             {
-                //TODO: Add new cubes at random 
+                World.AddFoodCube(new Cube
+                {
+                    Color = MakeColor(Random.Next()),
+                    IsFood = true,
+                    Mass = 1,
+                    Uid = GetNextFoodUid(), // Food Cubes get UID's 10 - Constants.MaxFood
+                    X = Random.Next(World.Width),
+                    Y = Random.Next(World.Height)
+                });
+
+                NewCubes.AddRange(World.GetFoodCubes());
             }
 
             // O(n * f + n ^ n), where n = player.length, f = food.length or O(fn^n) //
@@ -216,8 +245,13 @@ namespace Server
                 // If the delta movement is smaller than this, just snap to location //
                 const float snapDistance = 3f;
 
-                var speed = 01f;
-
+                // evaluate speed with respect to player's mass //
+                var speed = MathUtils.Clamp(
+                    Constants.TopSpeed - (float) (player.Mass / 500f),
+                    Constants.LowSpeed,
+                    Constants.TopSpeed
+                );
+                
                 // Smooth Movement //
                 if (player.X > player.TargetX)
                     player.X = 
@@ -261,22 +295,40 @@ namespace Server
                     Server.SendStringGlobal(food.ToJson());
                 }
                     
-
-                foreach (var otherPlayer in players.Where(player2 => player2.Uid != player.Uid).Where(otherPlayer => otherPlayer.AsRectangle.IntersectsWith(playerRect)))
+                // Don't worry, chaining "where's" doesn't execute until you evaluate the enumeration. This function is not O(3n) //
+                foreach (var otherPlayer in players
+                    .Where(otherPlayer => otherPlayer.Uid != player.Uid)
+                    .Where(otherPlayer => otherPlayer.AsRectangle.IntersectsWith(playerRect)))
                 {
-                    if (otherPlayer.Mass >= player.Mass * Constants.AbsorbConstant)
+                    if (otherPlayer.Mass >= player.Mass * Constants.AbsorbConstant && !otherPlayer.IsOnTeam(player))
                     {
                         // We ded yo //
                         otherPlayer.Mass += player.Mass;
                         player.Mass = 0;
                     }
 
-                    if (player.Mass >= otherPlayer.Mass * Constants.AbsorbConstant)
+                    if (player.Mass >= otherPlayer.Mass * Constants.AbsorbConstant && !otherPlayer.IsOnTeam(player))
                     {
                         // They ded yo //
                         player.Mass += otherPlayer.Mass;
                         otherPlayer.Mass = 0;
                     }
+        
+                    // Handle collisions here //
+
+                    // They are left of center //
+                    if (otherPlayer.Left < player.Right)
+                        otherPlayer.X = player.Left + 5; // 5 units of padding //
+
+                    // The are right of center
+                    //if (otherPlayer.Right > player.Left)
+                    //    otherPlayer.TargetX -= otherPlayer.Right - player.Left;
+
+                    if (otherPlayer.Top < player.Bottom)
+                        otherPlayer.TargetY += player.Bottom - otherPlayer.Top;
+                    //if (otherPlayer.Bottom > player.Top)
+                    //    otherPlayer.TargetY -= otherPlayer.Bottom - player.Top;
+
 
                     // We'll send the other player's data if they die //
                     Server.SendStringGlobal(otherPlayer.ToJson());
@@ -330,8 +382,13 @@ namespace Server
         private static void ServerNetwork_ClientLeft(Client client)
         {
             Console.WriteLine($"Client Left ({client.Uid} {client.Name})");
-            
-            World.RemovePlayerCube(client.Uid);
+
+            var clientCube = World.GetPlayerCube(client.Uid);
+
+            if (clientCube == null) return;
+
+            clientCube.Color = Color.Gray;
+            clientCube.Name += " (Dead)";
         }
 
         /// <summary>
@@ -358,6 +415,62 @@ namespace Server
 
             return timer;
         }
-        
+
+        /// <summary>
+        /// Gets the next food uid.
+        /// </summary>
+        /// <returns></returns>
+        public static int GetNextFoodUid()
+        {
+            for (var i = 10; i < Constants.MaxFood + 10; i++)
+            {
+                if (!World.FoodCubeExists(i))
+                    return i;
+            }
+
+            return -1;
+        }
+
+        /// <summary>
+        /// Finds the next uid.
+        /// </summary>
+        /// <returns>The best match for a new UID</returns>
+        private static int GetNextPlayerUid()
+        {
+            for (var i = Constants.MaxFood + 10; i < int.MaxValue; i++)
+            {
+                if (!World.PlayerCubeExists(i))
+                    return i;
+            }
+            return -1; // Should never hit this //
+        }
+
+        private static int GenerateTeamId()
+        {
+            // Start it at 1, iterate "forever" //
+            for (var i = 1; i < int.MaxValue; i++)
+            {
+                if (!Teams.Contains(i))
+                    return i;
+            }
+            return -1; // Should never hit this point //
+        }
+
+        public static Color MakeColor(int index)
+        {
+            switch (index % 5)
+            {
+                case 0:
+                    return Color.Maroon;
+                case 1:
+                    return Color.DarkGray;
+                case 2:
+                    return Color.DarkBlue;
+                case 3:
+                    return Color.DarkGoldenrod;
+                default:
+                    return Color.DarkOliveGreen;
+            }
+        }
     }
 }
