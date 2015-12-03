@@ -57,7 +57,7 @@
       <Name>Model</Name>
     </ProjectReference>
     <ProjectReference Include="..\Network_Controller\Network_Controller.csproj">
-      <Project>{174F78CF-E4EC-4BAF-99BE-9FEC87A2134A}</Project>
+      <Project>{174f78cf-e4ec-4baf-99be-9fec87a2134a}</Project>
       <Name>Network_Controller</Name>
     </ProjectReference>
   </ItemGroup>

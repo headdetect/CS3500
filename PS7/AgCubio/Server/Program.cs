@@ -340,7 +340,9 @@ namespace Server
 
         private static void ServerNetwork_ClientSentName(Client client)
         {
-            //TODO: Pick random location
+            //TODO: Make sure random location does not intersect with players or viruses
+            int width = (int)Math.Pow(Constants.PlayerStartMass, 0.65);
+
             var cube = new Cube
             {
                 Color = Color.Blue,
@@ -349,8 +351,8 @@ namespace Server
                 Name = client.Name,
                 TeamId = 0,
                 Uid = client.Uid,
-                X = 500,
-                Y = 500
+                X = Random.Next(1001 - width) + ( width / 2),
+                Y = Random.Next(1001 - width) + (width / 2)
             };
             
             // Add player cube //
