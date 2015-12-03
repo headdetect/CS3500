@@ -324,7 +324,7 @@ namespace Server
 
         private static void ServerNetwork_ClientJoined(Client client)
         {
-            Console.WriteLine($"Client Joined ({client.Uid})");
+            Console.WriteLine($"Client Joined ({client.Uid}) ({client.TcpClient.Client.LocalEndPoint})");
         }
 
         private static void ServerNetwork_ClientLeft(Client client)

@@ -50,10 +50,12 @@ namespace Network_Controller
         /// </summary>
         public Dictionary<int, Client> Clients { get; }
 
-
         /// <summary>
-        /// The TcpListener of the server. 
+        /// Gets the TCP listener.
         /// </summary>
+        /// <value>
+        /// The TCP listener.
+        /// </value>
         public TcpListener TcpListener { get; }
 
         /// <summary>
@@ -69,7 +71,7 @@ namespace Network_Controller
         {
             UidStartRange = uidStartRange;
             Clients = new Dictionary<int, Client>();
-            TcpListener = new TcpListener(IPAddress.Any, port); // TODO: Change to use Consts
+            TcpListener = TcpListener.Create(port);
         }
 
         /// <summary>
