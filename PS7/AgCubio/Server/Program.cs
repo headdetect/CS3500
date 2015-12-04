@@ -233,7 +233,7 @@ namespace Server
                 lock (state)
                 {
                     // Random 1 in 3 chances to make a food //
-                    if (World.FoodCount < Constants.MaxFood && Random.Next(0, 3) % 3 == 0)
+                    if (World.GetFoodCubes().Count(b => !b.IsDead) < Constants.MaxFood && Random.Next(0, 3) % 3 == 0)
                     {
                         var newFoodCube = new Cube
                         {
@@ -245,6 +245,7 @@ namespace Server
                             Y = Random.Next(World.Height)
                         };
 
+                        World.RemoveFoodCube(newFoodCube.Uid); // Remove any that might be there //
                         World.AddFoodCube(newFoodCube);
 
                         lock (NewCubes)
@@ -369,6 +370,7 @@ namespace Server
                             {
                                 player.Mass += food.Mass;
                             }
+
                             food.Mass = 0;
 
                             Server.SendStringGlobal(food.ToJson());
@@ -533,6 +535,14 @@ namespace Server
                     return i;
             }
 
+            // If we can't get empty, get slot of killed block //
+
+            for (var i = 10; i < Constants.MaxFood + 10; i++)
+            {
+                if (World.GetFoodCube(i)?.IsDead ?? true)
+                    return i;
+            }
+
             return -1;
         }
 
@@ -549,13 +559,14 @@ namespace Server
                     return i;
             }
 
-            // If we can't get food, get slot of killed block //
+            // If we can't get empty, get slot of killed block //
 
             for (var i = Constants.MaxFood + 10; i < int.MaxValue; i++)
             {
                 if (World.GetPlayerCube(i)?.IsDead ?? true)
                     return i;
             }
+
             return -1; // Should never hit this //
         }
 
