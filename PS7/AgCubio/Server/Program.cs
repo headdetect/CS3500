@@ -64,7 +64,7 @@ namespace Server
 
         public static void Main(string[] args)
         {
-            Constants = new Constants("world_paramaters.xml");
+            Constants = new Constants("world_parameters.xml");
             World = new World();
             NewCubes = new List<Cube>();
             Teams = new Dictionary<int, Team>();
@@ -83,6 +83,22 @@ namespace Server
                     Uid = 10 + i, // Food Cubes get UID's 10 - Constants.MaxFood
                     X = Random.Next(World.Width),
                     Y = Random.Next(World.Height)
+                };
+
+                World.AddFoodCube(foodCube);
+                NewCubes.Add(foodCube);
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                var foodCube = new Cube
+                {
+                    Color = Color.YellowGreen,
+                    IsFood = true,
+                    Mass = Constants.FoodValue * 20,
+                    Uid = i, // Viruses get UID's 0 - 9
+                    X = Random.Next(World.Width / 2) + World.Width / 4, // Places viruses near center of map.
+                    Y = Random.Next(World.Height / 2) + World.Height / 4
                 };
 
                 World.AddFoodCube(foodCube);
@@ -378,7 +394,6 @@ namespace Server
 
         private static void ServerNetwork_ClientSentName(Client client)
         {
-            //TODO: Make sure random location does not intersect with players or viruses
             var width = (int)Math.Pow(Constants.PlayerStartMass, 0.65);
 
             var cube = new Cube
