@@ -298,7 +298,7 @@ namespace Server
                                     .Where(otherPlayer => !otherPlayer.IsDead))
                         {
                             if (otherPlayer.Mass >= player.Mass * Constants.AbsorbConstant &&
-                                !otherPlayer.IsOnTeam(player))
+                                !otherPlayer.IsOnTeam(player) && false)
                             {
                                 // We ded yo //
                                 otherPlayer.Mass += player.Mass;
@@ -306,7 +306,7 @@ namespace Server
                             }
 
                             if (player.Mass >= otherPlayer.Mass * Constants.AbsorbConstant &&
-                                !otherPlayer.IsOnTeam(player))
+                                !otherPlayer.IsOnTeam(player) && false)
                             {
                                 // They ded yo //
                                 player.Mass += otherPlayer.Mass;
@@ -317,19 +317,19 @@ namespace Server
 
                             // The are coming in from the left, push them back left //
                             if (otherPlayer.Right > player.Left && otherPlayer.Right <= player.Right)
-                                otherPlayer.X -= (otherPlayer.Right - player.Left) + 10; // 10 units of padding //
+                                otherPlayer.X -= Math.Min(otherPlayer.Right - player.Left, 5f); 
 
                             // The are coming in from the right, push them back right //
-                            if (otherPlayer.Left < player.Right && otherPlayer.Left <= player.Left)
-                                otherPlayer.X += (player.Left - otherPlayer.Right) + 10; // 10 units of padding //
+                            else if (otherPlayer.Left > player.Right && otherPlayer.Left <= player.Left)
+                                otherPlayer.X += Math.Min(player.Left - otherPlayer.Right, 5f);
 
                             // The are coming in from the top, push them back up //
-                            if (otherPlayer.Bottom > player.Top && otherPlayer.Bottom <= player.Bottom)
-                                otherPlayer.Y -= (otherPlayer.Bottom - player.Top) + 5; // 5 units of padding //
+                            else if (otherPlayer.Bottom > player.Top && otherPlayer.Bottom <= player.Bottom)
+                                otherPlayer.Y += Math.Min(otherPlayer.Bottom - player.Top, 5f);
 
                             // The are coming in from the right, push them back right //
-                            if (otherPlayer.Top < player.Bottom && otherPlayer.Top <= player.Top)
-                                otherPlayer.Y += (player.Top - otherPlayer.Bottom) + 5; // 5 units of padding //
+                            else if (otherPlayer.Top > player.Bottom && otherPlayer.Top <= player.Top)
+                                otherPlayer.Y -= Math.Min(player.Top - otherPlayer.Bottom, 5f);
 
                             // We'll send the other player's data if they die //
                             Server.SendStringGlobal(otherPlayer.ToJson());
