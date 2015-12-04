@@ -95,7 +95,7 @@ namespace Server
                 {
                     Color = Color.YellowGreen,
                     IsFood = true,
-                    Mass = Constants.FoodValue * 20,
+                    Mass = Constants.FoodValue * 15,
                     Uid = i, // Viruses get UID's 0 - 9
                     X = Random.Next(World.Width / 2) + World.Width / 4, // Places viruses near center of map.
                     Y = Random.Next(World.Height / 2) + World.Height / 4
@@ -309,7 +309,64 @@ namespace Server
                                 where foodRect.IntersectsWith(playerRect)
                                 select food)
                         {
-                            player.Mass += food.Mass;
+                            if (food.Uid < 10) // checks if food is a virus.
+                            {
+                                player.Mass *= .8; // cube loses a fifth of their mass
+
+                                var teamId = player.TeamId;
+
+                                if (teamId == 0)
+                                {
+                                    // This is the first time splitting //
+
+                                    player.Mass /= 2;
+
+                                    var newCube = (Cube)player.Clone();
+                                    newCube.Uid = GetNextPlayerUid();
+
+                                    teamId = GenerateTeamId();
+
+                                    player.TeamId = teamId;
+                                    newCube.TeamId = teamId;
+
+                                    newCube.X += Random.Next(-Constants.MaxSplitDistance, Constants.MaxSplitDistance);
+                                    newCube.Y += Random.Next(-Constants.MaxSplitDistance, Constants.MaxSplitDistance);
+
+                                    World.AddPlayerCube(newCube);
+
+                                    var cubes = new[] { player, newCube };
+
+                                    Teams.Add(teamId, new Team(teamId, cubes, DateTime.Now + TimeSpan.FromSeconds(7)));
+                                }
+                                else
+                                {
+                                    // We've already split before //
+
+                                    // Will get all teammates (including self) //
+                                    var team = Teams[teamId];
+
+                                    player.Mass /= 2;
+
+                                    var newCube = (Cube)player.Clone();
+                                    newCube.Uid = GetNextPlayerUid();
+
+                                    newCube.X += Random.Next(-Constants.MaxSplitDistance, Constants.MaxSplitDistance);
+                                    newCube.Y += Random.Next(-Constants.MaxSplitDistance, Constants.MaxSplitDistance);
+
+                                    World.AddPlayerCube(newCube);
+
+                                    team.Cubes.Add(newCube);
+
+                                    team.KeepAlive = DateTime.Now + TimeSpan.FromSeconds(7); // 7 seconds from now //
+                                }
+
+                                Server.SendStringGlobal(player.ToJson());
+
+                            }
+                            else
+                            {
+                                player.Mass += food.Mass;
+                            }
                             food.Mass = 0;
 
                             Server.SendStringGlobal(food.ToJson());
