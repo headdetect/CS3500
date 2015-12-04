@@ -311,6 +311,8 @@ namespace Server
                         {
                             if (food.Uid < 10) // checks if food is a virus.
                             {
+                                if (food.Mass > player.Mass / 2) break;
+
                                 player.Mass *= .8; // cube loses a fifth of their mass
 
                                 var teamId = player.TeamId;

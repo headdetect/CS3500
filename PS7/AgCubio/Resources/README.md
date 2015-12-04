@@ -31,6 +31,8 @@ The project (PS7) is set up with the following classes:
 - Program.cs
  -  This is the brains of the server. It has abstracted out the networking components into the ServerNetworkManager.cs
  -  Handles all the game mechanics such as moving, eating, and dying.
+ -  Also handles functionality for viruses.  If a player tries to eat one, they will split apart.  Algorithm uses is very similar to the one for
+	splitting.  Viruses have uid's from 0 to 9.
 
 ## Defining a protocol
 
