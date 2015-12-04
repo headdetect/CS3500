@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace Network_Controller
@@ -134,7 +135,7 @@ namespace Network_Controller
 
                     var packet = Encoding.UTF8.GetString(chunk, 0, size);
 
-                    if (!client.Loaded)
+                    if (!client.Loaded && !Regex.IsMatch(packet, @"\((move|split), \d+, \d+\)", RegexOptions.IgnoreCase))
                     {
                         client.Name = packet;
                         client.Loaded = true;
