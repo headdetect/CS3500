@@ -22,6 +22,7 @@ namespace Server
         public int FoodValue { get; private set; }
         public float PlayerStartMass { get; private set; }
         public int MaxSplitDistance { get; private set; }
+        public int MaxNumOfSplit { get; private set; }
         public int MaxFood { get; private set; }
         public float MinSplitMass { get; private set; }
         public double AbsorbConstant { get; private set; }
@@ -87,6 +88,11 @@ namespace Server
                                     MaxSplitDistance = int.Parse(reader.Value);
                                     break;
 
+                                case "max_num_of_split":
+                                    reader.Read();
+                                    MaxNumOfSplit = int.Parse(reader.Value);
+                                    break;
+
                                 case "max_food":
                                     reader.Read();
                                     MaxFood = int.Parse(reader.Value);
@@ -125,6 +131,7 @@ namespace Server
                 FoodValue = 1;
                 PlayerStartMass = 1000;
                 MaxSplitDistance = 150;
+                MaxNumOfSplit = 8;
                 MaxFood = 5000;
                 MinSplitMass = 100;
                 AbsorbConstant = 1.25;

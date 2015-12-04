@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace Network_Controller
@@ -132,17 +133,22 @@ namespace Network_Controller
 
                     var size = stream.Read(chunk, 0, chunk.Length);
 
-                    var packet = Encoding.UTF8.GetString(chunk, 0, size);
+                    var packetChunk = Encoding.UTF8.GetString(chunk, 0, size).Split(new [] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
-                    if (!client.Loaded)
+                    foreach (var packet in packetChunk)
                     {
-                        client.Name = packet;
-                        client.Loaded = true;
+                        if (!client.Loaded &&
+                            !Regex.IsMatch(packet, @"\((move|split), \d+, \d+\)", RegexOptions.IgnoreCase))
+                        {
+                            client.Name = packet;
+                            client.Loaded = true;
 
-                        ClientSentName?.Invoke(client);
+                            ClientSentName?.Invoke(client);
+                        }
+
+                        if (client.Loaded) // Make sure the first packet we send is the player info
+                            PacketReceived?.Invoke(client, packet); // Send an event that we've received a packet
                     }
-
-                    PacketReceived?.Invoke(client, packet); // Send an event that we've received a packet
                 }
             }
             catch (IOException)

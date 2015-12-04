@@ -20,6 +20,8 @@
 
   <max_split_distance>150</max_split_distance>
 
+  <max_num_of_split>8</max_num_of_split>
+  
   <max_food>5000</max_food>
 
   <min_split_mass>100</min_split_mass>
