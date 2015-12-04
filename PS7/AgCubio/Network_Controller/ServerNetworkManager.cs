@@ -142,8 +142,9 @@ namespace Network_Controller
 
                         ClientSentName?.Invoke(client);
                     }
-
-                    PacketReceived?.Invoke(client, packet); // Send an event that we've received a packet
+                    
+                    if (client.Loaded) // Make sure the first packet we send is the player info
+                        PacketReceived?.Invoke(client, packet); // Send an event that we've received a packet
                 }
             }
             catch (IOException)

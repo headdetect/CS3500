@@ -107,7 +107,7 @@ namespace AgCubio
         {
             if ((_watch.Elapsed - _prevTime).TotalSeconds >= 1d)
             {
-                _fps = (float)Math.Round(_frameCount / (float)_watch.Elapsed.Seconds, 2);
+                _fps = (float) Math.Round(_frameCount / (float)_watch.Elapsed.Seconds, 2);
                 _frameCount = 0; // Reset frame count, so its not, but relative to this current second. //
                 _watch.Restart();
                 _prevTime = _watch.Elapsed;

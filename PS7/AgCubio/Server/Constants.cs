@@ -20,6 +20,7 @@ namespace Server
         public const int FoodValue = 1;
         public const float PlayerStartMass = 1000;
         public const int MaxSplitDistance = 150;
+        public const int MaxNumOfSplit = 8;
         public const int MaxFood = 5000;
         public const float MinSplitMass = 100;
         public const double AbsorbConstant = 1.25;

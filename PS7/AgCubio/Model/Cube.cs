@@ -113,8 +113,7 @@ namespace Model
         /// </value>
         [JsonProperty("food")]
         public bool IsFood { get; set; }
-
-
+        
         /// <summary>
         /// Gets the width of the cube.
         /// </summary>
@@ -155,7 +154,7 @@ namespace Model
         /// If is dead <c>true</c> if this instance is dead; otherwise, <c>false</c>.
         /// </value>
         public bool IsDead => Math.Abs(Mass) <= 0;
-
+        
         /// <summary>
         /// Gets a cube from json
         /// </summary>

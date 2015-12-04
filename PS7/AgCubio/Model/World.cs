@@ -155,7 +155,7 @@ namespace Model
         {
             lock (Players)
             {
-                return Players.Values.AsEnumerable();
+                return Players.Values.ToArray();
             }
         }
 
