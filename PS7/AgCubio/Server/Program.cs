@@ -77,7 +77,7 @@ namespace Server
                 // Add a bunch of food cubes //
                 var foodCube = new Cube
                 {
-                    Color = MakeColor(i),
+                    Color = MakeColorFood(i),
                     IsFood = true,
                     Mass = 1,
                     Uid = 10 + i, // Food Cubes get UID's 10 - Constants.MaxFood
@@ -221,7 +221,7 @@ namespace Server
                     {
                         var newFoodCube = new Cube
                         {
-                            Color = MakeColor(Random.Next()),
+                            Color = MakeColorFood(Random.Next()),
                             IsFood = true,
                             Mass = 1,
                             Uid = GetNextFoodUid(), // Food Cubes get UID's 10 - Constants.MaxFood
@@ -383,7 +383,7 @@ namespace Server
 
             var cube = new Cube
             {
-                Color = Color.Blue,
+                Color = MakeColorPlayer(Random.Next()),
                 IsFood = false,
                 Mass = Constants.PlayerStartMass,
                 Name = client.Name,
@@ -496,7 +496,12 @@ namespace Server
             return -1; // Should never hit this point //
         }
 
-        public static Color MakeColor(int index)
+        /// <summary>
+        /// Makes a color from the specified index, using the food's color scheme.
+        /// </summary>
+        /// <param name="index">The index.</param>
+        /// <returns></returns>
+        public static Color MakeColorFood(int index)
         {
             switch (index % 5)
             {
@@ -510,6 +515,28 @@ namespace Server
                     return Color.DarkGoldenrod;
                 default:
                     return Color.DarkOliveGreen;
+            }
+        }
+
+        /// <summary>
+        /// Makes a color from the specified index, using the player's color scheme.
+        /// </summary>
+        /// <param name="index">The index.</param>
+        /// <returns></returns>
+        public static Color MakeColorPlayer(int index)
+        {
+            switch (index % 5)
+            {
+                case 0:
+                    return Color.Red;
+                case 1:
+                    return Color.Black;
+                case 2:
+                    return Color.Blue;
+                case 3:
+                    return Color.Orange;
+                default:
+                    return Color.Green;
             }
         }
 

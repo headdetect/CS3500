@@ -13,8 +13,8 @@ namespace Server
     public class Constants
     {
         public int Port { get; private set; }
-        public int Height { get; private set; }
-        public int Width { get { return Height; } }
+        public int Height { get; }
+        public int Width => Height;
         public int HeartbeatsPerSecond { get; private set; }
         public int TopSpeed { get; private set; }
         public int LowSpeed { get; private set; }
@@ -117,7 +117,7 @@ namespace Server
                     }
                 }
             }
-            catch (Exception e)// If file cannot be read
+            catch (Exception e) // If file cannot be read
             {
                 Console.WriteLine(e.Message);
 
