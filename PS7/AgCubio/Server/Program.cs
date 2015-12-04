@@ -19,6 +19,14 @@ namespace Server
     class Program
     {
         /// <summary>
+        /// Gets the world constants.
+        /// </summary>
+        /// <value>
+        /// The constants.
+        /// </value>
+        public static Constants Constants { get; private set; }
+
+        /// <summary>
         /// Gets the server.
         /// </summary>
         /// <value>
@@ -57,6 +65,7 @@ namespace Server
 
         public static void Main(string[] args)
         {
+            Constants = new Constants("world_paramaters.xml");
             World = new World();
             NewCubes = new List<Cube>();
             Teams = new List<int>();

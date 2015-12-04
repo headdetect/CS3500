@@ -3,26 +3,133 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace Server
 {
     /// <summary>
     /// This class contains the default constants of the AgCubio world.
     /// </summary>
-    public static class Constants
+    public class Constants
     {
-        public const int Port = 11000;
-        public const int Height = 1000, Width = Height;
-        public const int HeartbeatsPerSecond = 25;
-        public const int TopSpeed = 5;
-        public const int LowSpeed = 1;
-        public const int AttritionRate = 200;
-        public const int FoodValue = 1;
-        public const float PlayerStartMass = 1000;
-        public const int MaxSplitDistance = 150;
-        public const int MaxFood = 5000;
-        public const float MinSplitMass = 100;
-        public const double AbsorbConstant = 1.25;
-        public const float MaxViewRange = 10000;
+        public int Port { get; private set; }
+        public int Height { get; private set; }
+        public int Width { get { return Height; } }
+        public int HeartbeatsPerSecond { get; private set; }
+        public int TopSpeed { get; private set; }
+        public int LowSpeed { get; private set; }
+        public int AttritionRate { get; private set; }
+        public int FoodValue { get; private set; }
+        public float PlayerStartMass { get; private set; }
+        public int MaxSplitDistance { get; private set; }
+        public int MaxFood { get; private set; }
+        public float MinSplitMass { get; private set; }
+        public double AbsorbConstant { get; private set; }
+        public float MaxViewRange { get; private set; }
+
+        public Constants(string filename)
+        {
+            try {
+
+                using (XmlReader reader = XmlReader.Create(filename))
+                {
+                    while (reader.Read())
+                    {
+                        if (reader.IsStartElement())
+                        {
+                            switch (reader.Name)
+                            {
+                                case "parameters":
+                                    break;
+
+                                case "port":
+                                    reader.Read();
+                                    Port = int.Parse(reader.Value);
+                                    break;
+
+                                case "height":
+                                    reader.Read();
+                                    Height = int.Parse(reader.Value);
+                                    break;
+
+                                case "heartbeats_per_second":
+                                    reader.Read();
+                                    HeartbeatsPerSecond = int.Parse(reader.Value);
+                                    break;
+
+                                case "top_speed":
+                                    reader.Read();
+                                    TopSpeed = int.Parse(reader.Value);
+                                    break;
+                                    
+                                case "low_speed":
+                                    reader.Read();
+                                    LowSpeed = int.Parse(reader.Value);
+                                    break;
+
+                                case "attrition_rate":
+                                    reader.Read();
+                                    AttritionRate = int.Parse(reader.Value);
+                                    break;
+
+                                case "food_value":
+                                    reader.Read();
+                                    FoodValue = int.Parse(reader.Value);
+                                    break;
+
+                                case "player_start_mass":
+                                    reader.Read();
+                                    PlayerStartMass = float.Parse(reader.Value);
+                                    break;
+
+                                case "max_split_distance":
+                                    reader.Read();
+                                    MaxSplitDistance = int.Parse(reader.Value);
+                                    break;
+
+                                case "max_food":
+                                    reader.Read();
+                                    MaxFood = int.Parse(reader.Value);
+                                    break;
+
+                                case "min_split_mass":
+                                    reader.Read();
+                                    MinSplitMass = float.Parse(reader.Value);
+                                    break;
+
+                                case "absorb_constant":
+                                    reader.Read();
+                                    AbsorbConstant = double.Parse(reader.Value);
+                                    break;
+
+                                case "max_view_range":
+                                    reader.Read();
+                                    MaxViewRange = float.Parse(reader.Value);
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)// If file cannot be read
+            {
+                Console.WriteLine(e.Message);
+
+                //Default values
+                Port = 11000;
+                Height = 1000;
+                HeartbeatsPerSecond = 25;
+                TopSpeed = 5;
+                LowSpeed = 1;
+                AttritionRate = 200;
+                FoodValue = 1;
+                PlayerStartMass = 1000;
+                MaxSplitDistance = 150;
+                MaxFood = 5000;
+                MinSplitMass = 100;
+                AbsorbConstant = 1.25;
+                MaxViewRange = 10000;
+            }
+        }
     }
 }
