@@ -15,13 +15,6 @@ namespace Network_Controller
     /// </summary>
     public class ServerNetworkManager
     {
-        /// <summary>
-        /// Gets or sets the uid start range. This is the starting point of where to generate UIDs
-        /// </summary>
-        /// <value>
-        /// The uid start range.
-        /// </value>
-        public int UidStartRange { get; set; }
 
         /// <summary>
         /// Event called when a client joins the server
@@ -73,9 +66,8 @@ namespace Network_Controller
         /// <summary>
         /// Creates a new server network
         /// </summary>
-        public ServerNetworkManager(int port, int uidStartRange)
+        public ServerNetworkManager(int port)
         {
-            UidStartRange = uidStartRange;
             Clients = new Dictionary<int, Client>();
             TcpListener = TcpListener.Create(port);
         }

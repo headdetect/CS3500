@@ -34,6 +34,11 @@ namespace Server
         public static ServerNetworkManager Server { get; private set; }
 
         /// <summary>
+        /// Gets the webserver.
+        /// </summary>
+        public static WebServer WebServer { get; private set; }
+
+        /// <summary>
         /// Gets the world.
         /// </summary>
         /// <value>
@@ -113,10 +118,15 @@ namespace Server
             ServerNetworkManager.PacketReceived += ServerNetwork_PacketReceived;
             ServerNetworkManager.RequestUid += GetNextPlayerUid;
 
+            WebServer.PageRequested += WebServer_PageRequested;
+
             Console.WriteLine("Listening for connections...");
-            Server = new ServerNetworkManager(Constants.Port, Constants.MaxFood);
+            Server = new ServerNetworkManager(Constants.Port);
+            WebServer = new WebServer();
 
             ThreadPool.QueueUserWorkItem(UpdateState); // Start the crazy loop
+
+            WebServer.StartAsync(Constants.WebPort);
 
             try
             {
@@ -127,6 +137,11 @@ namespace Server
                 Console.Error.WriteLine(e);
                 Console.Read();
             }
+        }
+
+        private static string WebServer_PageRequested(PageRequestEventArgs arg)
+        {
+            return "<h1>TODO: Implement this</h1>";
         }
 
         private static void ServerNetwork_PacketReceived(Client client, string packet)

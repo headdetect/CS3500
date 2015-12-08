@@ -13,6 +13,7 @@ namespace Server
     public class Constants
     {
         public int Port { get; private set; }
+        public int WebPort { get; private set; }
         public int Height { get; }
         public int Width => Height;
         public int HeartbeatsPerSecond { get; private set; }
@@ -44,6 +45,11 @@ namespace Server
                                     break;
 
                                 case "port":
+                                    reader.Read();
+                                    Port = int.Parse(reader.Value);
+                                    break;
+
+                                case "webport":
                                     reader.Read();
                                     Port = int.Parse(reader.Value);
                                     break;
@@ -123,6 +129,7 @@ namespace Server
 
                 //Default values
                 Port = 11000;
+                WebPort = 11100;
                 Height = 1000;
                 HeartbeatsPerSecond = 25;
                 TopSpeed = 5;
