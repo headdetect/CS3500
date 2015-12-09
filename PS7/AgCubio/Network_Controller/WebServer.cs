@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Network_Controller.Properties;
 
 namespace Network_Controller
 {
@@ -70,14 +71,22 @@ namespace Network_Controller
 
             var request = requestBuilder.ToString();
             
-
             try {
                 var uri = new Uri($"http://{request.Split('\n')[1].Substring("Host: ".Length)}{request.Split('\n')[0].Split(' ')[1]}".Replace("\r", string.Empty));
                 
                 var result = PageRequested?.Invoke(new PageRequestEventArgs(uri));
 
-                var bytes = BuildOk(result);
-                stream.Write(bytes, 0, bytes.Length);
+                if (result != null)
+                {
+                    var bytes = BuildOk(result);
+                    stream.Write(bytes, 0, bytes.Length);
+                }
+                else
+                {
+                    var bytes = Build404();
+                    stream.Write(bytes, 0, bytes.Length);
+                }
+                
             }
             catch(Exception e)
             {
@@ -95,18 +104,26 @@ namespace Network_Controller
             }
         }
 
-        private byte[] BuildOk(string content)
+        private static byte[] BuildOk(string content)
         {
-            var rn = "\r\n";
+            const string rn = "\r\n";
             var result = $"HTTP/1.1 200 OK{rn}Connection: close{rn}Content-Type: text/html; charset=UTF-8{rn}Content-Length: {content.Length}{rn}{rn}{content}";
             return Encoding.ASCII.GetBytes(result);
         }
 
-        private byte[] BuildError(Exception e)
+        private static byte[] BuildError(Exception e)
         {
-            var rn = "\r\n";
-            var content = $"<h1>Server Error</h1><code>{e.Message}</code><br /><code>{e.StackTrace.Replace("\n", "<br />")}</code>";
-            var result = $"HTTP/1.1 500 Internal Error{rn}Connection: close{rn}Content-Type: text/html; charset=UTF-8{rn}Content-Length: {content}{rn}{rn}{content}";
+            const string rn = "\r\n";
+            var content = string.Format(Resources._500, e.Message, e.StackTrace);
+            var result = $"HTTP/1.1 500 {e.Message}{rn}Connection: close{rn}Content-Type: text/html; charset=UTF-8{rn}Content-Length: {content.Length}{rn}{rn}{content}";
+            return Encoding.ASCII.GetBytes(result);
+        }
+
+        private static byte[] Build404()
+        {
+            const string rn = "\r\n";
+            var content = Resources._404_html;
+            var result = $"HTTP/1.1 404 Not Found Fam{rn}Connection: close{rn}Content-Type: text/html; charset=UTF-8{rn}Content-Length: {content.Length}{rn}{rn}{content}";
             return Encoding.ASCII.GetBytes(result);
         }
 
