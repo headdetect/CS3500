@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Net.Sockets;
-using System.Runtime.InteropServices;
-using System.Security.AccessControl;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Model;
 using System.Text.RegularExpressions;
 using Network_Controller;
+using Server.Properties;
 
 namespace Server
 {
@@ -110,7 +105,7 @@ namespace Server
                 NewCubes.Add(foodCube);
             }
 
-            Console.WriteLine("Server Started...");
+            Console.WriteLine(@"Server Started...");
 
             ServerNetworkManager.ClientLeft += ServerNetwork_ClientLeft;
             ServerNetworkManager.ClientJoined += ServerNetwork_ClientJoined;
@@ -120,7 +115,7 @@ namespace Server
 
             WebServer.PageRequested += WebServer_PageRequested;
 
-            Console.WriteLine("Listening for connections...");
+            Console.WriteLine(@"Listening for connections...");
             Server = new ServerNetworkManager(Constants.Port);
             WebServer = new WebServer();
 
@@ -141,7 +136,33 @@ namespace Server
 
         private static string WebServer_PageRequested(PageRequestEventArgs arg)
         {
-            return "<h1>Call me Sr. Oink</h1>";
+            var args = arg.Uri.Segments.Skip(1).ToArray();
+
+            if (args.Length == 0)
+            {
+                // We are at root page //
+                return Resources.master;
+            }
+
+            if (string.Equals(args[0], "scores", StringComparison.CurrentCultureIgnoreCase))
+            {
+                // is GET /scores //
+                return Resources.master;
+            }
+
+            if (string.Equals(args[0], "games", StringComparison.CurrentCultureIgnoreCase))
+            {
+                // is GET /games //
+                return Resources.master;
+            }
+
+            if (string.Equals(args[0], "eaten", StringComparison.CurrentCultureIgnoreCase))
+            {
+                // is GET /games //
+                return Resources.master;
+            }
+
+            return null;
         }
 
         private static void ServerNetwork_PacketReceived(Client client, string packet)
