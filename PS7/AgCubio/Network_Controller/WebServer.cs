@@ -8,12 +8,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Network_Controller.Properties;
+using MySql.Data.MySqlClient;
 
 namespace Network_Controller
 {
     public class WebServer
     {
-        
+        public const string connectionString = "server=atr.eng.utah.edu;database=;uid=;password=";
+
         /// <summary>
         /// Called when a page is requested
         /// </summary>
@@ -106,6 +108,30 @@ namespace Network_Controller
 
         private static byte[] BuildOk(string content)
         {
+            //TODO: finish connecting to database
+            /**  // Connect to the DB
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                try
+                {
+                    // Open a connection
+                    conn.Open();
+
+                    // Create a command
+                    MySqlCommand command = conn.CreateCommand();
+                    command.CommandText = "";
+
+                    // Execute the command and cycle through the DataReader object
+                    using (MySqlDataReader reader = command.ExecuteReader())
+                    {
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+            }*/
+
             const string rn = "\r\n";
             var result = $"HTTP/1.1 200 OK{rn}Connection: close{rn}Content-Type: text/html; charset=UTF-8{rn}Content-Length: {content.Length}{rn}{rn}{content}";
             return Encoding.ASCII.GetBytes(result);
