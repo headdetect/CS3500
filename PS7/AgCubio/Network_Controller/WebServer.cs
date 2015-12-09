@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -54,16 +55,59 @@ namespace Network_Controller
 
         private void RunRequest(TcpClient client)
         {
-            var reader = new StreamReader(client.GetStream());
-            var writer = new StreamWriter(client.GetStream());
+            var stream = client.GetStream();
+            
+            var requestBuilder = new StringBuilder();
 
-            var request = reader.ReadToEnd();
+            int read = 0;
+            byte[] chunk = new byte[1024];
+            do
+            {
+                read = stream.Read(chunk, 0, 1024);
+                requestBuilder.Append(Encoding.ASCII.GetString(chunk));
 
-            Console.WriteLine(request);
+            } while (read == 1024);
 
-            var result = PageRequested?.Invoke(new PageRequestEventArgs(new Uri("https://google.com")));
+            var request = requestBuilder.ToString();
+            
 
-            writer.Write(result);
+            try {
+                var uri = new Uri($"http://{request.Split('\n')[1].Substring("Host: ".Length)}{request.Split('\n')[0].Split(' ')[1]}".Replace("\r", string.Empty));
+                
+                var result = PageRequested?.Invoke(new PageRequestEventArgs(uri));
+
+                var bytes = BuildOk(result);
+                stream.Write(bytes, 0, bytes.Length);
+            }
+            catch(Exception e)
+            {
+                var bytes = BuildError(e);
+                stream.Write(bytes, 0, bytes.Length);
+            }
+            
+            try
+            {
+                client.Close();
+            }
+            catch
+            {
+                // We don't give AF //
+            }
+        }
+
+        private byte[] BuildOk(string content)
+        {
+            var rn = "\r\n";
+            var result = $"HTTP/1.1 200 OK{rn}Connection: close{rn}Content-Type: text/html; charset=UTF-8{rn}Content-Length: {content.Length}{rn}{rn}{content}";
+            return Encoding.ASCII.GetBytes(result);
+        }
+
+        private byte[] BuildError(Exception e)
+        {
+            var rn = "\r\n";
+            var content = $"<h1>Server Error</h1><code>{e.Message}</code><br /><code>{e.StackTrace.Replace("\n", "<br />")}</code>";
+            var result = $"HTTP/1.1 500 Internal Error{rn}Connection: close{rn}Content-Type: text/html; charset=UTF-8{rn}Content-Length: {content}{rn}{rn}{content}";
+            return Encoding.ASCII.GetBytes(result);
         }
 
         /// <summary>

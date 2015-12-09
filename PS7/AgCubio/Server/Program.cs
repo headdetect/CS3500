@@ -141,7 +141,7 @@ namespace Server
 
         private static string WebServer_PageRequested(PageRequestEventArgs arg)
         {
-            return "<h1>TODO: Implement this</h1>";
+            return "<h1>Call me Sr. Oink</h1>";
         }
 
         private static void ServerNetwork_PacketReceived(Client client, string packet)
