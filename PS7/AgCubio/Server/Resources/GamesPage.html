@@ -1,1 +1,28 @@
-﻿Games Page
+﻿<div class="uk-panel uk-panel-box uk-panel-box-secondary uk-form">
+    <h3 class="uk-panel-title">Search Games</h3>
+    <div class="uk-form-icon">
+        <i class="uk-icon-search"></i>
+        <input type="text" id="ag-txt-search" />
+    </div>
+</div>
+
+<div id="ag-name-table" style="margin-top: 40px;"></div>
+
+<script>
+    $(document).ready(function() {
+        var txt = $("#ag-txt-search");
+        txt.keyup(function(e) {
+            var text = txt.val();
+            updateTable(text);
+        });
+
+        updateTable("");
+    });
+
+    var updateTable = function(name) {
+        $.get("/games/?name=" + name, function (done) {
+            // I know this is a very awful way of doing this //
+            $("#ag-name-table").html(done);
+        });
+    }
+</script>

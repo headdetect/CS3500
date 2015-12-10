@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,32 +19,26 @@ namespace Server
         /// </summary>
         /// <param name="sql">The SQL.</param>
         /// <returns></returns>
-        public static object ExecuteSql(string sql)
+        public static IEnumerable<string> ExecuteSql(string sql)
         {
-            //TODO: finish connecting to database
-            /**  // Connect to the DB
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            using (MySqlConnection conn = new MySqlConnection(ConnectionString))
             {
-                try
+                // Open a connection
+                conn.Open();
+
+                // Create a command
+                MySqlCommand command = conn.CreateCommand();
+                command.CommandText = "";
+
+                // Execute the command and cycle through the DataReader object
+                using (MySqlDataReader reader = command.ExecuteReader())
                 {
-                    // Open a connection
-                    conn.Open();
-
-                    // Create a command
-                    MySqlCommand command = conn.CreateCommand();
-                    command.CommandText = "";
-
-                    // Execute the command and cycle through the DataReader object
-                    using (MySqlDataReader reader = command.ExecuteReader())
+                    while(reader.Read())
                     {
+                        yield return reader.GetString(0);
                     }
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
-            }*/
-            return null;
+            }
         }
     }
 }

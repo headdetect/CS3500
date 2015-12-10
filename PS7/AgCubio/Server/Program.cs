@@ -180,10 +180,21 @@ namespace Server
             if (names != null)
             {
                 var name = names[0];
+                var result = string.Empty;
 
-                //TODO: Build table here 
+                var listOCubes = new List<int>();
+                var players = World.GetPlayerCubes().ToArray();
+                foreach(var player in players.Where(cube => cube.Name.Contains(name)).Where(cube => !cube.IsDead))
+                {
+                    if (player.TeamId == 0 || !listOCubes.Contains(player.TeamId))
+                    {
+                        result += $"<tr><td>{player.Name}</td><td>{player.Mass}</td></tr>";
+                        
+                        listOCubes.Add(player.TeamId); // shouldn't matter if their team id is 0 //
+                    }
+                }
 
-                return $"<table>{name}</table>";
+                return $"<table class='uk-table'><tr><td>Name</td><td>Mass</td>{result}</table>";
             }
 
             return Template(template, new Dictionary<string, string>
