@@ -11,7 +11,7 @@ namespace Server
         /// <summary>
         /// The connection string.
         /// </summary>
-        public const string ConnectionString = "server=atr.eng.utah.edu;database=;uid=;password=";
+        public const string ConnectionString = "server=atr.eng.utah.edu;database=cs3500_emiramon;uid=cs3500_emiramon;password=PSWRD";
 
         /// <summary>
         /// Executes the SQL query.
