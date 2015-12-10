@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using Model;
 using System.Text.RegularExpressions;
+using System.Web;
 using Network_Controller;
 using Server.Properties;
 
@@ -141,29 +142,116 @@ namespace Server
             if (args.Length == 0)
             {
                 // We are at root page //
-                return Resources.master;
+                return MainPage(arg.Uri);
             }
 
             if (string.Equals(args[0], "scores", StringComparison.CurrentCultureIgnoreCase))
             {
                 // is GET /scores //
-                return Resources.master;
+                return ScoresPage(arg.Uri);
             }
 
             if (string.Equals(args[0], "games", StringComparison.CurrentCultureIgnoreCase))
             {
                 // is GET /games //
-                return Resources.master;
+                return GamesPage(arg.Uri);
             }
 
             if (string.Equals(args[0], "eaten", StringComparison.CurrentCultureIgnoreCase))
             {
                 // is GET /games //
-                return Resources.master;
+                return EatenPage(arg.Uri);
             }
 
             return null;
         }
+
+        #region Webpages 
+
+        private static string MainPage(Uri uri)
+        {
+            var template = Resources.master;
+            var content = Resources.MainPage;
+
+            // Build content page //
+            var query = HttpUtility.ParseQueryString(uri.Query);
+
+            var names = query.GetValues("name");
+            if (names != null)
+            {
+                var name = names[0];
+
+                //TODO: Build table here 
+
+                return $"<table>{name}</table>";
+            }
+
+            return Template(template, new Dictionary<string, string>
+            {
+                {"title", "Home"},
+                {"content", content}
+            });
+        }
+
+        private static string ScoresPage(Uri uri)
+        {
+            var template = Resources.master;
+            var content = Resources.MainPage;
+
+            // Build content page //
+            var query = HttpUtility.ParseQueryString(uri.Query);
+
+            var names = query.GetValues("name");
+            if (names != null)
+            {
+                var name = names[0];
+
+                //TODO: Build table here 
+
+                return $"<table>{name}</table>";
+            }
+
+            return Template(template, new Dictionary<string, string>
+            {
+                {"title", "Scores"},
+                {"content", content}
+            });
+        }
+
+        private static string GamesPage(Uri uri)
+        {
+            var template = Resources.master;
+            var content = Resources.GamesPage;
+
+            // Build content page //
+
+            return Template(template, new Dictionary<string, string>
+            {
+                {"title", "Games"},
+                {"content", content}
+            });
+        }
+
+        public static string EatenPage(Uri uri)
+        {
+            var template = Resources.master;
+            var content = Resources.EatenPage;
+
+            // Build content page //
+
+            return Template(template, new Dictionary<string, string>
+            {
+                {"title", "Eaten"},
+                {"content", content}
+            });
+        }
+
+        private static string Template(string template, Dictionary<string, string> variables)
+        {
+            return variables.Aggregate(template, (current, entry) => current.Replace($"${{{entry.Key}}}", entry.Value));
+        }
+
+        #endregion
 
         private static void ServerNetwork_PacketReceived(Client client, string packet)
         {
@@ -420,7 +508,7 @@ namespace Server
                                     .Where(otherPlayer => !otherPlayer.IsDead))
                         {
                             if (otherPlayer.Mass >= player.Mass * Constants.AbsorbConstant &&
-                                !otherPlayer.IsOnTeam(player) && false)
+                                !otherPlayer.IsOnTeam(player))
                             {
                                 // We ded yo //
                                 otherPlayer.Mass += player.Mass;
@@ -428,7 +516,7 @@ namespace Server
                             }
 
                             if (player.Mass >= otherPlayer.Mass * Constants.AbsorbConstant &&
-                                !otherPlayer.IsOnTeam(player) && false)
+                                !otherPlayer.IsOnTeam(player))
                             {
                                 // They ded yo //
                                 player.Mass += otherPlayer.Mass;
@@ -439,7 +527,7 @@ namespace Server
 
                             // The are coming in from the left, push them back left //
                             if (otherPlayer.Right > player.Left && otherPlayer.Right <= player.Right)
-                                otherPlayer.X -= Math.Min(otherPlayer.Right - player.Left, 5f); 
+                                otherPlayer.X -= Math.Min(otherPlayer.Right - player.Left, 5f);
 
                             // The are coming in from the right, push them back right //
                             else if (otherPlayer.Left > player.Right && otherPlayer.Left <= player.Left)

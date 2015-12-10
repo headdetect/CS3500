@@ -8,31 +8,51 @@
     <meta name="description" content="Ag Cubio Stuff">
     <meta name="author" content="Brayden Lopez &amp; Eric Miramontes">
 
-    <title>AgCubio</title>
+    <title>AgCubio &middot; ${title}</title>
 
     <link href="https://fonts.googleapis.com/css?family=Raleway:400,200,700,900" rel="stylesheet" type="text/css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/uikit/2.24.2/css/uikit.gradient.min.css" rel="stylesheet" type="text/css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.4.0/animate.min.css" rel="stylesheet" type="text/css">
 
-    <style></style>
+    <!-- Normally you'd put this at the bottom, but i don't feel like it. -->
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+
+    <style>
+        .uk-container {
+            margin-top: 40px;
+        }
+        #ag-nav-button {
+            width: auto;
+            height: auto;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="uk-container">
-    {0}
+<div class="uk-container uk-container-center">
+    <div class="uk-grid">
+        <div class="uk-width-3-10">
+            <div class="uk-panel uk-panel-box">
+                <h3 class="uk-panel-title">Ag Cubio</h3>
+                <ul class="uk-nav uk-nav-side" data-uk-nav>
+                    <li><a href="/"><i class="uk-icon-home"></i> Home</a></li>
+                    <li><a href="/games"><i class="uk-icon-gamepad"></i> Games</a></li>
+                    <li><a href="/scores"><i class="uk-icon-bar-chart"></i> Scores</a></li>
+                    <li><a href="/eaten"><i class="uk-icon-cutlery"></i> Eaten</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="uk-width-7-10">
+            <div class="ag-content">
+                ${content}
+            </div>
+        </div>
+    </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/2.24.2/js/uikit.min.js"></script>
-
-<script>
-    (function($) {
-        $(document).ready(function() {
-
-        });
-    })(jQuery || $);
-</script>
-
+    
 </body>
 </html>
