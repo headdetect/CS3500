@@ -384,7 +384,7 @@ namespace Server
                                     .Where(otherPlayer => !otherPlayer.IsDead))
                         {
                             if (otherPlayer.Mass >= player.Mass * Constants.AbsorbConstant &&
-                                !otherPlayer.IsOnTeam(player) && false)
+                                !otherPlayer.IsOnTeam(player))
                             {
                                 // We ded yo //
                                 otherPlayer.Mass += player.Mass;
@@ -392,7 +392,7 @@ namespace Server
                             }
 
                             if (player.Mass >= otherPlayer.Mass * Constants.AbsorbConstant &&
-                                !otherPlayer.IsOnTeam(player) && false)
+                                !otherPlayer.IsOnTeam(player))
                             {
                                 // They ded yo //
                                 player.Mass += otherPlayer.Mass;
