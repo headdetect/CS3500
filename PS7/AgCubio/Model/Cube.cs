@@ -154,7 +154,52 @@ namespace Model
         /// If is dead <c>true</c> if this instance is dead; otherwise, <c>false</c>.
         /// </value>
         public bool IsDead => Math.Abs(Mass) <= 0;
+
+        /// <summary>
+        /// A list of the cubes a player has eaten.
+        /// </summary>
+        public List<string> CubesEaten = new List<string>();
         
+        /// <summary>
+        /// Gets or sets the highest mass achieved by a player.
+        /// </summary>
+        /// <value>
+        /// Highest mass achieved by the player.
+        /// </value>
+        public double HighestMassAchieved { get; set; }
+
+        /// <summary>
+        /// Gets or sets the highest rank achieved by a player.
+        /// </summary>
+        /// <value>
+        /// Highest rank achieved by a player.
+        /// </value>
+        public int HighestRankAchieved { get; set; }
+
+        /// <summary>
+        /// Gets or sets the amount of time the player was alive.
+        /// </summary>
+        /// <value>
+        /// Amount of time the player was alive.
+        /// </value>
+        public int TimeAlive { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of cubes the player has eaten.
+        /// </summary>
+        /// <value>
+        /// Number of cubes eaten by player.
+        /// </value>
+        public int NumberOfCubesEaten { get; set; }
+
+        /// <summary>
+        /// Gets or sets the time of player's death.
+        /// </summary>
+        /// <value>
+        /// Time of player's death.
+        /// </value>
+        public int TimeOfDeath { get; set; }
+
         /// <summary>
         /// Gets a cube from json
         /// </summary>
