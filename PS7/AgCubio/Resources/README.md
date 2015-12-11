@@ -34,7 +34,7 @@ The project (PS7) is set up with the following classes:
  -  Also handles functionality for viruses.  If a player tries to eat one, they will split apart.  Algorithm uses is very similar to the one for splitting.  Viruses have uid's from 0 to 9.
  
 ### Web server
-The web server is pretty close to a natural MVC style of webserver (almost). It will take in a number of routes /games /score /eaten. Stuff like that. When you go to a route that is undefined [http://localhost:11100/not-a-real-route])http://localhost:11100/not-a-real-route), it will give you a 404 error. If for some reason, there is an error in any of the controllers, a 500 error (with stack trace) will be displayed as well.
+The web server is pretty close to a natural MVC style of webserver (almost). It will take in a number of routes /games /score /eaten. Stuff like that. When you go to a route that is undefined [http://localhost:11100/not-a-real-route](http://localhost:11100/not-a-real-route), it will give you a 404 error. If for some reason, there is an error in any of the controllers, a 500 error (with stack trace) will be displayed as well.
 
 ## Defining a protocol
 
