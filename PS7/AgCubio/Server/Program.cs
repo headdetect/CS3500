@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using Network_Controller;
 using Server.Properties;
+using MySql.Data.MySqlClient;
 
 namespace Server
 {
@@ -382,6 +383,9 @@ namespace Server
                     var players = World.GetPlayerCubes().Where(cube => !cube.IsDead).ToArray();
                     foreach (var player in players)
                     {
+                        // Update highest mass achieved. //
+                        if (player.Mass > player.HighestMassAchieved) player.HighestMassAchieved = player.Mass;
+
                         var playerRect = player.AsRectangle;
 
                         // If the delta movement is smaller than this, just snap to location //
@@ -513,6 +517,15 @@ namespace Server
                                 // We ded yo //
                                 otherPlayer.Mass += player.Mass;
                                 player.Mass = 0;
+
+                                player.EatenBy = otherPlayer.Name;
+                                otherPlayer.CubesEaten.Add(player.Name);
+                                otherPlayer.NumberOfCubesEaten++;
+
+                                player.TimeOfDeath = DateTime.Now;
+                                player.TimeAlive = player.TimeOfDeath - player.TimeJoined;
+
+                                UpdateDatabase(player);
                             }
 
                             if (player.Mass >= otherPlayer.Mass * Constants.AbsorbConstant &&
@@ -521,6 +534,15 @@ namespace Server
                                 // They ded yo //
                                 player.Mass += otherPlayer.Mass;
                                 otherPlayer.Mass = 0;
+
+                                otherPlayer.EatenBy = player.Name;
+                                player.CubesEaten.Add(otherPlayer.Name);
+                                player.NumberOfCubesEaten++;
+
+                                otherPlayer.TimeOfDeath = DateTime.Now;
+                                otherPlayer.TimeAlive = otherPlayer.TimeOfDeath - otherPlayer.TimeJoined;
+
+                                UpdateDatabase(otherPlayer);
                             }
 
                             // Handle collisions here //
@@ -577,6 +599,30 @@ namespace Server
             }
         }
 
+        private static void UpdateDatabase(Cube player)
+        {
+            using (MySqlConnection conn = new MySqlConnection(Database.ConnectionString))
+            {
+                try
+                {
+                    conn.Open();
+
+                    // Create a command
+                    MySqlCommand command = conn.CreateCommand();
+                    command.CommandText = "insert into HighScores (name, score) values (" + player.Name + 
+                        ", " + player.HighestMassAchieved + ")" + 
+                        "select from HighScores order by score DESC";
+
+                    // Execute the command and cycle through the DataReader object
+                    using (MySqlDataReader reader = command.ExecuteReader()) { }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+            }
+        }
+
         private static void ServerNetwork_ClientSentName(Client client)
         {
             var width = (int)Math.Pow(Constants.PlayerStartMass, 0.65);
@@ -590,7 +636,10 @@ namespace Server
                 TeamId = 0,
                 Uid = client.Uid,
                 X = Random.Next(1001 - width) + (width / 2),
-                Y = Random.Next(1001 - width) + (width / 2)
+                Y = Random.Next(1001 - width) + (width / 2),
+                TimeJoined = DateTime.Now,
+                NumberOfCubesEaten = 0,
+                HighestMassAchieved = Constants.PlayerStartMass
             };
 
             // Add player cube //

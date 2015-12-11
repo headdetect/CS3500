@@ -177,12 +177,20 @@ namespace Model
         public int HighestRankAchieved { get; set; }
 
         /// <summary>
+        /// Gets or sets the time the player joined the game.
+        /// </summary>
+        /// <value>
+        /// Time player joined the game.
+        /// </value>
+        public DateTime TimeJoined { get; set; }
+
+        /// <summary>
         /// Gets or sets the amount of time the player was alive.
         /// </summary>
         /// <value>
         /// Amount of time the player was alive.
         /// </value>
-        public int TimeAlive { get; set; }
+        public TimeSpan TimeAlive { get; set; }
 
         /// <summary>
         /// Gets or sets the number of cubes the player has eaten.
@@ -198,7 +206,12 @@ namespace Model
         /// <value>
         /// Time of player's death.
         /// </value>
-        public int TimeOfDeath { get; set; }
+        public DateTime TimeOfDeath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the cube that ate this one.
+        /// </summary>
+        public string EatenBy { get; set; }
 
         /// <summary>
         /// Gets a cube from json
