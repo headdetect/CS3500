@@ -49,7 +49,7 @@ namespace Model
         /// <param name="b">The cube.</param>
         public void AddPlayerCube(Cube b)
         {
-            lock (Players)
+            lock (this)
             {
                 Players.Add(b.Uid, b);
             }
@@ -61,7 +61,7 @@ namespace Model
         /// <param name="b">The cube.</param>
         public void AddFoodCube(Cube b)
         {
-            lock (Food)
+            lock (this)
             {
                 Food.Add(b.Uid, b);
             }
@@ -73,7 +73,7 @@ namespace Model
         /// <param name="b">The cube.</param>
         public void RemovePlayerCube(Cube b)
         {
-            lock (Players)
+            lock (this)
             {
                 Players.Remove(b.Uid);
             }
@@ -85,7 +85,7 @@ namespace Model
         /// <param name="b">The cube.</param>
         public void RemoveFoodCube(Cube b)
         {
-            lock (Food)
+            lock (this)
             {
                 Food.Remove(b.Uid);
             }
@@ -98,7 +98,7 @@ namespace Model
         /// <param name="uid">The cube's uid.</param>
         public void RemovePlayerCube(int uid)
         {
-            lock (Players)
+            lock (this)
             {
                 Players.Remove(uid);
             }
@@ -110,7 +110,7 @@ namespace Model
         /// <param name="uid">The cube's uid.</param>
         public void RemoveFoodCube(int uid)
         {
-            lock (Food)
+            lock (this)
             {
                 Food.Remove(uid);
             }
@@ -153,7 +153,7 @@ namespace Model
         /// <returns>The player cubes</returns>
         public IEnumerable<Cube> GetPlayerCubes()
         {
-            lock (Players)
+            lock (this)
             {
                 return Players.Values.ToArray();
             }
@@ -165,9 +165,9 @@ namespace Model
         /// <returns>The player cubes</returns>
         public IEnumerable<Cube> GetFoodCubes()
         {
-            lock (Food)
+            lock (this)
             {
-                return Food.Values.AsEnumerable();
+                return Food.Values.ToArray();
             }
         }
 
@@ -186,7 +186,7 @@ namespace Model
                 return;
             }
 
-            lock (Food)
+            lock (this)
             {
                 Food.Remove(b.Uid); // A food cube is never updated, only removed //
             }
@@ -205,7 +205,7 @@ namespace Model
                 return;
             }
 
-            lock (Players)
+            lock (this)
             {
                 if (b.Mass == 0)
                     Players.Remove(b.Uid);

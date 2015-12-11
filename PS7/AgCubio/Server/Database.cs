@@ -1,5 +1,7 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,33 +19,41 @@ namespace Server
         /// Executes the SQL query.
         /// </summary>
         /// <param name="sql">The SQL.</param>
+        /// <param name="paramss">Mysql paramaters to insert. SQLi's not welcome here.</param>
         /// <returns></returns>
-        public static object ExecuteSql(string sql)
+        public static IEnumerable<Dictionary<string, string>> ExecuteSql(string sql, params KeyValuePair<string, string>[] paramss)
         {
-            //TODO: finish connecting to database
-            /**  // Connect to the DB
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            using (var conn = new MySqlConnection(ConnectionString))
             {
-                try
+                // Open a connection
+                conn.Open();
+
+                // Create a command
+                var command = conn.CreateCommand();
+                command.CommandText = sql;
+
+                foreach (var param in paramss)
                 {
-                    // Open a connection
-                    conn.Open();
+                    command.Parameters.AddWithValue(param.Key, param.Value);
+                }
 
-                    // Create a command
-                    MySqlCommand command = conn.CreateCommand();
-                    command.CommandText = "";
-
-                    // Execute the command and cycle through the DataReader object
-                    using (MySqlDataReader reader = command.ExecuteReader())
+                // Execute the command and cycle through the DataReader object
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
                     {
+                        var dictionary = new Dictionary<string, string>();
+
+                        for (var i = 0; i < reader.FieldCount; i++)
+                        {
+                            dictionary.Add(reader.GetName(i), reader.GetString(i));
+                        }
+
+                        yield return dictionary;
+
                     }
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
-            }*/
-            return null;
+            }
         }
     }
 }
