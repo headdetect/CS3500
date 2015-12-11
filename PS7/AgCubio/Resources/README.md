@@ -31,8 +31,10 @@ The project (PS7) is set up with the following classes:
 - Program.cs
  -  This is the brains of the server. It has abstracted out the networking components into the ServerNetworkManager.cs
  -  Handles all the game mechanics such as moving, eating, and dying.
- -  Also handles functionality for viruses.  If a player tries to eat one, they will split apart.  Algorithm uses is very similar to the one for
-	splitting.  Viruses have uid's from 0 to 9.
+ -  Also handles functionality for viruses.  If a player tries to eat one, they will split apart.  Algorithm uses is very similar to the one for splitting.  Viruses have uid's from 0 to 9.
+ 
+### Web server
+The web server is pretty close to a natural MVC style of webserver (almost). It will take in a number of routes /games /score /eaten. Stuff like that. When you go to a route that is undefined http://localhost:11100/not-a-real-route , it will give you a 404 error. If for some reason, there is an error in any of the controllers, a 500 error (with stack trace) will be displayed as well.
 
 ## Defining a protocol
 
@@ -47,4 +49,4 @@ This route was chosen because it's best for choosing an ID and easy to identify 
 - Contains unit tests for the two classes in the Model: Cube and World.
 - Was made with scalibility in mind. Adding different types of blocks should be relatively trivial.
 
-Project finished on 12/3/17
+Project finished on 12/11/17
