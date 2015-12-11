@@ -657,7 +657,26 @@ namespace Server
                         ", " + player.HighestMassAchieved + ")" + 
                         "select from HighScores order by score DESC";
 
-                    // Execute the command and cycle through the DataReader object
+                    // Find out the highest rank player earned.
+                    int highestRankAchieved = 1;
+                    using (MySqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            if (reader["name"] as string == player.Name)
+                            {
+                                player.HighestRankAchieved = highestRankAchieved;
+                                break;
+                            }
+                            else { highestRankAchieved++; }
+                        }
+                    }
+
+                    command.CommandText = "insert into Games (name, timeAlive, maximumMass, highestRank, eatenBy, cubesEaten, timeOfDeath)"
+                        + "values (" + player.Name + ", " + player.TimeAlive + ", " + player.HighestMassAchieved + ", " 
+                        + player.HighestRankAchieved + ", " + player.EatenBy + ", " + player.NumberOfCubesEaten + ", " 
+                        + player.TimeOfDeath + ")";
+
                     using (MySqlDataReader reader = command.ExecuteReader()) { }
                 }
                 catch (Exception e)
