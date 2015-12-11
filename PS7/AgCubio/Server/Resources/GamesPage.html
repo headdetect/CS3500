@@ -6,7 +6,7 @@
     </div>
 </div>
 
-<div id="ag-name-table" style="margin-top: 40px;"></div>
+<div id="ag-name-table" style="margin-top: 40px;">${table}</div>
 
 <script>
     $(document).ready(function() {
@@ -16,11 +16,14 @@
             updateTable(text);
         });
 
+        var name = $.url().param('search');
+        txt.val(name);
+
         updateTable("");
     });
 
     var updateTable = function(name) {
-        $.get("/games/?name=" + name, function (done) {
+        $.get("/games/?tableOnly=true&name=" + name, function (done) {
             // I know this is a very awful way of doing this //
             $("#ag-name-table").html(done);
         });

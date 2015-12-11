@@ -145,19 +145,19 @@ namespace Server
                 return MainPage(arg.Uri);
             }
 
-            if (string.Equals(args[0], "scores", StringComparison.CurrentCultureIgnoreCase))
+            if (args[0].StartsWith("scores", StringComparison.CurrentCultureIgnoreCase))
             {
                 // is GET /scores //
                 return ScoresPage(arg.Uri);
             }
 
-            if (string.Equals(args[0], "games", StringComparison.CurrentCultureIgnoreCase))
+            if (args[0].StartsWith("games", StringComparison.CurrentCultureIgnoreCase))
             {
                 // is GET /games //
                 return GamesPage(arg.Uri);
             }
 
-            if (string.Equals(args[0], "eaten", StringComparison.CurrentCultureIgnoreCase))
+            if (args[0].StartsWith("eaten", StringComparison.CurrentCultureIgnoreCase))
             {
                 // is GET /games //
                 return EatenPage(arg.Uri);
@@ -184,14 +184,13 @@ namespace Server
 
                 var listOCubes = new List<int>();
                 var players = World.GetPlayerCubes().ToArray();
-                foreach(var player in players.Where(cube => cube.Name.Contains(name)).Where(cube => !cube.IsDead))
+                foreach (var player in players
+                    .Where(cube => cube.Name.Contains(name))
+                    .Where(cube => !cube.IsDead)
+                    .Where(player => player.TeamId == 0 || !listOCubes.Contains(player.TeamId)))
                 {
-                    if (player.TeamId == 0 || !listOCubes.Contains(player.TeamId))
-                    {
-                        result += $"<tr><td>{player.Name}</td><td>{player.Mass}</td></tr>";
-                        
-                        listOCubes.Add(player.TeamId); // shouldn't matter if their team id is 0 //
-                    }
+                    result += $"<tr><td>{player.Name}</td><td>{player.Mass}</td></tr>";
+                    listOCubes.Add(player.TeamId); // shouldn't matter if their team id is 0 //
                 }
 
                 return $"<table class='uk-table'><tr><td>Name</td><td>Mass</td>{result}</table>";
@@ -207,20 +206,17 @@ namespace Server
         private static string ScoresPage(Uri uri)
         {
             var template = Resources.master;
-            var content = Resources.MainPage;
+            var content = Resources.ScoresPage;
 
             // Build content page //
-            var query = HttpUtility.ParseQueryString(uri.Query);
+            var result = Database.ExecuteSql("SELECT * FROM `HighScores` ORDER BY `Score` ASC");
 
-            var names = query.GetValues("name");
-            if (names != null)
-            {
-                var name = names[0];
+            var output = result.Aggregate(string.Empty,
+                (current, entry) => current + $"<tr><td>{entry["idHighScores"]}</td><td><a href='/games?name={entry["Name"]}'>{entry["Name"]}</a></td><td>{entry["Score"]}</td></tr>");
 
-                //TODO: Build table here 
+            content =
+            content.Replace("${table}", $"<table class='uk-table'><tr><td>ID</td><td>Name</td><td># Rank</td>{output}</table>");
 
-                return $"<table>{name}</table>";
-            }
 
             return Template(template, new Dictionary<string, string>
             {
@@ -235,11 +231,48 @@ namespace Server
             var content = Resources.GamesPage;
 
             // Build content page //
+            var query = HttpUtility.ParseQueryString(uri.Query);
+            
+            var names = query.GetValues("name");
+            var result = names != null && names.Length > 0 ? 
+                Database.ExecuteSql("SELECT * FROM `Games` WHERE name LIKE '%@name%'", 
+                    new KeyValuePair<string, string>("name", names[0])) : 
+                Database.ExecuteSql("SELECT * FROM `Games`");
+
+            var tableData = result.Aggregate(string.Empty, (current, entry) => current + (
+                "<tr>" + 
+                    $"<td>{entry["idGames"]}</td>" + 
+                    $"<td>{entry["name"]}</td>" + 
+                    $"<td>{entry["timeAlive"]}</td>" + 
+                    $"<td>{entry["maximumMass"]}</td>" + 
+                    $"<td>{entry["highestRank"]}</td>" + 
+                    $"<td>{entry["eatenBy"]}</td>" + 
+                    $"<td>{entry["cubesEaten"]}</td>" + 
+                "</tr>"
+            ));
+
+            var table = "<table class='uk-table'>" +
+                            "<tr>" +
+                                "<td>ID</td>" +
+                                "<td>Name</td>" +
+                                "<td>Time Alive</td>" +
+                                "<td>Achieved Mass</td>" +
+                                "<td>Highest Rank</td>" +
+                                "<td>Eaten By</td>" +
+                                "<td># Cubes Eaten</td>" +
+                            "</tr>" +
+                            tableData +
+                        "</table>";
+
+            if (query.GetValues("tableOnly") != null)
+            {
+                return table;
+            }
 
             return Template(template, new Dictionary<string, string>
             {
                 {"title", "Games"},
-                {"content", content}
+                {"content", content.Replace("${table}", table)}
             });
         }
 
