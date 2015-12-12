@@ -673,7 +673,7 @@ namespace Server
                     }
 
                     command.CommandText = "insert into Games (name, timeAlive, maximumMass, highestRank, eatenBy, cubesEaten, timeOfDeath)"
-                        + "values (" + player.Name + ", " + player.TimeAlive + ", " + player.HighestMassAchieved + ", " 
+                        + "values (" + player.Name + ", " + player.TimeAlive.TotalMilliseconds + ", " + player.HighestMassAchieved + ", " 
                         + player.HighestRankAchieved + ", " + player.EatenBy + ", " + player.NumberOfCubesEaten + ", " 
                         + player.TimeOfDeath + ")";
 
